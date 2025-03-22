@@ -10,7 +10,6 @@
         integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
-        /* (Your CSS Styles - No changes here) - Styles remain the same */
         body {
             font-family: Arial, sans-serif;
             padding: 15px;
@@ -20,6 +19,7 @@
             align-items: flex-start;
             min-height: 100vh;
             background-color: #f8f9fa;
+            overflow: auto !important; /* Important: Ensure body doesn't clip content during capture */
         }
 
         #app-container {
@@ -32,7 +32,340 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
         }
 
-        /* ... (rest of your CSS styles) ... */
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-size: 1.2em;
+            margin-bottom: 0.4em;
+            color: #343a40;
+        }
+
+        .btn {
+            padding: 8px 12px;
+            font-size: 0.9em;
+            margin-bottom: 7px;
+            border-radius: 6px;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover,
+        .btn-primary:focus {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover,
+        .btn-secondary:focus {
+            background-color: #545b62;
+            border-color: #545b62;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .btn-danger:hover,
+        .btn-danger:focus {
+            background-color: #c82333;
+            border-color: #c82333;
+        }
+
+        .btn-info {
+            background-color: #17a2b8;
+            border-color: #17a2b8;
+            color: white;
+        }
+
+        .btn-info:hover,
+        .btn-info:focus {
+            background-color: #117a8b;
+            border-color: #117a8b;
+        }
+
+
+        #databasePopup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 15px;
+            border: 1px solid #ddd;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            max-height: 70vh;
+            overflow-y: auto;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 8px;
+        }
+
+        #databasePopup h3 {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        #databaseTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        #databaseTable th,
+        #databaseTable td {
+            border: 1px solid #eee;
+            padding: 6px;
+            text-align: left;
+            font-size: 0.8em;
+        }
+
+        #databaseTable th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        #entriesTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        #entriesTable th,
+        #entriesTable td {
+            border: 1px solid #ccc;
+            padding-top: 3px;
+            padding-bottom: 3px;
+            padding-left: 6px;
+            padding-right: 6px;
+            text-align: left;
+            font-size: 0.8em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #entriesTable th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            border: 1px solid #ccc;
+            padding-top: 3px;
+            padding-bottom: 3px;
+            padding-left: 6px;
+            padding-right: 6px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            width: 100%;
+        }
+
+        .error-message {
+            color: #dc3545;
+            margin-top: 3px;
+            font-size: 0.8em;
+            font-style: italic;
+        }
+
+        #message-container {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #e7f8ed;
+            color: #28a745;
+            padding: 8px 15px;
+            border: 1px solid #bce2c4;
+            border-radius: 6px;
+            z-index: 1001;
+            display: none;
+            font-size: 0.9em;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        #message-container.error {
+            background-color: #ffe6e6;
+            color: #dc3545;
+            border-color: #f5c6cb;
+        }
+
+
+        .adjustable-width {
+            width: 100%;
+            min-width: 20px;
+            max-width: 100%;
+            display: block;
+            box-sizing: border-box;
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 0.9em;
+            margin-bottom: 0.5em;
+        }
+
+        .form-group label {
+            font-size: 1em;
+            font-weight: bold;
+            margin-bottom: 0.2em;
+            display: block;
+            color: #495057;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 6px;
+            font-size: 0.9em;
+            border-radius: 6px;
+            margin-bottom: 0.5em;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+        }
+
+        .card {
+            margin-top: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.07);
+            border: none;
+        }
+
+        .card-header {
+            font-size: 1.1em;
+            font-weight: bold;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #eee;
+            padding: 10px 15px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            color: #343a40;
+        }
+
+        .table-responsive {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        #entriesTable td {
+            font-size: 0.8em;
+            padding: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Home button styling */
+        .home-button {
+            margin: 10px;
+            position: fixed;
+            top: 0;
+            right: 0;
+            font-size: 1.3em;
+            color: #6c757d;
+            transition: color 0.2s ease;
+        }
+
+        .home-button:hover {
+            color: #007bff;
+        }
+
+        /* Style for inline buttons */
+        .inline-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5em;
+        }
+
+        .inline-buttons .btn {
+            width: 32%;
+            margin: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .inline-buttons .btn i {
+            margin-right: 5px;
+        }
+
+        /* Style for putting two elements in one line */
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5em;
+        }
+
+        .form-row .form-group {
+            width: 48%;
+        }
+
+        /* Style for the inline elements */
+        .inline-form {
+            display: flex;
+            align-items: center;
+        }
+
+        .inline-form .form-group {
+            margin-right: 10px;
+        }
+
+        .inline-form .btn {
+            margin-left: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .inline-form .btn i {
+            margin-right: 5px;
+        }
+
+
+        /* Style for the current price input field */
+        #currentPriceDiv {
+            display: none;
+        }
+
+        /* Animation for buttons */
+        @keyframes buttonClick {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(0.95);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .btn.clicked {
+            animation: buttonClick 0.3s ease-in-out;
+        }
     </style>
 </head>
 
@@ -54,37 +387,154 @@
                     <label for="excelFile">Upload Excel File:</label>
                     <input type="file" class="form-control-file" id="excelFile" accept=".xlsx, .xls">
                     <div id="excelFileError" class="error-message"></div>
-                    <!-- Error message display -->
                 </div>
                 <div class="inline-buttons">
-                    <button type="button" class="btn btn-primary" onclick="uploadExcel()">
-                        <i class="fas fa-upload"></i> Upload</button>
-                    <button type="button" class="btn btn-secondary" onclick="viewDatabase()">
-                        <i class="fas fa-database"></i> View Database</button>
-                    <button type="button" class="btn btn-danger" onclick="clearDatabase()">
-                        <i class="fas fa-trash"></i> Clear Database</button>
+                    <button class="btn btn-primary" onclick="uploadExcel()"><i class="fas fa-upload"></i> Upload</button>
+                    <button class="btn btn-secondary" onclick="viewDatabase()"><i class="fas fa-database"></i> View Database</button>
+                    <button class="btn btn-danger" onclick="clearDatabase()"><i class="fas fa-trash"></i> Clear Database</button>
                 </div>
             </div>
         </div>
 
         <!-- Data Retrieval & Calculation Section -->
         <div class="card mb-3">
-            <!-- ... (Rest of your HTML - no changes needed) ... -->
+            <div class="card-header">Item Details & Calculation</div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="code">Code:</label>
+                    <div class="inline-form">
+                        <input type="text" class="form-control adjustable-width" id="code">
+                        <select class="form-control adjustable-width" id="type" onchange="toggleCurrentPriceField()">
+                            <option value="شراء">شراء</option>
+                            <option value="مرتجع">مرتجع</option>
+                        </select>
+                        <button class="btn btn-primary ml-2" onclick="getItemDetails()"><i class="fas fa-search"></i> Search</button>
+                    </div>
+                    <div id="codeError" class="error-message"></div>
+                </div>
+                <!-- Current Price Input (Shown only for "مرتجع") -->
+                <div class="form-group" id="currentPriceDiv">
+                    <label for="currentPrice">Current Price:</label>
+                    <input type="number" class="form-control adjustable-width" id="currentPrice"
+                        oninput="calculateTotal()">
+                    <div id="currentPriceError" class="error-message"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name">Name:</label>
+                        <input type="text" class="form-control adjustable-width" id="name" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="supplierName">Supplier Name:</label>
+                        <input type="text" class="form-control adjustable-width" id="supplierName" readonly>
+                    </div>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="alternateSupplierCheck"
+                        onchange="toggleAlternateSupplier()">
+                    <label class="form-check-label" for="alternateSupplierCheck">شراء من مورد اخر</label>
+                </div>
+                <div class="form-group" id="alternateSupplierDiv" style="display: none;">
+                    <label for="alternateSupplierName">Alternate Supplier Name:</label>
+                    <input type="text" class="form-control adjustable-width" id="alternateSupplierName">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cost">Case Cost:</label>
+                        <input type="number" class="form-control adjustable-width" id="cost" required
+                            oninput="calculateTotal()">
+                        <div id="costError" class="error-message"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="unit">Units per Case:</label>
+                        <input type="number" class="form-control adjustable-width" id="unit" value="1"
+                            oninput="calculateTotal()">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="discount">Discount (%):</label>
+                        <input type="number" class="form-control adjustable-width" id="discount" value="0"
+                            oninput="calculateTotal()">
+                    </div>
+                    <div class="form-group">
+                        <label for="vat">VAT (%):</label>
+                        <select class="form-control adjustable-width" id="vat" onchange="calculateTotal()">
+                            <option value="0" selected>0</option>
+                            <option value="5">5</option>
+                            <option value="14">14</option>
+                        </select>
+                        <div id="vatError" class="error-message"></div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="unitPrice">Unit Price (After Discount & VAT):</label>
+                        <input type="text" class="form-control adjustable-width" id="unitPrice" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="casePrice">Case Price (After Discount & VAT):</label>
+                        <input type="text" class="form-control adjustable-width" id="casePrice" readonly>
+                    </div>
+                </div>
+
+
+                <button class="btn btn-primary" onclick="addToList()"><i class="fas fa-save"></i> Save</button>
+                <button class="btn btn-danger" onclick="clearAll()"><i class="fas fa-broom"></i> Clear All</button>
+
+            </div>
         </div>
 
         <!-- Data Management Section -->
         <div class="card mb-3">
-            <!-- ... (Rest of your HTML - no changes needed) ... -->
+            <div class="card-header">Entries</div>
+            <div class="card-body table-container">
+                <div class="table-responsive">
+                    <table id="entriesTable" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Name</th>
+                                <th>Supplier</th>
+                                <th>Units</th>
+                                <th>Discount</th>
+                                <th>VAT</th>
+                                <th>Piece</th>
+                                <th>Case</th>
+                                <th>Type</th>
+                                <th>Current</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
 
         <!-- Export Section -->
-        <button type="button" class="btn btn-info" onclick="exportToJPG()">
-            <i class="fas fa-download"></i> Export to JPG</button>
+        <button class="btn btn-info" onclick="exportToJPG()"><i class="fas fa-download"></i> Export to JPG</button>
 
         <!-- Popup for Database View -->
         <div id="databasePopup">
-            <!-- ... (Rest of your HTML - no changes needed) ... -->
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3>Database</h3>
+                <button onclick="closeDatabasePopup()" class="btn btn-secondary btn-sm"><i
+                        class="fas fa-times"></i> Close</button>
+            </div>
+            <table id="databaseTable">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Supplier Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
         </div>
 
         <div id="overlay"></div>
@@ -96,156 +546,137 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.min.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 
 
     <script>
         let database = [];
         let entries = [];
-        const databaseFileNameLocal = "pricing database.xlsx"; // For local file (same folder)
-        const githubDatabaseFileName = "pricing database.xlsx"; // Filename in GitHub repo
-        // **IMPORTANT:** Replace with your Google Sheet CSV export URL!
-        const googleSheetCsvUrl = "YOUR_GOOGLE_SHEET_CSV_EXPORT_URL_HERE"; //  <======== UPDATE THIS!
+        const databaseFileNameLocal = "pricing database.xlsx";
+        const githubDatabaseFileName = "pricing database.xlsx";
+        const googleSheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTWoiLDQ3vhu5JxwBMIiV8JNwFDAjOqPR7t2aS6YE3SV8o6QWLQ2pZdzA1ny0bmMQ/pub?output=csv";
 
-        // Function to save the database to localStorage (unchanged)
-        function saveDatabase() { /* ... */ }
+        // Function to save the database to localStorage
+        function saveDatabase() {
+            localStorage.setItem('pricingDatabase', JSON.stringify(database));
+        }
 
-        // Function to load the database from localStorage (unchanged)
-        function loadDatabase() { /* ... */ }
+        // Function to load the database from localStorage
+        function loadDatabase() {
+            const storedDatabase = localStorage.getItem('pricingDatabase');
+            if (storedDatabase) {
+                database = JSON.parse(storedDatabase);
+            }
+        }
 
-        // Function to save entries to localStorage (unchanged)
-        function saveEntries() { /* ... */ }
+        // Function to save entries to localStorage
+        function saveEntries() {
+            localStorage.setItem('pricingEntries', JSON.stringify(entries));
+        }
 
-        // Function to load entries from localStorage (unchanged)
-        function loadEntries() { /* ... */ }
+        // Function to load entries from localStorage
+        function loadEntries() {
+            // No loading entries on page load
+        }
 
-
-        // Function to display a message - unchanged
+        // Function to display a message
         function displayMessage(message, isError = false) {
             const messageContainer = document.getElementById('message-container');
-            if (!messageContainer) {
-                console.error('Error: message-container element not found!');
-                return;
-            }
             messageContainer.textContent = message;
             messageContainer.className = isError ? 'error' : '';
             messageContainer.style.display = 'block';
-
             setTimeout(() => {
                 messageContainer.style.display = 'none';
             }, 3000);
         }
 
-
-        // Function to display error messages - unchanged
+        // Function to display error messages
         function displayError(elementId, message) {
             const errorElement = document.getElementById(elementId);
             if (errorElement) {
                 errorElement.textContent = message;
             }
-            displayMessage(message, true); // Use displayMessage for errors as well, to show in message container
         }
 
-        function clearError(elementId) { // unchanged
+        function clearError(elementId) {
             const errorElement = document.getElementById(elementId);
             if (errorElement) {
                 errorElement.textContent = '';
             }
         }
 
-        // Function to add button click animation (unchanged)
-        function addButtonClickAnimation(button) { /* ... */ }
+        // Function to add button click animation
+        function addButtonClickAnimation(button) {
+            button.classList.add('clicked');
+            setTimeout(() => {
+                button.classList.remove('clicked');
+            }, 300);
+        }
 
         function autoLoadDatabase() {
-            console.log('autoLoadDatabase function called - inside autoLoadDatabase()'); // Debug log
+            let databaseURL = googleSheetCsvUrl;
 
-            let databaseURL;
-            let loadingSource = ''; // To track where we are loading from for messages
-
-            // Check if running on GitHub Pages (or similar hostname pattern)
-            if (window.location.hostname.endsWith('.github.io') || window.location.hostname.includes('github.dev')) {
-                databaseURL = googleSheetCsvUrl;
-                loadingSource = 'Google Sheet';
-                console.log("Auto-loading from Google Sheet CSV URL:", databaseURL);
-            } else {
-                databaseURL = databaseFileNameLocal;
-                loadingSource = 'local Excel file';
-                console.log("Attempting auto-load from local Excel file:", databaseURL);
-            }
-
-            if (!databaseURL) {
-                console.error('autoLoadDatabase: No database URL determined.');
-                displayError('excelFileError', 'Could not determine database source for auto-load.');
-                return;
-            }
-
-            displayMessage(`Loading database from ${loadingSource}...`); // Inform user loading started
-
-            const isGoogleSheet = databaseURL === googleSheetCsvUrl;
+            console.log("Auto-loading from Google Sheet CSV URL:", databaseURL);
 
             fetch(databaseURL)
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}, URL: ${databaseURL}`);
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
-                    return isGoogleSheet ? response.text() : response.arrayBuffer();
+                    return response.text();
                 })
-                .then(data => {
-                    let newDatabase;
-                    if (isGoogleSheet) {
-                        const parsedCsv = Papa.parse(data, { header: true, skipEmptyLines: true });
-                        if (parsedCsv.errors.length > 0) {
-                            console.error('CSV Parsing Errors:', parsedCsv.errors);
-                            throw new Error('Error parsing Google Sheet CSV data.'); // Throw error to be caught
-                        }
-                        newDatabase = parsedCsv.data;
-                    } else {
-                        const workbook = XLSX.read(new Uint8Array(data), { type: 'array', codepage: 65001 });
-                        const sheetName = workbook.SheetNames[0];
-                        const worksheet = workbook.Sheets[sheetName];
-                        newDatabase = XLSX.utils.sheet_to_json(worksheet, { raw: false, dateNF: 'yyyy-mm-dd' });
-                    }
-
-
+                .then(csvData => {
+                    const newDatabase = parseCSV(csvData);
                     if (newDatabase.length > 0 && (!newDatabase[0].Code || !newDatabase[0].Name || !newDatabase[0]['Supplier Name'])) {
-                        throw new Error('Database file must have columns: Code, Name, and Supplier Name.'); // Throw error to be caught
+                        displayError('excelFileError', 'Google Sheet must have columns: Code, Name, and Supplier Name.');
+                        return;
                     }
 
                     database = newDatabase;
                     saveDatabase();
-                    console.log('autoLoadDatabase: Database AUTO-LOADED successfully from:', loadingSource);
-                    displayMessage(`Database auto-loaded successfully from ${loadingSource}!`); // Success message
-                    updateDatabaseView();
+                    console.log('autoLoadDatabase: Database AUTO-LOADED from Google Sheet and saved successfully:', database);
+                    displayMessage('Database auto-loaded successfully from Google Sheet!');
                 })
                 .catch(error => {
-                    console.error('autoLoadDatabase: Error during auto-load from:', loadingSource, error);
-                    displayError('excelFileError', `Error auto-loading database from ${loadingSource}: ${error.message}. Please upload manually.`);
-                    displayMessage(`Error auto-loading database from ${loadingSource}. Please upload manually.`, true); // Error message
+                    console.error('autoLoadDatabase: Error loading or processing database file from Google Sheet:', error);
+                    displayError('excelFileError', `Error auto-loading database from Google Sheet: ${error.message}.`);
+                    displayMessage(`Error auto-loading database from Google Sheet. ${error.message}`, true);
                 });
         }
 
-        function updateDatabaseView() { // New function to refresh database view after loading - unchanged
-            if (document.getElementById('databasePopup').style.display === 'block') {
-                viewDatabase(); // Re-render the database view if popup is open
+        function parseCSV(csvText) {
+            const lines = csvText.trim().split('\n');
+            const headers = lines[0].split(',').map(header => header.trim());
+            const data = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',').map(value => value.trim());
+                if (values.length === headers.length) {
+                    const rowData = {};
+                    for (let j = 0; j < headers.length; j++) {
+                        rowData[headers[j]] = values[j];
+                    }
+                    data.push(rowData);
+                }
             }
+            return data;
         }
 
 
-        // Load initial data when the page loads - unchanged
-        window.onload = function () { /* ... */ };
+        // Load initial data when the page loads
+        window.onload = function () {
+            loadEntries();
+            autoLoadDatabase();
+        };
 
-        // goHome function - unchanged
-        function goHome() { /* ... */ }
+        // goHome function
+        function goHome() {
+            window.location.href = '/';
+        }
 
-        // uploadExcel function - updated with try-catch and messages
+        // uploadExcel function
         function uploadExcel() {
-            console.log('uploadExcel function called - inside uploadExcel()'); // Debug log
-            displayMessage('Uploading Excel file...'); // Inform user upload started
-            const uploadButton = document.querySelector('.inline-buttons .btn-primary:nth-child(1)');
-            addButtonClickAnimation(uploadButton);
             const fileInput = document.getElementById('excelFile');
             const file = fileInput.files[0];
-
             clearError('excelFileError');
 
             if (!file) {
@@ -254,96 +685,307 @@
             }
 
             const reader = new FileReader();
-
             reader.onload = function (e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array', codepage: 65001 });
-                    const sheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[sheetName];
-                    const newDatabase = XLSX.utils.sheet_to_json(worksheet, { raw: false, dateNF: 'yyyy-mm-dd' });
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array', codepage: 65001 });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const newDatabase = XLSX.utils.sheet_to_json(worksheet, { raw: false, dateNF: 'yyyy-mm-dd' });
 
-                    if (newDatabase.length > 0 && (!newDatabase[0].Code || !newDatabase[0].Name || !newDatabase[0]['Supplier Name'])) {
-                        throw new Error('Excel file must have columns: Code, Name, and Supplier Name.');
-                    }
-
-                    database = newDatabase;
-                    saveDatabase();
-                    console.log('uploadExcel: Database UPLOADED and saved successfully:', database);
-                    displayMessage('Database uploaded and saved successfully!'); // Success message
-                    updateDatabaseView();
-                } catch (error) {
-                    console.error('uploadExcel: Error processing Excel file:', error);
-                    displayError('excelFileError', `Error processing Excel file: ${error.message}. Please check the file format and content.`);
-                    displayMessage('Error processing Excel file. Please check console.', true); // Error message
+                if (newDatabase.length > 0 && (!newDatabase[0].Code || !newDatabase[0].Name || !newDatabase[0]['Supplier Name'])) {
+                    displayError('excelFileError', 'Excel file must have columns: Code, Name, and Supplier Name.');
+                    return;
                 }
-            };
 
-            reader.onerror = function (e) {
-                console.error('uploadExcel: Error reading file:', e); // Log FileReader error
-                displayError('excelFileError', 'Error reading the Excel file. Please check the file.');
-                displayMessage('Error reading Excel file.', true); // Error message
+                database = newDatabase;
+                saveDatabase();
+                displayMessage('Database uploaded and saved successfully!');
             };
-
+            reader.onerror = function (error) {
+                displayError('excelFileError', 'Error reading the Excel file.');
+                console.error("Error reading Excel file:", error);
+                displayMessage('Error reading the Excel file.', true);
+            };
             reader.readAsArrayBuffer(file);
         }
 
-        // viewDatabase function - unchanged
-        function viewDatabase() { /* ... */ }
+        // viewDatabase function
+        function viewDatabase() {
+            const popup = document.getElementById('databasePopup');
+            const tableBody = popup.querySelector('#databaseTable tbody');
+            tableBody.innerHTML = '';
 
-        // closeDatabasePopup function - unchanged
-        function closeDatabasePopup() { /* ... */ }
+            database.forEach(item => {
+                const row = tableBody.insertRow();
+                row.insertCell().textContent = item.Code || '';
+                row.insertCell().textContent = item.Name || '';
+                row.insertCell().textContent = item['Supplier Name'] || '';
+            });
 
-        // clearDatabase function - updated with confirmation message
+            popup.style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+
+        // closeDatabasePopup function
+        function closeDatabasePopup() {
+            document.getElementById('databasePopup').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        // clearDatabase function
         function clearDatabase() {
-            console.log('clearDatabase function called - inside clearDatabase()'); // Debug log
-            const clearDbButton = document.querySelector('.inline-buttons .btn-danger:nth-child(3)');
-            addButtonClickAnimation(clearDbButton);
-            if (confirm('Are you sure you want to clear the database? This action cannot be undone.')) {
-                database = [];
-                try {
-                    localStorage.removeItem('pricingDatabase');
-                    console.log('clearDatabase: Database CLEARED from localStorage.');
-                    displayMessage('Database cleared successfully!'); // Success message
-                    updateDatabaseView();
-                } catch (error) {
-                    console.error('clearDatabase: Error removing database from localStorage:', error);
-                    displayMessage('Error clearing database from storage. Please check console.', true); // Error message
-                }
+            database = [];
+            saveDatabase();
+            displayMessage('Database cleared successfully!');
+        }
+
+        // getItemDetails function
+        function getItemDetails() {
+            const code = document.getElementById('code').value.trim();
+            clearError('codeError');
+
+            if (!code) {
+                displayError('codeError', 'Please enter a code.');
+                return;
+            }
+
+            const item = database.find(item => item.Code === code);
+
+            if (item) {
+                document.getElementById('name').value = item.Name || '';
+                document.getElementById('supplierName').value = item['Supplier Name'] || '';
+                displayMessage('Item details found.');
             } else {
-                displayMessage('Database clear cancelled by user.'); // User cancelled message
+                document.getElementById('name').value = '';
+                document.getElementById('supplierName').value = '';
+                displayMessage('Item details not found.', true);
             }
         }
 
-        // getItemDetails function - unchanged
-        function getItemDetails() { /* ... */ }
+        // toggleAlternateSupplier function
+        function toggleAlternateSupplier() {
+            const checkBox = document.getElementById('alternateSupplierCheck');
+            const alternateSupplierDiv = document.getElementById('alternateSupplierDiv');
+            alternateSupplierDiv.style.display = checkBox.checked ? 'block' : 'none';
+        }
 
-        // toggleAlternateSupplier function - unchanged
-        function toggleAlternateSupplier() { /* ... */ }
+        // toggleCurrentPriceField function
+        function toggleCurrentPriceField() {
+            const typeSelect = document.getElementById('type');
+            const currentPriceDiv = document.getElementById('currentPriceDiv');
+            currentPriceDiv.style.display = typeSelect.value === 'مرتجع' ? 'block' : 'none';
+        }
 
-        // toggleCurrentPriceField function - unchanged
-        function toggleCurrentPriceField() { /* ... */ }
+        // calculateTotal function
+        function calculateTotal() {
+            clearError('costError');
+            clearError('vatError');
+            clearError('currentPriceError');
 
-        // calculateTotal function - unchanged
-        function calculateTotal() { /* ... */ }
+            const cost = parseFloat(document.getElementById('cost').value) || 0;
+            const unit = parseInt(document.getElementById('unit').value) || 1;
+            const discount = parseFloat(document.getElementById('discount').value) || 0;
+            const vatRate = parseFloat(document.getElementById('vat').value) || 0;
+            const type = document.getElementById('type').value;
+            const currentPrice = parseFloat(document.getElementById('currentPrice').value) || 0;
 
-        // addToList function - unchanged
-        function addToList() { /* ... */ }
 
-        // clearInputFields function - unchanged
-        function clearInputFields() { /* ... */ }
+            if (isNaN(cost) || cost < 0) {
+                displayError('costError', 'Cost must be a valid positive number.');
+                return;
+            }
+            if (isNaN(vatRate) || vatRate < 0) {
+                displayError('vatError', 'VAT must be a valid positive number.');
+                return;
+            }
+            if (type === 'مرتجع' && (isNaN(currentPrice) || currentPrice < 0)) {
+                displayError('currentPriceError', 'Current Price must be a valid positive number for مرتجع.');
+                return;
+            }
 
-        // updateEntriesTable function - unchanged
-        function updateEntriesTable() { /* ... */ }
 
-        // deleteEntry function - unchanged
-        function deleteEntry(index) { /* ... */ }
+            let discountedCost = cost * (1 - discount / 100);
+            let costWithVat = discountedCost * (1 + vatRate / 100);
+            let unitPriceValue = costWithVat / unit;
 
-        // clearAll function - unchanged
-        function clearAll() { /* ... */ }
 
-        // exportToJPG function - unchanged
-        function exportToJPG() { /* ... */ }
+            document.getElementById('unitPrice').value = unitPriceValue.toFixed(2);
+            document.getElementById('casePrice').value = costWithVat.toFixed(2);
+        }
+
+
+        // addToList function
+        function addToList() {
+            const code = document.getElementById('code').value;
+            const name = document.getElementById('name').value;
+            const supplierName = document.getElementById('supplierName').value;
+            const alternateSupplierCheck = document.getElementById('alternateSupplierCheck').checked;
+            const alternateSupplierName = document.getElementById('alternateSupplierName').value;
+            const cost = parseFloat(document.getElementById('cost').value);
+            const unit = parseInt(document.getElementById('unit').value);
+            const discount = parseFloat(document.getElementById('discount').value);
+            const vat = document.getElementById('vat').value;
+            const unitPrice = document.getElementById('unitPrice').value;
+            const casePrice = document.getElementById('casePrice').value;
+            const type = document.getElementById('type').value;
+            const currentPrice = document.getElementById('currentPrice').value;
+
+
+            if (!code || isNaN(cost)) {
+                displayMessage('Please fill in all required fields correctly.', true);
+                return;
+            }
+
+            entries.push({
+                code: code,
+                name: name,
+                supplier: alternateSupplierCheck && alternateSupplierName ? alternateSupplierName : supplierName,
+                units: unit,
+                discount: discount,
+                vat: vat,
+                piece: unitPrice,
+                case: casePrice,
+                type: type,
+                current: type === 'مرتجع' ? currentPrice : ''
+            });
+
+            saveEntries();
+            updateEntriesTable();
+            clearInputFields();
+            displayMessage('Item added to list.');
+        }
+
+        // clearInputFields function
+        function clearInputFields() {
+            document.getElementById('code').value = '';
+            document.getElementById('name').value = '';
+            document.getElementById('supplierName').value = '';
+            document.getElementById('alternateSupplierCheck').checked = false;
+            document.getElementById('alternateSupplierName').value = '';
+            document.getElementById('alternateSupplierDiv').style.display = 'none';
+            document.getElementById('cost').value = '';
+            document.getElementById('unit').value = '1';
+            document.getElementById('discount').value = '0';
+            document.getElementById('vat').value = '0';
+            document.getElementById('unitPrice').value = '';
+            document.getElementById('casePrice').value = '';
+            document.getElementById('currentPrice').value = '';
+            document.getElementById('currentPriceDiv').style.display = 'none';
+            document.getElementById('type').value = 'شراء';
+
+            clearError('codeError');
+            clearError('costError');
+            clearError('vatError');
+            clearError('currentPriceError');
+        }
+
+
+        // updateEntriesTable function
+        function updateEntriesTable() {
+            const entriesTableBody = document.querySelector('#entriesTable tbody');
+            entriesTableBody.innerHTML = '';
+
+            entries.forEach((entry, index) => {
+                const row = entriesTableBody.insertRow();
+                row.insertCell().textContent = entry.code;
+                row.insertCell().textContent = entry.name;
+                row.insertCell().textContent = entry.supplier;
+                row.insertCell().textContent = entry.units;
+                row.insertCell().textContent = entry.discount;
+                row.insertCell().textContent = entry.vat;
+                row.insertCell().textContent = entry.piece;
+                row.insertCell().textContent = entry.case;
+                row.insertCell().textContent = entry.type;
+                row.insertCell().textContent = entry.current;
+
+                const actionsCell = row.insertCell();
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'btn btn-danger btn-sm';
+                deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+                deleteButton.onclick = () => deleteEntry(index);
+                actionsCell.appendChild(deleteButton);
+            });
+        }
+
+        // deleteEntry function
+        function deleteEntry(index) {
+            entries.splice(index, 1);
+            saveEntries();
+            updateEntriesTable();
+            displayMessage('Entry deleted.');
+        }
+
+        // clearAll function
+        function clearAll() {
+            entries = [];
+            saveEntries();
+            updateEntriesTable();
+            clearInputFields();
+            displayMessage('All entries cleared.');
+        }
+
+
+        // exportToJPG function
+        function exportToJPG() {
+            console.log("exportToJPG function started");
+
+            const table = document.getElementById('entriesTable');
+            const hiddenCanvas = document.getElementById('hiddenCanvas');
+
+            // Remove text-overflow and word-break styles temporarily for accurate rendering
+            const originalStyles = {};
+            const tds = table.querySelectorAll('td');
+            tds.forEach(td => {
+                originalStyles[td] = {
+                    whiteSpace: td.style.whiteSpace,
+                    wordBreak: td.style.wordBreak,
+                    textOverflow: td.style.textOverflow
+                };
+                td.style.whiteSpace = 'nowrap'; // Force single line
+                td.style.wordBreak = 'normal';   // Prevent word breaks
+                td.style.textOverflow = 'clip'; // Show full text
+            });
+            console.log("Before html2canvas call");
+
+            html2canvas(table, {
+                scale: 2,
+                useCORS: true,
+                logging: true,
+                scrollY: window.scrollY * -1, // try this
+                scrollX: 0,
+                windowWidth: document.body.scrollWidth,
+                windowHeight: document.body.scrollHeight
+            }).then(canvas => {
+                console.log("html2canvas .then block executed");
+                try {
+                    const imgData = canvas.toDataURL('image/jpeg', 0.9);
+                    const link = document.createElement('a');
+                    link.href = imgData;
+                    link.download = 'entries_table.jpg';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    displayMessage('Table exported to JPG!');
+                } catch (exportError) {
+                    console.error('Error during JPG export:', exportError);
+                    displayMessage('Error exporting to JPG. Check the console for details.', true);
+                }
+            }).finally(() => {
+                console.log("html2canvas .finally block executed");
+                // Restore original styles after rendering
+                tds.forEach(td => {
+                    td.style.whiteSpace = originalStyles[td].whiteSpace;
+                    td.style.wordBreak = originalStyles[td].wordBreak;
+                    td.style.textOverflow = originalStyles[td].textOverflow;
+                });
+            }).catch(error => {
+                console.log("html2canvas .catch block executed", error);
+                console.error('Error exporting to JPG:', error);
+                displayMessage('Error exporting to JPG. Check the console for details.', true);
+            });
+            console.log("exportToJPG function finished (after html2canvas call)");
+        }
     </script>
 </body>
 
