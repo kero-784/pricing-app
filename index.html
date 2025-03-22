@@ -10,6 +10,7 @@
         integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
+        /* (Your CSS Styles - No changes here) */
         body {
             font-family: Arial, sans-serif;
             padding: 15px;
@@ -49,7 +50,7 @@
             border-radius: 6px;
             transition: transform 0.1s ease, box-shadow 0.1s ease;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-            cursor: pointer; /* Indicate button is clickable */
+            cursor: pointer;
         }
 
         .btn:hover {
@@ -543,36 +544,111 @@
     <script>
         let database = [];
         let entries = [];
-        const databaseFileNameLocal = "pricing database.xlsx"; // For local file (same folder) - UPDATED FILENAME
-        const githubDatabaseFileName = "pricing database.xlsx"; // Filename in GitHub repo - UPDATED FILENAME
+        const databaseFileNameLocal = "pricing database.xlsx"; // For local file (same folder)
+        const githubDatabaseFileName = "pricing database.xlsx"; // Filename in GitHub repo
 
-        // Function to save the database to localStorage (unchanged)
-        function saveDatabase() { /* ... */ }
+        // Function to save the database to localStorage
+        function saveDatabase() {
+            try {
+                localStorage.setItem('pricingDatabase', JSON.stringify(database));
+                console.log('saveDatabase: Database SAVED to localStorage:', database);
+            } catch (error) {
+                console.error('saveDatabase: Error saving database to localStorage:', error);
+                displayMessage('Error saving database to storage. Please check console.', true);
+            }
+        }
 
-        // Function to load the database from localStorage (unchanged)
-        function loadDatabase() { /* ... */ }
+        // Function to load the database from localStorage
+        function loadDatabase() {
+            try {
+                const storedDatabase = localStorage.getItem('pricingDatabase');
+                if (storedDatabase) {
+                    database = JSON.parse(storedDatabase);
+                    console.log('loadDatabase: Database LOADED from localStorage:', database);
+                    displayMessage('Database loaded successfully from storage.');
+                } else {
+                    console.log('loadDatabase: No database found in localStorage.');
+                    database = [];
+                }
+            } catch (error) {
+                console.error('loadDatabase: Error loading database from localStorage:', error);
+                displayMessage('Error loading database from storage. Starting with empty database.', true);
+                database = [];
+            }
+        }
 
-        // Function to save entries to localStorage (unchanged)
-        function saveEntries() { /* ... */ }
+        // Function to save entries to localStorage
+        function saveEntries() {
+            try {
+                localStorage.setItem('pricingEntries', JSON.stringify(entries));
+                console.log('saveEntries: Entries saved to localStorage.');
+            } catch (error) {
+                console.error('saveEntries: Error saving entries toLocalStorage:', error);
+                displayMessage('Error saving entries to storage.', true);
+            }
+        }
 
-        // Function to load entries from localStorage (unchanged)
-        function loadEntries() { /* ... */ }
+        // Function to load entries from localStorage
+        function loadEntries() {
+            try {
+                const storedEntries = localStorage.getItem('pricingEntries');
+                if (storedEntries) {
+                    entries = JSON.parse(storedEntries);
+                    console.log('loadEntries: Entries loaded successfully from localStorage:', entries);
+                    updateEntriesTable();
+                    displayMessage('Entries loaded successfully from storage.');
+                } else {
+                    console.log('loadEntries: No entries found in localStorage.');
+                    entries = [];
+                }
+            } catch (error) {
+                console.error('loadEntries: Error loading entries from localStorage:', error);
+                displayMessage('Error loading entries from storage. Starting with empty entries table.', true);
+                entries = [];
+            }
+        }
 
-        // Function to display a message (unchanged)
-        function displayMessage(message, isError = false) { /* ... */ }
 
-        // Function to display error messages (unchanged)
-        function displayError(elementId, message) { /* ... */ }
+        // Function to display a message
+        function displayMessage(message, isError = false) {
+            const messageContainer = document.getElementById('message-container');
+            if (!messageContainer) { // Defensive check
+                console.error('Error: message-container element not found!');
+                return;
+            }
+            messageContainer.textContent = message;
+            messageContainer.className = isError ? 'error' : '';
+            messageContainer.style.display = 'block';
 
-        function clearError(elementId) { // unchanged
+            setTimeout(() => {
+                messageContainer.style.display = 'none';
+            }, 3000);
+        }
+
+
+        // Function to display error messages
+        function displayError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            if (errorElement) {
+                errorElement.textContent = message;
+            }
+            displayMessage(message, true);
+        }
+
+        function clearError(elementId) {
             const errorElement = document.getElementById(elementId);
             if (errorElement) {
                 errorElement.textContent = '';
             }
         }
 
-        // Function to add button click animation (unchanged)
-        function addButtonClickAnimation(button) { /* ... */ }
+        // Function to add button click animation
+        function addButtonClickAnimation(button) {
+            button.classList.add('clicked');
+            setTimeout(() => {
+                button.classList.remove('clicked');
+            }, 300); // Duration of animation
+        }
 
         function autoLoadDatabase() {
             let databaseURL;
@@ -619,53 +695,417 @@
         }
 
 
-        // Load initial data when the page loads (unchanged)
-        window.onload = function () { /* ... */ };
+        // Load initial data when the page loads
+        window.onload = function () {
+            loadDatabase();
+            loadEntries(); // Load entries on page load
+            updateEntriesTable(); // Ensure table is updated after entries are loaded
+            calculateTotal();
 
-        // goHome function (unchanged)
-        function goHome() { /* ... */ }
+            if (database.length === 0) {
+                autoLoadDatabase(); // Attempt to auto-load if database is empty
+            } else {
+                displayMessage('Database loaded from storage. Auto-load skipped.');
+            }
+        };
 
-        // uploadExcel function (unchanged)
-        function uploadExcel() { /* ... */ }
+        // goHome function
+        function goHome() {
+            console.log('goHome function called'); // DEBUG LOG
+            alert('Home button clicked! You would normally navigate to the homepage.');
+        }
 
-        // viewDatabase function (unchanged)
-        function viewDatabase() { /* ... */ }
+        // uploadExcel function
+        function uploadExcel() {
+            console.log('uploadExcel function called'); // DEBUG LOG
+            const uploadButton = document.querySelector('.inline-buttons .btn-primary:nth-child(1)'); // Select Upload button
+            addButtonClickAnimation(uploadButton);
+            const fileInput = document.getElementById('excelFile');
+            const file = fileInput.files[0];
 
-        // closeDatabasePopup function (unchanged)
-        function closeDatabasePopup() { /* ... */ }
+            clearError('excelFileError');
 
-        // clearDatabase function (unchanged)
-        function clearDatabase() { /* ... */ }
+            if (!file) {
+                displayError('excelFileError', 'Please select an Excel file.');
+                return;
+            }
 
-        // getItemDetails function (unchanged)
-        function getItemDetails() { /* ... */ }
+            const reader = new FileReader();
 
-        // toggleAlternateSupplier function (unchanged)
-        function toggleAlternateSupplier() { /* ... */ }
+            reader.onload = function (e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array', codepage: 65001 });
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
 
-        // toggleCurrentPriceField function (unchanged)
-        function toggleCurrentPriceField() { /* ... */ }
+                    const newDatabase = XLSX.utils.sheet_to_json(worksheet, { raw: false, dateNF: 'yyyy-mm-dd' });
 
-        // calculateTotal function (unchanged)
-        function calculateTotal() { /* ... */ }
+                    if (newDatabase.length > 0 && (!newDatabase[0].Code || !newDatabase[0].Name || !newDatabase[0]['Supplier Name'])) {
+                        displayError('excelFileError', 'Excel file must have columns: Code, Name, and Supplier Name.');
+                        return;
+                    }
 
-        // addToList function (unchanged)
-        function addToList() { /* ... */ }
+                    database = newDatabase;
+                    saveDatabase();
+                    console.log('uploadExcel: Database UPLOADED and saved successfully:', database);
+                    displayMessage('Database uploaded and saved successfully!');
 
-        // clearInputFields function (unchanged)
-        function clearInputFields() { /* ... */ }
+                } catch (error) {
+                    console.error('uploadExcel: Error processing Excel file:', error);
+                    displayError('excelFileError', 'Error processing the Excel file. Please check the console for details.');
+                    displayMessage('Error processing Excel file.', true);
+                }
+            };
 
-        // updateEntriesTable function (unchanged)
-        function updateEntriesTable() { /* ... */ }
+            reader.onerror = function (e) {
+                console.error('uploadExcel: Error reading file:', error);
+                displayError('excelFileError', 'Error reading the Excel file. Please check the console for details.');
+                displayMessage('Error reading Excel file.', true);
+            };
 
-        // deleteEntry function (unchanged)
-        function deleteEntry(index) { /* ... */ }
+            reader.readAsArrayBuffer(file);
+        }
 
-        // clearAll function (unchanged)
-        function clearAll() { /* ... */ }
+        // viewDatabase function
+        function viewDatabase() {
+            console.log('viewDatabase function called'); // DEBUG LOG
+            const viewDbButton = document.querySelector('.inline-buttons .btn-secondary:nth-child(2)'); // Select View Database button
+            addButtonClickAnimation(viewDbButton);
+            const popup = document.getElementById('databasePopup');
+            const tableBody = document.querySelector('#databaseTable tbody');
+            tableBody.innerHTML = '';
 
-        // exportToJPG function (unchanged)
-        function exportToJPG() { /* ... */ }
+            if (database.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="3">No data available.</td></tr>';
+            } else {
+                const visibleRecords = database.slice(0, 100);
+                visibleRecords.forEach(item => {
+                    const row = `<tr>
+                                    <td>${item.Code || ''}</td>
+                                    <td>${item.Name || ''}</td>
+                                    <td>${item['Supplier Name'] || ''}</td>
+                                </tr>`;
+                    tableBody.innerHTML += row;
+                });
+
+                if (database.length > 100) {
+                    tableBody.innerHTML += '<tr><td colspan="3">Only the first 100 records are displayed.</td></tr>';
+                }
+            }
+
+            popup.style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        // closeDatabasePopup function
+        function closeDatabasePopup() {
+            console.log('closeDatabasePopup function called'); // DEBUG LOG
+            const closeDbButton = document.querySelector('#databasePopup button.btn-secondary.btn-sm');
+            addButtonClickAnimation(closeDbButton);
+            document.getElementById('databasePopup').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        // clearDatabase function
+        function clearDatabase() {
+            console.log('clearDatabase function called'); // DEBUG LOG
+            const clearDbButton = document.querySelector('.inline-buttons .btn-danger:nth-child(3)'); // Select Clear Database button
+            addButtonClickAnimation(clearDbButton);
+            if (confirm('Are you sure you want to clear the database? This action cannot be undone.')) {
+                database = [];
+                try {
+                    localStorage.removeItem('pricingDatabase');
+                    console.log('clearDatabase: Database CLEARED from localStorage.');
+                    displayMessage('Database cleared successfully!');
+                } catch (error) {
+                    console.error('clearDatabase: Error removing database from localStorage:', error);
+                    displayMessage('Error clearing database from storage. Please check console.', true);
+                }
+            }
+        }
+
+        // getItemDetails function
+        function getItemDetails() {
+            console.log('getItemDetails function called'); // DEBUG LOG
+            const searchButton = document.querySelector('.inline-form .btn-primary');
+            addButtonClickAnimation(searchButton);
+            const code = document.getElementById('code').value.trim();
+            clearError('codeError');
+
+            if (!code) {
+                document.getElementById('name').value = '';
+                document.getElementById('supplierName').value = '';
+                return;
+            }
+
+            const codeNumber = parseFloat(code);
+            const item = database.find(item => (item.Code || '').trim().toLowerCase() === code.toLowerCase());
+
+            if (item) {
+                document.getElementById('name').value = item.Name || '';
+                document.getElementById('supplierName').value = item['Supplier Name'] || '';
+                displayMessage('Item details retrieved successfully.');
+            } else {
+                if (codeNumber > 37000) {
+                    document.getElementById('name').value = 'New Item';
+                } else {
+                    document.getElementById('name').value = '';
+                }
+                document.getElementById('supplierName').value = '';
+                displayError('codeError', 'Item with this code not found.');
+                displayMessage('Item not found.', true);
+            }
+            calculateTotal();
+        }
+
+        // toggleAlternateSupplier function
+        function toggleAlternateSupplier() {
+            console.log('toggleAlternateSupplier function called'); // DEBUG LOG
+            const checkbox = document.getElementById('alternateSupplierCheck');
+            const div = document.getElementById('alternateSupplierDiv');
+            div.style.display = checkbox.checked ? 'block' : 'none';
+        }
+
+        // toggleCurrentPriceField function
+        function toggleCurrentPriceField() {
+            console.log('toggleCurrentPriceField function called'); // DEBUG LOG
+            const type = document.getElementById('type').value;
+            const currentPriceDiv = document.getElementById('currentPriceDiv');
+            currentPriceDiv.style.display = type === 'مرتجع' ? 'block' : 'none';
+            calculateTotal();
+        }
+
+        // calculateTotal function
+        function calculateTotal() {
+            console.log('calculateTotal function called'); // DEBUG LOG
+            const cost = parseFloat(document.getElementById('cost').value);
+            const unit = parseFloat(document.getElementById('unit').value) || 1;
+            const discount = parseFloat(document.getElementById('discount').value) || 0;
+            const vat = parseFloat(document.getElementById('vat').value);
+
+            clearError('costError');
+            clearError('vatError');
+
+            if (isNaN(cost)) {
+                document.getElementById('unitPrice').value = '';
+                document.getElementById('casePrice').value = '';
+                return;
+            }
+            if (isNaN(unit) || unit <= 0) {
+                displayError('costError', 'Units per Case must be a number greater than zero.');
+                document.getElementById('unitPrice').value = '';
+                document.getElementById('casePrice').value = '';
+                return;
+            }
+            if (isNaN(vat)) {
+                displayError('vatError', 'VAT is required and must be a number.');
+                document.getElementById('unitPrice').value = '';
+                document.getElementById('casePrice').value = '';
+                return;
+            }
+
+            const costPerUnit = cost / unit;
+            const totalCostBeforeDiscount = cost;
+            const discountValue = totalCostBeforeDiscount * (discount / 100);
+            const priceAfterDiscount = totalCostBeforeDiscount - discountValue;
+            const vatValue = priceAfterDiscount * (vat / 100);
+            const total = priceAfterDiscount + vatValue;
+            const unitPrice = total / unit;
+
+            document.getElementById('unitPrice').value = unitPrice.toFixed(3);
+            document.getElementById('casePrice').value = total.toFixed(3);
+
+        }
+
+        // addToList function
+        function addToList() {
+            console.log('addToList function called'); // DEBUG LOG
+            const saveButton = document.querySelector('.card-body > .btn-primary:nth-last-child(2)'); // Select Save button
+            addButtonClickAnimation(saveButton);
+            const code = document.getElementById('code').value;
+            const name = document.getElementById('name').value;
+            const supplierName = document.getElementById('supplierName').value;
+            const alternateSupplierName = document.getElementById('alternateSupplierName').value;
+            const cost = parseFloat(document.getElementById('cost').value);
+            const unit = parseFloat(document.getElementById('unit').value) || 1;
+            const discount = parseFloat(document.getElementById('discount').value) || 0;
+            const vat = parseFloat(document.getElementById('vat').value);
+            const type = document.getElementById('type').value;
+            const currentPrice = (type === 'مرتجع') ? parseFloat(document.getElementById('currentPrice').value) : null;
+
+            let htmlUnitPrice = parseFloat(document.getElementById('unitPrice').value);
+            let htmlCasePrice = parseFloat(document.getElementById('casePrice').value);
+
+            clearError('costError');
+            clearError('vatError');
+            if (type === 'مرتجع' && isNaN(currentPrice)) {
+                displayError('currentPriceError', 'Current Price is required and must be a number for "مرتجع".');
+                return;
+            }
+
+            if (isNaN(cost)) {
+                displayError('costError', 'Cost is required and must be a number.');
+                return;
+            }
+            if (isNaN(vat)) {
+                displayError('vatError', 'VAT is required and must be a number.');
+                return;
+            }
+
+            htmlUnitPrice = parseFloat(htmlUnitPrice.toFixed(3));
+            htmlCasePrice = parseFloat(htmlCasePrice.toFixed(3));
+            const roundedCurrentPrice = currentPrice !== null ? parseFloat(currentPrice.toFixed(3)) : null;
+
+            const entry = {
+                code,
+                name,
+                supplierName: document.getElementById('alternateSupplierCheck').checked ? alternateSupplierName : supplierName,
+                cost,
+                unit,
+                discount,
+                vat,
+                unitPrice: htmlUnitPrice,
+                casePrice: htmlCasePrice,
+                type,
+                currentPrice: roundedCurrentPrice
+            };
+
+            entries.push(entry);
+            saveEntries();
+            updateEntriesTable();
+            clearInputFields();
+            displayMessage('Entry saved.');
+        }
+
+        // clearInputFields function
+        function clearInputFields() {
+            console.log('clearInputFields function called'); // DEBUG LOG
+            document.getElementById('code').value = '';
+            document.getElementById('name').value = '';
+            document.getElementById('supplierName').value = '';
+            document.getElementById('alternateSupplierName').value = '';
+            document.getElementById('alternateSupplierCheck').checked = false;
+            document.getElementById('alternateSupplierDiv').style.display = 'none';
+            document.getElementById('cost').value = '';
+            document.getElementById('unit').value = '1';
+            document.getElementById('discount').value = '';
+            document.getElementById('vat').value = '0';
+            document.getElementById('unitPrice').value = '';
+            document.getElementById('casePrice').value = '';
+            document.getElementById('type').value = "شراء";
+            document.getElementById('currentPrice').value = '';
+            document.getElementById('currentPriceDiv').style.display = 'none';
+            clearError('codeError');
+            clearError('costError');
+            clearError('vatError');
+            clearError('currentPriceError');
+            calculateTotal();
+        }
+
+        // updateEntriesTable function
+        function updateEntriesTable() {
+            console.log('updateEntriesTable function called'); // DEBUG LOG
+            const tableBody = document.querySelector('#entriesTable tbody');
+            tableBody.innerHTML = '';
+
+            entries.forEach((entry, index) => {
+                const row = `
+                    <tr>
+                        <td style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;">${entry.code}</td>
+                        <td style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;">${entry.name}</td>
+                        <td style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;">${entry.supplierName}</td>
+                        <td>${entry.unit}</td>
+                        <td>${entry.discount}</td>
+                        <td>${entry.vat}</td>
+                        <td>${entry.unitPrice}</td>
+                        <td>${entry.casePrice}</td>
+                        <td>${entry.type}</td>
+                        <td>${entry.currentPrice !== null ? entry.currentPrice : ''}</td>
+                        <td>
+                            <button class='btn btn-danger btn-sm' onclick='deleteEntry(${index})'><i class="fas fa-trash"></i> Delete</button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        // deleteEntry function
+        function deleteEntry(index) {
+            console.log('deleteEntry function called, index:', index); // DEBUG LOG
+            const deleteBtn = document.querySelector(`#entriesTable tbody tr:nth-child(${index + 1}) button.btn-danger.btn-sm`);
+            addButtonClickAnimation(deleteBtn);
+            if (confirm('Are you sure you want to delete this entry?')) {
+                entries.splice(index, 1);
+                saveEntries();
+                updateEntriesTable();
+                displayMessage('Entry deleted.');
+            }
+        }
+
+        // clearAll function
+        function clearAll() {
+            console.log('clearAll function called'); // DEBUG LOG
+            const clearAllButton = document.querySelector('.card-body > .btn-danger:last-child');
+            addButtonClickAnimation(clearAllButton);
+            if (confirm('Are you sure you want to clear all entries? This action cannot be undone?')) {
+                entries = [];
+                saveEntries();
+                updateEntriesTable();
+                displayMessage('All entries cleared.');
+            }
+        }
+
+        // exportToJPG function
+        function exportToJPG() {
+            console.log('exportToJPG function called'); // DEBUG LOG
+            const exportButton = document.querySelector('.btn.btn-info');
+            addButtonClickAnimation(exportButton);
+            const table = document.getElementById('entriesTable');
+
+            const originalStyles = {};
+            const tds = table.querySelectorAll('td');
+            tds.forEach(td => {
+                originalStyles[td] = {
+                    whiteSpace: td.style.whiteSpace,
+                    wordBreak: td.style.wordBreak,
+                    textOverflow: td.style.textOverflow
+                };
+                td.style.whiteSpace = 'nowrap';
+                td.style.wordBreak = 'normal';
+                td.style.textOverflow = 'clip';
+            });
+
+            html2canvas(table, {
+                scale: 2,
+                useCORS: true,
+                logging: true,
+            }).then(canvas => {
+                try {
+                    const imgData = canvas.toDataURL('image/jpeg', 0.9);
+                    const link = document.createElement('a');
+                    link.href = imgData;
+                    link.download = 'entries_table.jpg';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    displayMessage('Table exported to JPG!');
+                } catch (exportError) {
+                    console.error('exportToJPG: Error during JPG export:', exportError);
+                    displayMessage('Error exporting to JPG. Check the console for details.', true);
+                }
+            }).finally(() => {
+                tds.forEach(td => {
+                    td.style.whiteSpace = originalStyles[td].whiteSpace;
+                    td.style.wordBreak = originalStyles[td].wordBreak;
+                    td.style.textOverflow = originalStyles[td].textOverflow;
+                });
+            }).catch(error => {
+                console.error('exportToJPG: Error exporting to JPG:', error);
+                displayMessage('Error exporting to JPG. Check the console for details.', true);
+            });
+        }
     </script>
 </body>
 
