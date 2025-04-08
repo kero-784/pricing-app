@@ -10,362 +10,341 @@
         integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
-        /* ... (Your existing CSS Styles - No changes needed) ... */
+        /* --- Enhanced CSS Styles with Animations --- */
+
+        /* --- Color Palette --- */
+        :root {
+            --primary-color: #007bff;
+            --primary-color-darker: #0056b3;
+            --secondary-color: #6c757d;
+            --background-color: #f8f9fa;
+            --card-background: #ffffff;
+            --card-header-background: #e9ecef;
+            --text-color-dark: #343a40;
+            --text-color-light: #ffffff;
+            --accent-color: #28a745;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             padding: 15px;
             overflow-x: auto;
             display: flex;
             justify-content: center;
             align-items: flex-start;
             min-height: 100vh;
-            background-color: #f8f9fa;
-            overflow: auto !important; /* Important: Ensure body doesn't clip content during capture */
+            background-color: var(--background-color);
+            color: var(--text-color-dark);
+            overflow: auto !important;
         }
 
         #app-container {
             width: 95%;
             max-width: 700px;
             margin: 20px auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            background-color: var(--card-background);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
 
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6 {
-            font-size: 1.2em;
-            margin-bottom: 0.4em;
-            color: #343a40;
+        /* --- Top Actions Buttons --- */
+        .top-actions {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
         }
 
-        .btn {
+        .top-actions button {
             padding: 8px 12px;
-            font-size: 0.9em;
-            margin-bottom: 7px;
-            border-radius: 6px;
-            transition: transform 0.1s ease, box-shadow 0.1s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+            border: none;
+            background-color: var(--secondary-color);
+            color: var(--text-color-light);
+            border-radius: 8px;
             cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
-        .btn:hover {
+        .top-actions button:hover {
+            background-color: var(--secondary-color);
+            opacity: 0.8;
             transform: scale(1.05);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
         }
 
+        /* --- Card Styling --- */
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            background-color: var(--card-header-background);
+            color: var(--text-color-dark);
+            font-weight: bold;
+            padding: 12px 20px;
+            border-bottom: 1px solid #ddd;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        /* --- Form Styling --- */
+        .form-group {
+            margin-bottom: 1rem; /* Further reduced margin-bottom for more compact layout */
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap; /* Allow wrapping for smaller screens */
+        }
+
+        .form-group label {
+            font-weight: 500;
+            margin-bottom: 0;
+            margin-right: 10px;
+            color: var(--text-color-dark);
+            text-align: left;
+            flex-shrink: 0;
+            width: auto;
+            white-space: nowrap; /* Prevent label text from wrapping */
+        }
+
+        .form-control {
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            padding: 0.6rem 0.7rem; /* Slightly smaller padding */
+            box-shadow: none !important;
+            transition: border-color 0.3s ease;
+            vertical-align: middle;
+            text-align: right;
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+        }
+
+        .adjustable-width.code-input {
+            width: 120px; /* Further reduced width */
+        }
+
+        .adjustable-width.type-select {
+            width: 100px; /* Width for type select */
+        }
+
+        .adjustable-width.price-input {
+            width: 100px; /* Further reduced width */
+        }
+
+        .adjustable-width.unit-input {
+            width: 80px; /* Width for unit inputs */
+        }
+
+        .adjustable-width.discount-input,
+        .adjustable-width.vat-select {
+            width: 90px; /* Width for discount and vat */
+        }
+
+
+        .inline-form {
+            display: flex;
+            align-items: center;
+            gap: 8px; /* Reduced gap in inline forms */
+        }
+
+        .inline-form .form-control {
+            margin-bottom: 0;
+        }
+
+        /* --- Buttons (General) --- */
         .btn-primary {
-            background-color: #007bff;
-            border-color: #007bff;
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: var(--text-color-light);
+            border-radius: 8px;
+            padding: 0.6rem 1rem; /* Slightly smaller button padding */
+            transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
         }
 
-        .btn-primary:hover,
-        .btn-primary:focus {
-            background-color: #0056b3;
-            border-color: #0056b3;
+        .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+            background-color: var(--primary-color-darker) !important;
+            border-color: var(--primary-color-darker) !important;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            transform: scale(1.02);
         }
 
-        .btn-secondary {
-            background-color: #6c757d;
-            border-color: #6c757d;
-            color: white;
+        .btn-secondary, .btn-danger, .btn-info {
+            border-radius: 8px;
+            padding: 0.5rem 0.9rem; /* Slightly smaller button padding */
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
         }
 
-        .btn-secondary:hover,
-        .btn-secondary:focus {
-            background-color: #545b62;
-            border-color: #545b62;
+        .btn-secondary:hover, .btn-danger:hover, .btn-info:hover {
+            transform: scale(1.02);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
         }
 
-        .btn-danger {
-            background-color: #dc3545;
-            border-color: #dc3545;
+        /* --- Entries Table Styling --- */
+        .table-responsive {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: auto;
         }
 
-        .btn-danger:hover,
-        .btn-danger:focus {
-            background-color: #c82333;
-            border-color: #c82333;
+        #entriesTable {
+            margin-bottom: 0;
+            border-collapse: collapse;
+            width: 100%;
         }
 
-        .btn-info {
-            background-color: #17a2b8;
-            border-color: #17a2b8;
-            color: white;
+        #entriesTable thead th {
+            background-color: var(--card-header-background);
+            color: var(--text-color-dark);
+            font-weight: bold;
+            padding: 8px 12px; /* Smaller header padding */
+            border-bottom: 2px solid #ddd;
+            text-align: left;
         }
 
-        .btn-info:hover,
-        .btn-info:focus {
-            background-color: #117a8b;
-            border-color: #117a8b;
+        #entriesTable tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
         }
 
+        #entriesTable tbody tr:hover {
+            background-color: #f2f2f2;
+            transition: background-color 0.2s ease;
+        }
 
+        #entriesTable td {
+            padding: 6px 10px; /* Smaller cell padding */
+            border-bottom: 1px solid #eee;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: center;
+        }
+
+        #entriesTable tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* --- Message Container Animation --- */
+        #message-container {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 123, 255, 0.9);
+            color: var(--text-color-light);
+            padding: 10px 15px; /* Smaller message padding */
+            border-radius: 8px;
+            z-index: 1100;
+            opacity: 0;
+            transition: opacity 0.4s ease, top 0.4s ease;
+            top: -50px;
+        }
+
+        #message-container.show {
+            opacity: 1;
+            top: 20px;
+        }
+
+        #message-container.error {
+            background-color: rgba(220, 53, 69, 0.9);
+        }
+
+        /* --- Loading Indicator Styles --- */
+        #loading-indicator {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.7);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+
+        /* --- Database Popup Styling and Animation --- */
         #databasePopup {
             display: none;
             position: fixed;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: white;
-            padding: 15px;
-            border: 1px solid #ddd;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            max-height: 70vh;
-            overflow-y: auto;
-            width: 90%;
-            max-width: 400px;
-            border-radius: 8px;
+            transform: translate(-50%, -50%) scale(0.95);
+            background-color: var(--card-background);
+            padding: 20px; /* Smaller popup padding */
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            z-index: 1050;
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        #databasePopup.show {
+            display: block;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
         }
 
         #databasePopup h3 {
-            font-size: 1.1em;
-            margin-bottom: 10px;
+            margin-top: 0;
+            margin-bottom: 12px; /* Smaller popup heading margin */
+            color: var(--text-color-dark);
         }
 
-        #databaseTable {
+        #databasePopup #databaseTable {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
         }
 
-        #databaseTable th,
-        #databaseTable td {
-            border: 1px solid #eee;
-            padding: 6px;
-            text-align: left;
-            font-size: 0.8em;
-        }
-
-        #databaseTable th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-        }
-
-        #entriesTable {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-
-        #entriesTable th,
-        #entriesTable td {
-            border: 1px solid #ccc;
-            padding-top: 3px;
-            padding-bottom: 3px;
-            padding-left: 6px;
-            padding-right: 6px;
-            text-align: left;
-            font-size: 0.8em;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        #entriesTable th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-            border: 1px solid #ccc;
-            padding-top: 3px;
-            padding-bottom: 3px;
-            padding-left: 6px;
-            padding-right: 6px;
-        }
-
-        .table-container {
-            overflow-x: auto;
-            width: 100%;
-        }
-
-        .error-message {
-            color: #dc3545;
-            margin-top: 3px;
-            font-size: 0.8em;
-            font-style: italic;
-        }
-
-        #message-container {
-            position: fixed;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #e7f8ed;
-            color: #28a745;
-            padding: 8px 15px;
-            border: 1px solid #bce2c4;
-            border-radius: 6px;
-            z-index: 1001;
-            display: none;
-            font-size: 0.9em;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-
-        #message-container.error {
-            background-color: #ffe6e6;
-            color: #dc3545;
-            border-color: #f5c6cb;
-        }
-
-
-        .adjustable-width {
-            width: 100%;
-            min-width: 20px;
-            max-width: 100%;
-            display: block;
-            box-sizing: border-box;
-            padding: 6px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 0.9em;
-            margin-bottom: 0.5em;
-        }
-
-        .form-group label {
-            font-size: 1em;
-            font-weight: bold;
-            margin-bottom: 0.2em;
-            display: block;
-            color: #495057;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 6px;
-            font-size: 0.9em;
-            border-radius: 6px;
-            margin-bottom: 0.5em;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-        }
-
-        .card {
-            margin-top: 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.07);
-            border: none;
-        }
-
-        .card-header {
-            font-size: 1.1em;
-            font-weight: bold;
-            background-color: #f8f9fa;
+        #databasePopup #databaseTable th, #databasePopup #databaseTable td {
+            padding: 6px 10px; /* Smaller popup table cell padding */
             border-bottom: 1px solid #eee;
-            padding: 10px 15px;
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
-            color: #343a40;
+            text-align: left;
         }
 
-        .table-responsive {
-            display: block;
-            width: 100%;
-            overflow-x: auto;
+        #databasePopup #databaseTable th {
+            background-color: var(--card-header-background);
+            font-weight: bold;
         }
 
-        #entriesTable td {
-            font-size: 0.8em;
-            padding: 6px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        #databasePopup #databaseTable tbody tr:last-child td {
+            border-bottom: none;
         }
 
-        /* Home button styling */
-        .home-button {
-            margin: 10px;
+        #overlay {
+            display: none;
             position: fixed;
             top: 0;
-            right: 0;
-            font-size: 1.3em;
-            color: #6c757d;
-            transition: color 0.2s ease;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
         }
 
-        .home-button:hover {
-            color: #007bff;
-        }
-
-        /* Style for inline buttons */
-        .inline-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5em;
-        }
-
-        .inline-buttons .btn {
-            width: 32%;
-            margin: 3px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .inline-buttons .btn i {
-            margin-right: 5px;
-        }
-
-        /* Style for putting two elements in one line */
-        .form-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5em;
-        }
-
-        .form-row .form-group {
-            width: 48%;
-        }
-
-        /* Style for the inline elements */
-        .inline-form {
-            display: flex;
-            align-items: center;
-        }
-
-        .inline-form .form-group {
-            margin-right: 10px;
-        }
-
-        .inline-form .btn {
-            margin-left: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .inline-form .btn i {
-            margin-right: 5px;
-        }
-
-
-        /* Style for the current price input field */
-        #currentPriceDiv {
-            display: none;
-        }
-
-        /* Animation for buttons */
-        @keyframes buttonClick {
-            0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(0.95);
-            }
-
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        .btn.clicked {
-            animation: buttonClick 0.3s ease-in-out;
+        #overlay.show {
+            display: block;
         }
     </style>
 </head>
@@ -373,94 +352,91 @@
 <body>
 
     <div id="app-container">
-        <a href="#" class="home-button" onclick="goHome()"><i class="fas fa-home"></i></a>
+        <!-- Loading Indicator -->
+        <div id="loading-indicator">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <p>Loading database...</p>
+        </div>
 
-        <h1>Pricing App</h1>
+        <!-- Top Right Action Buttons -->
+        <div class="top-actions">
+            <button class="btn btn-secondary btn-sm" onclick="viewDatabase()" title="View Database"><i class="fas fa-database"></i></button>
+            <button class="btn btn-danger btn-sm" onclick="clearDatabase()" title="Clear Local Database"><i class="fas fa-trash"></i></button>
+        </div>
 
         <!-- Message Container -->
         <div id="message-container"></div>
-
-        <!-- Database Management Section -->
-        <div class="card mb-3">
-            <div class="card-header">Database Management</div>
-            <div class="card-body">
-                <div class="form-group">
-                    <label for="excelFile">Upload Excel File:</label>
-                    <input type="file" class="form-control-file" id="excelFile" accept=".xlsx, .xls">
-                    <div id="excelFileError" class="error-message"></div>
-                </div>
-                <div class="inline-buttons">
-                    <button class="btn btn-primary" onclick="uploadExcel()"><i class="fas fa-upload"></i> Upload</button>
-                    <button class="btn btn-secondary" onclick="viewDatabase()"><i class="fas fa-database"></i> View Database</button>
-                    <button class="btn btn-danger" onclick="clearDatabase()"><i class="fas fa-trash"></i> Clear Database</button>
-                </div>
-            </div>
-        </div>
 
         <!-- Data Retrieval & Calculation Section -->
         <div class="card mb-3">
             <div class="card-header">Item Details & Calculation</div>
             <div class="card-body">
-                <div class="form-group">
-                    <label for="code">Code:</label>
-                    <div class="inline-form">
-                        <input type="text" class="form-control adjustable-width" id="code">
-                        <select class="form-control adjustable-width" id="type" onchange="toggleCurrentPriceField()">
+                <div class="form-row"> <!-- Row for Code and Type -->
+                    <div class="form-group col-md-6"> <!-- Adjust column size as needed -->
+                        <label for="code">Code:</label>
+                        <input type="text" class="form-control adjustable-width code-input" id="code" oninput="getItemDetails()">
+                        <div id="codeError" class="error-message"></div>
+                    </div>
+                    <div class="form-group col-md-6"> <!-- Adjust column size as needed -->
+                        <label for="type">Type:</label>
+                        <select class="form-control adjustable-width type-select" id="type"
+                            onchange="toggleCurrentPriceField()">
                             <option value="شراء">شراء</option>
                             <option value="مرتجع">مرتجع</option>
                         </select>
-                        <button class="btn btn-primary ml-2" onclick="getItemDetails()"><i class="fas fa-search"></i> Search</button>
                     </div>
-                    <div id="codeError" class="error-message"></div>
                 </div>
                 <!-- Current Price Input (Shown only for "مرتجع") -->
-                <div class="form-group" id="currentPriceDiv">
+                <div class="form-group" id="currentPriceDiv" style="display:none; display: flex;"> <!-- Flex to keep label and input inline when visible -->
                     <label for="currentPrice">Current Price:</label>
-                    <input type="number" class="form-control adjustable-width" id="currentPrice"
+                    <input type="number" class="form-control adjustable-width price-input" id="currentPrice"
                         oninput="calculateTotal()">
                     <div id="currentPriceError" class="error-message"></div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="name">Name:</label>
-                        <input type="text" class="form-control adjustable-width" id="name" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="supplierName">Supplier Name:</label>
-                        <input type="text" class="form-control adjustable-width" id="supplierName" readonly>
-                    </div>
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" class="form-control adjustable-width" id="name" readonly>
                 </div>
-                <div class="form-check">
-                    <input type="checkbox" class="form-check-input" id="alternateSupplierCheck"
-                        onchange="toggleAlternateSupplier()">
-                    <label class="form-check-label" for="alternateSupplierCheck">شراء من مورد اخر</label>
+                <div class="form-group">
+                    <label for="supplierName">Supplier Name:</label>
+                    <input type="text" class="form-control adjustable-width" id="supplierName" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="alternateSupplierCheck">شراء من مورد اخر:</label>
+                    <div class="form-check" style="padding-top: 8px; padding-bottom: 8px;">
+                        <input type="checkbox" class="form-check-input" id="alternateSupplierCheck"
+                            onchange="toggleAlternateSupplier()" style="margin-left: 0;">
+                        <label class="form-check-label" for="alternateSupplierCheck" style="margin-left: 20px; margin-bottom: 0;"> </label>
+                    </div>
                 </div>
                 <div class="form-group" id="alternateSupplierDiv" style="display: none;">
                     <label for="alternateSupplierName">Alternate Supplier Name:</label>
                     <input type="text" class="form-control adjustable-width" id="alternateSupplierName">
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
+                <div class="form-row"> <!-- Row for Case Cost and Unit -->
+                    <div class="form-group col-md-6">
                         <label for="cost">Case Cost:</label>
-                        <input type="number" class="form-control adjustable-width" id="cost" required
+                        <input type="number" class="form-control adjustable-width unit-input" id="cost" required
                             oninput="calculateTotal()">
                         <div id="costError" class="error-message"></div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group col-md-6">
                         <label for="unit">Units per Case:</label>
-                        <input type="number" class="form-control adjustable-width" id="unit" value="1"
+                        <input type="number" class="form-control adjustable-width unit-input" id="unit" value="1"
                             oninput="calculateTotal()">
                     </div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
+                <div class="form-row"> <!-- Row for Discount and VAT -->
+                    <div class="form-group col-md-6">
                         <label for="discount">Discount (%):</label>
-                        <input type="number" class="form-control adjustable-width" id="discount" value="0"
+                        <input type="number" class="form-control adjustable-width discount-input" id="discount" value="0"
                             oninput="calculateTotal()">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group col-md-6">
                         <label for="vat">VAT (%):</label>
-                        <select class="form-control adjustable-width" id="vat" onchange="calculateTotal()">
+                        <select class="form-control adjustable-width vat-select" id="vat" onchange="calculateTotal()">
                             <option value="0" selected>0</option>
                             <option value="5">5</option>
                             <option value="14">14</option>
@@ -468,15 +444,13 @@
                         <div id="vatError" class="error-message"></div>
                     </div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="unitPrice">Unit Price (After Discount & VAT):</label>
-                        <input type="text" class="form-control adjustable-width" id="unitPrice" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="casePrice">Case Price (After Discount & VAT):</label>
-                        <input type="text" class="form-control adjustable-width" id="casePrice" readonly>
-                    </div>
+                <div class="form-group">
+                    <label for="unitPrice">Unit Price (After Discount & VAT):</label>
+                    <input type="text" class="form-control adjustable-width" id="unitPrice" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="casePrice">Case Price (After Discount & VAT):</label>
+                    <input type="text" class="form-control adjustable-width" id="casePrice" readonly>
                 </div>
 
 
@@ -511,7 +485,6 @@
                         </tbody>
                     </table>
                 </div>
-                <button class="btn btn-info mt-2" onclick="uploadEntriesToFirebase()"><i class="fas fa-upload"></i> Upload Entries to Database</button>
             </div>
         </div>
 
@@ -549,13 +522,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.min.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
-    <!-- Firebase SDK (Add these lines) -->
+    <!-- Firebase SDK (Add these lines if you still need Firebase for entries - KEEP FOR NOW) -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 
     <script>
-        // Firebase Configuration (REPLACE WITH YOUR ACTUAL CONFIG)
-        const firebaseConfig = {
+        // Firebase Configuration (REPLACE WITH YOUR ACTUAL CONFIG - KEEP IF YOU STILL NEED FIREBASE FOR ENTRIES)
+       const firebaseConfig = {
           apiKey: "AIzaSyAqB5syqP1BVfA9dUx3A6zvokDw3oacy_E",
           authDomain: "data-base-2c8bf.firebaseapp.com",
           projectId: "data-base-2c8bf",
@@ -565,16 +538,17 @@
           measurementId: "G-PMJ02H7PK2"
         };
 
-        // Initialize Firebase
+        // Initialize Firebase (KEEP IF YOU STILL NEED FIREBASE FOR ENTRIES)
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore(); // Firestore database reference
+        const db = firebase.firestore(); // Firestore database reference (KEEP IF YOU STILL NEED FIREBASE FOR ENTRIES)
 
-        let database = []; // In-memory database (not really needed with Firebase, but kept for parsing)
-        let entries = [];   // In-memory entries array (now will manage both local and Firebase entries)
+
+        let database = []; // In-memory database
+        let entries = [];   // In-memory entries array
         const databaseFileNameLocal = "pricing database.xlsx";
         const githubDatabaseFileName = "pricing database.xlsx";
-        const googleSheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQNrRFFRPe_jrOrDZM58gRqxfsA0deD60_q2jkA7XJRRfJQ7IiBdIqNDN7JdMawjw/pub?output=csv"; // UPDATED GOOGLE SHEET URL
-        const databaseCollectionName = 'databaseItems'; // Firestore collection for database items
+        const googleSheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQNrRFFRPe_jrOrDZM58gRqxfsA0deD60_q2jkA7XJRRfJQ7IiBdIqNDN7JdMawjw/pub?output=csv"; // REPLACE!
+        const databaseCollectionName = 'databaseItems'; // Firestore collection for database items (NO LONGER USED FOR SAVING DATABASE)
         const entriesCollectionName = 'entries';       // Firestore collection for entries
         const LOCAL_STORAGE_ENTRIES_KEY = 'pricingAppEntries'; // Key for local storage
 
@@ -592,19 +566,31 @@
             localStorage.removeItem(LOCAL_STORAGE_ENTRIES_KEY);
         }
 
+        // Function to show loading indicator
+        function showLoadingIndicator() {
+            document.getElementById('loading-indicator').style.display = 'flex';
+        }
 
-        // Function to display a message (No changes needed)
+        // Function to hide loading indicator
+        function hideLoadingIndicator() {
+            document.getElementById('loading-indicator').style.display = 'none';
+        }
+
+        // Function to display a message with animation
         function displayMessage(message, isError = false) {
             const messageContainer = document.getElementById('message-container');
             messageContainer.textContent = message;
-            messageContainer.className = isError ? 'error' : '';
+            messageContainer.className = isError ? 'error show' : 'show'; // Add 'show' class for animation
             messageContainer.style.display = 'block';
             setTimeout(() => {
-                messageContainer.style.display = 'none';
+                messageContainer.classList.remove('show'); // Remove 'show' class to fade out
+                setTimeout(() => {
+                    messageContainer.style.display = 'none'; // Then hide completely after animation
+                }, 400); // Match transition duration (0.4s in CSS)
             }, 3000);
         }
 
-        // Function to display error messages (No changes needed)
+        // Function to display error messages
         function displayError(elementId, message) {
             const errorElement = document.getElementById(elementId);
             if (errorElement) {
@@ -612,7 +598,7 @@
             }
         }
 
-        // Function to clear error messages (No changes needed)
+        // Function to clear error messages
         function clearError(elementId) {
             const errorElement = document.getElementById(elementId);
             if (errorElement) {
@@ -620,7 +606,7 @@
             }
         }
 
-        // Function to add button click animation (No changes needed)
+        // Function to add button click animation
         function addButtonClickAnimation(button) {
             button.classList.add('clicked');
             setTimeout(() => {
@@ -628,8 +614,9 @@
             }, 300);
         }
 
-        // Auto-load database from Google Sheet and save to Firebase (No changes needed)
+        // Auto-load database from Google Sheet and save to Firebase (No changes needed - MODIFIED for indicator)
         function autoLoadDatabase() {
+            showLoadingIndicator(); // Show loading indicator
             let databaseURL = googleSheetCsvUrl;
 
             console.log("Auto-loading from Google Sheet CSV URL:", databaseURL);
@@ -648,12 +635,12 @@
                         return;
                     }
 
-                    // Save to Firebase instead of localStorage
-                    return saveDatabaseToFirebase(newDatabase); // Return the promise
+                    database = newDatabase; // Store in in-memory 'database' variable
+
                 })
                 .then(() => {
-                    console.log('autoLoadDatabase: Database AUTO-LOADED from Google Sheet and saved to Firebase successfully');
-                    displayMessage('Database auto-loaded successfully from Google Sheet and saved to Firebase!');
+                    console.log('autoLoadDatabase: Database AUTO-LOADED from Google Sheet (in-memory)');
+                    displayMessage('Database auto-loaded successfully from Google Sheet (in-memory)!');
                     // Optionally, refresh the database view after auto-load
                     // viewDatabase(); // Uncomment if you want to automatically show the database popup
                 })
@@ -661,34 +648,12 @@
                     console.error('autoLoadDatabase: Error loading or processing database file from Google Sheet:', error);
                     displayError('excelFileError', `Error auto-loading database from Google Sheet: ${error.message}.`);
                     displayMessage(`Error auto-loading database from Google Sheet. ${error.message}`, true);
+                })
+                .finally(() => { // ADDED finally block to hide indicator
+                    hideLoadingIndicator(); // Hide loading indicator
                 });
         }
 
-        // Function to save database to Firebase Firestore (No changes needed)
-        async function saveDatabaseToFirebase(dbData) {
-            const collectionRef = db.collection(databaseCollectionName);
-            const batch = db.batch(); // Use batch for efficiency
-
-            // Clear existing data first (optional - depends on if you want to overwrite or append)
-            await clearFirebaseCollection(databaseCollectionName);
-
-            dbData.forEach(item => {
-                const docRef = collectionRef.doc(item.code); // Use code as document ID (assuming it's unique) // Updated column title
-                batch.set(docRef, item); // Set each item as a document
-            });
-            return batch.commit(); // Commit the batch write operation
-        }
-
-        // Function to clear a Firebase collection (No changes needed)
-        async function clearFirebaseCollection(collectionName) {
-            const collectionRef = db.collection(collectionName);
-            const querySnapshot = await collectionRef.get();
-            const batch = db.batch();
-            querySnapshot.forEach(doc => {
-                batch.delete(doc.ref);
-            });
-            return batch.commit();
-        }
 
         // Function to parse CSV data (No changes needed)
         function parseCSV(csvText) {
@@ -729,133 +694,79 @@
             window.location.href = '/';
         }
 
-        // uploadExcel function - modified to save to Firebase (No changes needed)
-        function uploadExcel() {
-            const fileInput = document.getElementById('excelFile');
-            const file = fileInput.files[0];
-            clearError('excelFileError');
-
-            if (!file) {
-                displayError('excelFileError', 'Please select an Excel file.');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = async function (e) { // Make async
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array', codepage: 65001 });
-                const sheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[sheetName];
-                // Convert headers to lowercase with space replacement in sheet_to_json options
-                const newDatabase = XLSX.utils.sheet_to_json(worksheet, { raw: false, dateNF: 'yyyy-mm-dd', header: 1 });
-
-                // Transform the data to use lowercase headers
-                const formattedDatabase = newDatabase.slice(1).map(row => {
-                    const formattedRow = {};
-                    newDatabase[0].forEach((header, index) => {
-                        if (header) { // Check if header exists to avoid errors
-                            const lowerCaseHeader = header.toLowerCase().replace(/ /g, ' '); // Convert header to lowercase and handle spaces
-                            formattedRow[lowerCaseHeader] = row[index];
-                        }
-                    });
-                    return formattedRow;
-                });
-
-
-                if (formattedDatabase.length > 0 && (!formattedDatabase[0].code || !formattedDatabase[0].name || !formattedDatabase[0]['supplier name'])) { // Updated column titles
-                    displayError('excelFileError', 'Excel file must have columns: code, name, and supplier name.'); // Updated column titles
-                    return;
-                }
-
-                database = formattedDatabase; // Keep in-memory for now, maybe remove later
-                try {
-                    await saveDatabaseToFirebase(formattedDatabase); // Save to Firebase
-                    displayMessage('Database uploaded and saved to Firebase successfully!');
-                    // Optionally refresh database view: viewDatabase();
-                } catch (firebaseError) {
-                    console.error('Error saving database to Firebase:', firebaseError);
-                    displayError('excelFileError', 'Error saving database to Firebase.');
-                    displayMessage('Error saving database to Firebase.', true);
-                }
-
-            };
-            reader.onerror = function (error) {
-                displayError('excelFileError', 'Error reading the Excel file.');
-                console.error("Error reading Excel file:", error);
-                displayMessage('Error reading the Excel file.', true);
-            };
-            reader.readAsArrayBuffer(file);
-        }
 
         // viewDatabase function - modified to fetch from Firebase and use lowercase column titles (No changes needed)
-        async function viewDatabase() {
+        function viewDatabase() {
             const popup = document.getElementById('databasePopup');
+            const overlay = document.getElementById('overlay');
+
+            popup.classList.add('show'); // Add 'show' class to animate in
+            overlay.classList.add('show'); // Add 'show' class to overlay
+            popup.style.display = 'block'; // Ensure block display for animation to work
+            overlay.style.display = 'block'; // Ensure overlay is displayed
+
             const tableBody = popup.querySelector('#databaseTable tbody');
             tableBody.innerHTML = '';
 
-            try {
-                const querySnapshot = await db.collection(databaseCollectionName).get();
-                querySnapshot.forEach(doc => {
-                    const item = doc.data();
+            database.forEach(item => {
                     const row = tableBody.insertRow();
                     row.insertCell().textContent = item.code || ''; // Updated column title
                     row.insertCell().textContent = item.name || ''; // Updated column title
                     row.insertCell().textContent = item['supplier name'] || ''; // Updated column title
                 });
-                popup.style.display = 'block';
-                document.getElementById('overlay').style.display = 'block';
-
-            } catch (error) {
-                console.error('Error fetching database from Firebase:', error);
-                displayMessage('Error fetching database from Firebase.', true);
-            }
         }
 
 
         // closeDatabasePopup function (No changes needed)
         function closeDatabasePopup() {
-            document.getElementById('databasePopup').style.display = 'none';
-            document.getElementById('overlay').style.display = 'none';
+            const popup = document.getElementById('databasePopup');
+            const overlay = document.getElementById('overlay');
+
+            popup.classList.remove('show'); // Remove 'show' class to animate out
+            overlay.classList.remove('show'); // Remove 'show' class from overlay
+
+            setTimeout(() => {
+                popup.style.display = 'none'; // Hide popup after animation
+                overlay.style.display = 'none'; // Hide overlay after animation
+            }, 300); // Match transition duration (0.3s in CSS)
         }
 
         // clearDatabase function - modified to clear Firebase database (No changes needed)
         async function clearDatabase() {
             try {
-                await clearFirebaseCollection(databaseCollectionName);
-                database = []; // Clear in-memory database as well (optional)
-                displayMessage('Database cleared from Firebase successfully!');
+                await clearFirebaseCollection(databaseCollectionName); // Clear Firebase database collection
+                database = []; // Clear in-memory database
+                displayMessage('Database cleared from Firebase and memory!');
             } catch (error) {
-                console.error('Error clearing database from Firebase:', error);
-                displayMessage('Error clearing database from Firebase.', true);
+                console.error('Error clearing Firebase database:', error);
+                displayMessage('Error clearing Firebase database.', true);
             }
         }
 
         // getItemDetails function - modified to fetch from Firebase and use lowercase column titles (No changes needed)
-        async function getItemDetails() {
+        function getItemDetails() {
             const code = document.getElementById('code').value.trim();
             clearError('codeError');
 
             if (!code) {
-                displayError('codeError', 'Please enter a code.');
-                return;
+                // If code input is cleared, clear item details as well
+                document.getElementById('name').value = '';
+                document.getElementById('supplierName').value = '';
+                return; // Exit function early if no code
             }
 
-            try {
-                const docSnapshot = await db.collection(databaseCollectionName).doc(code).get();
-                if (docSnapshot.exists) {
-                    const item = docSnapshot.data();
-                    document.getElementById('name').value = item.name || ''; // Updated column title
-                    document.getElementById('supplierName').value = item['supplier name'] || ''; // Updated column title
+            const foundItem = database.find(item => item.code === code); // Search in in-memory database
+
+                if (foundItem) {
+                    document.getElementById('name').value = foundItem.name || ''; // Updated column title
+                    document.getElementById('supplierName').value = foundItem['supplier name'] || ''; // Updated column title
                     displayMessage('Item details found.');
                 } else {
                     document.getElementById('name').value = '';
                     document.getElementById('supplierName').value = '';
                     displayMessage('Item details not found.', true);
                 }
-            } catch (error) {
-                console.error('Error fetching item details from Firebase:', error);
-                displayMessage('Error fetching item details.', true);
-            }
+
         }
 
         // toggleAlternateSupplier function (No changes needed)
@@ -869,7 +780,7 @@
         function toggleCurrentPriceField() {
             const typeSelect = document.getElementById('type');
             const currentPriceDiv = document.getElementById('currentPriceDiv');
-            currentPriceDiv.style.display = typeSelect.value === 'مرتجع' ? 'block' : 'none';
+            currentPriceDiv.style.display = typeSelect.value === 'مرتجع' ? 'flex' : 'none'; // Change to 'flex'
         }
 
         // calculateTotal function (No changes needed)
@@ -910,7 +821,7 @@
         }
 
 
-        // addToList function - modified to save to Local Storage
+        // addToList function - modified to save to Local Storage (No changes needed)
         function addToList() {
             const code = document.getElementById('code').value;
             const name = document.getElementById('name').value;
@@ -1004,7 +915,7 @@
             });
         }
 
-        // deleteLocalEntry function - deletes entry from local storage and updates table
+        // deleteLocalEntry function - deletes entry from local storage and updates table (No changes needed)
         function deleteLocalEntry(index) {
             entries.splice(index, 1); // Remove from in-memory array
             saveEntriesToLocalStorage(); // Update local storage
@@ -1013,7 +924,7 @@
         }
 
 
-        // uploadEntriesToFirebase function - uploads entries from local storage to Firebase
+        // uploadEntriesToFirebase function - uploads entries from local storage to Firebase (No changes needed)
         async function uploadEntriesToFirebase() {
             if (entries.length === 0) {
                 displayMessage('No entries to upload.', true);
@@ -1038,7 +949,7 @@
         }
 
 
-        // loadEntriesFromFirebase function - fetches entries from Firebase and updates in-memory entries array and table
+        // loadEntriesFromFirebase function - fetches entries from Firebase and updates in-memory entries array and table (No changes needed)
         async function loadEntriesFromFirebase() {
             entries = loadEntriesFromLocalStorage(); // First load local entries to display immediately
             try {
@@ -1060,7 +971,7 @@
         }
 
 
-        // clearAll function - modified to clear entries from Firebase and Local Storage
+        // clearAll function - modified to clear entries from Firebase and Local Storage (No changes needed)
         async function clearAll() {
             try {
                 await clearFirebaseCollection(entriesCollectionName); // Clear Firebase entries
@@ -1072,6 +983,18 @@
                 console.error('Error clearing all entries from Firebase:', error);
                 displayMessage('Error clearing all entries from Firebase.', true);
             }
+        }
+
+
+        // NEW clearFirebaseCollection function (if not already present) - ADDED THIS MISSING FUNCTION
+        async function clearFirebaseCollection(collectionName) {
+            const collectionRef = db.collection(collectionName);
+            const querySnapshot = await collectionRef.get();
+            const batch = db.batch();
+            querySnapshot.forEach(doc => {
+                batch.delete(doc.ref);
+            });
+            return batch.commit();
         }
 
 
