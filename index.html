@@ -10,6 +10,7 @@
         integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
+        /* ... (Your existing CSS Styles - No changes needed) ... */
         body {
             font-family: Arial, sans-serif;
             padding: 15px;
@@ -479,8 +480,8 @@
                 </div>
 
 
-                <button class="btn btn-primary" onclick="addToList()"><i class="fas fa-save"></i> Save</button>
-                <button class="btn btn-danger" onclick="clearAll()"><i class="fas fa-broom"></i> Clear All</button>
+                <button class="btn btn-primary" onclick="addToList()"><i class="fas fa-save"></i> Save to Local</button>
+                <button class="btn btn-danger" onclick="clearAll()"><i class="fas fa-broom"></i> Clear All Entries</button>
 
             </div>
         </div>
@@ -510,6 +511,7 @@
                         </tbody>
                     </table>
                 </div>
+                <button class="btn btn-info mt-2" onclick="uploadEntriesToFirebase()"><i class="fas fa-upload"></i> Upload Entries to Database</button>
             </div>
         </div>
 
@@ -547,38 +549,51 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.min.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
+    <!-- Firebase SDK (Add these lines) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 
     <script>
-        let database = [];
-        let entries = [];
+        // Firebase Configuration (REPLACE WITH YOUR ACTUAL CONFIG)
+        const firebaseConfig = {
+          apiKey: "AIzaSyAqB5syqP1BVfA9dUx3A6zvokDw3oacy_E",
+          authDomain: "data-base-2c8bf.firebaseapp.com",
+          projectId: "data-base-2c8bf",
+          storageBucket: "data-base-2c8bf.firebasestorage.app",
+          messagingSenderId: "958395018379",
+          appId: "1:958395018379:web:eb7588afda28e32e5a788e",
+          measurementId: "G-PMJ02H7PK2"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore(); // Firestore database reference
+
+        let database = []; // In-memory database (not really needed with Firebase, but kept for parsing)
+        let entries = [];   // In-memory entries array (now will manage both local and Firebase entries)
         const databaseFileNameLocal = "pricing database.xlsx";
         const githubDatabaseFileName = "pricing database.xlsx";
-        const googleSheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTWoiLDQ3vhu5JxwBMIiV8JNwFDAjOqPR7t2aS6YE3SV8o6QWLQ2pZdzA1ny0bmMQ/pub?output=csv";
+        const googleSheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQNrRFFRPe_jrOrDZM58gRqxfsA0deD60_q2jkA7XJRRfJQ7IiBdIqNDN7JdMawjw/pub?output=csv"; // UPDATED GOOGLE SHEET URL
+        const databaseCollectionName = 'databaseItems'; // Firestore collection for database items
+        const entriesCollectionName = 'entries';       // Firestore collection for entries
+        const LOCAL_STORAGE_ENTRIES_KEY = 'pricingAppEntries'; // Key for local storage
 
-        // Function to save the database to localStorage
-        function saveDatabase() {
-            localStorage.setItem('pricingDatabase', JSON.stringify(database));
+        // --- Local Storage Functions for Entries ---
+        function saveEntriesToLocalStorage() {
+            localStorage.setItem(LOCAL_STORAGE_ENTRIES_KEY, JSON.stringify(entries));
         }
 
-        // Function to load the database from localStorage
-        function loadDatabase() {
-            const storedDatabase = localStorage.getItem('pricingDatabase');
-            if (storedDatabase) {
-                database = JSON.parse(storedDatabase);
-            }
+        function loadEntriesFromLocalStorage() {
+            const storedEntries = localStorage.getItem(LOCAL_STORAGE_ENTRIES_KEY);
+            return storedEntries ? JSON.parse(storedEntries) : [];
         }
 
-        // Function to save entries to localStorage
-        function saveEntries() {
-            localStorage.setItem('pricingEntries', JSON.stringify(entries));
+        function clearEntriesFromLocalStorage() {
+            localStorage.removeItem(LOCAL_STORAGE_ENTRIES_KEY);
         }
 
-        // Function to load entries from localStorage
-        function loadEntries() {
-            // No loading entries on page load
-        }
 
-        // Function to display a message
+        // Function to display a message (No changes needed)
         function displayMessage(message, isError = false) {
             const messageContainer = document.getElementById('message-container');
             messageContainer.textContent = message;
@@ -589,7 +604,7 @@
             }, 3000);
         }
 
-        // Function to display error messages
+        // Function to display error messages (No changes needed)
         function displayError(elementId, message) {
             const errorElement = document.getElementById(elementId);
             if (errorElement) {
@@ -597,6 +612,7 @@
             }
         }
 
+        // Function to clear error messages (No changes needed)
         function clearError(elementId) {
             const errorElement = document.getElementById(elementId);
             if (errorElement) {
@@ -604,7 +620,7 @@
             }
         }
 
-        // Function to add button click animation
+        // Function to add button click animation (No changes needed)
         function addButtonClickAnimation(button) {
             button.classList.add('clicked');
             setTimeout(() => {
@@ -612,6 +628,7 @@
             }, 300);
         }
 
+        // Auto-load database from Google Sheet and save to Firebase (No changes needed)
         function autoLoadDatabase() {
             let databaseURL = googleSheetCsvUrl;
 
@@ -626,15 +643,19 @@
                 })
                 .then(csvData => {
                     const newDatabase = parseCSV(csvData);
-                    if (newDatabase.length > 0 && (!newDatabase[0].Code || !newDatabase[0].Name || !newDatabase[0]['Supplier Name'])) {
-                        displayError('excelFileError', 'Google Sheet must have columns: Code, Name, and Supplier Name.');
+                    if (newDatabase.length > 0 && (!newDatabase[0].code || !newDatabase[0].name || !newDatabase[0]['supplier name'])) { // Updated column titles
+                        displayError('excelFileError', 'Google Sheet must have columns: code, name, and supplier name.'); // Updated column titles
                         return;
                     }
 
-                    database = newDatabase;
-                    saveDatabase();
-                    console.log('autoLoadDatabase: Database AUTO-LOADED from Google Sheet and saved successfully:', database);
-                    displayMessage('Database auto-loaded successfully from Google Sheet!');
+                    // Save to Firebase instead of localStorage
+                    return saveDatabaseToFirebase(newDatabase); // Return the promise
+                })
+                .then(() => {
+                    console.log('autoLoadDatabase: Database AUTO-LOADED from Google Sheet and saved to Firebase successfully');
+                    displayMessage('Database auto-loaded successfully from Google Sheet and saved to Firebase!');
+                    // Optionally, refresh the database view after auto-load
+                    // viewDatabase(); // Uncomment if you want to automatically show the database popup
                 })
                 .catch(error => {
                     console.error('autoLoadDatabase: Error loading or processing database file from Google Sheet:', error);
@@ -643,9 +664,36 @@
                 });
         }
 
+        // Function to save database to Firebase Firestore (No changes needed)
+        async function saveDatabaseToFirebase(dbData) {
+            const collectionRef = db.collection(databaseCollectionName);
+            const batch = db.batch(); // Use batch for efficiency
+
+            // Clear existing data first (optional - depends on if you want to overwrite or append)
+            await clearFirebaseCollection(databaseCollectionName);
+
+            dbData.forEach(item => {
+                const docRef = collectionRef.doc(item.code); // Use code as document ID (assuming it's unique) // Updated column title
+                batch.set(docRef, item); // Set each item as a document
+            });
+            return batch.commit(); // Commit the batch write operation
+        }
+
+        // Function to clear a Firebase collection (No changes needed)
+        async function clearFirebaseCollection(collectionName) {
+            const collectionRef = db.collection(collectionName);
+            const querySnapshot = await collectionRef.get();
+            const batch = db.batch();
+            querySnapshot.forEach(doc => {
+                batch.delete(doc.ref);
+            });
+            return batch.commit();
+        }
+
+        // Function to parse CSV data (No changes needed)
         function parseCSV(csvText) {
             const lines = csvText.trim().split('\n');
-            const headers = lines[0].split(',').map(header => header.trim());
+            const headers = lines[0].split(',').map(header => header.trim().toLowerCase().replace(/ /g, ' ')); // Convert headers to lowercase and handle spaces
             const data = [];
 
             for (let i = 1; i < lines.length; i++) {
@@ -664,16 +712,24 @@
 
         // Load initial data when the page loads
         window.onload = function () {
-            loadEntries();
-            autoLoadDatabase();
+            // loadEntries(); // No longer loading entries from localStorage - will load from localStorage and Firebase on demand
+            loadEntriesFromLocalStorageAndUpdateTable(); // Load entries from LocalStorage on page load
+            autoLoadDatabase(); // Still auto-load database on page load (for initial setup/sync)
         };
 
-        // goHome function
+        // Function to load entries from LocalStorage and update the table
+        function loadEntriesFromLocalStorageAndUpdateTable() {
+            entries = loadEntriesFromLocalStorage(); // Load from local storage first
+            updateEntriesTable(); // Update the table with local storage entries
+        }
+
+
+        // goHome function (No changes needed)
         function goHome() {
             window.location.href = '/';
         }
 
-        // uploadExcel function
+        // uploadExcel function - modified to save to Firebase (No changes needed)
         function uploadExcel() {
             const fileInput = document.getElementById('excelFile');
             const file = fileInput.files[0];
@@ -685,21 +741,43 @@
             }
 
             const reader = new FileReader();
-            reader.onload = function (e) {
+            reader.onload = async function (e) { // Make async
                 const data = new Uint8Array(e.target.result);
                 const workbook = XLSX.read(data, { type: 'array', codepage: 65001 });
                 const sheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[sheetName];
-                const newDatabase = XLSX.utils.sheet_to_json(worksheet, { raw: false, dateNF: 'yyyy-mm-dd' });
+                // Convert headers to lowercase with space replacement in sheet_to_json options
+                const newDatabase = XLSX.utils.sheet_to_json(worksheet, { raw: false, dateNF: 'yyyy-mm-dd', header: 1 });
 
-                if (newDatabase.length > 0 && (!newDatabase[0].Code || !newDatabase[0].Name || !newDatabase[0]['Supplier Name'])) {
-                    displayError('excelFileError', 'Excel file must have columns: Code, Name, and Supplier Name.');
+                // Transform the data to use lowercase headers
+                const formattedDatabase = newDatabase.slice(1).map(row => {
+                    const formattedRow = {};
+                    newDatabase[0].forEach((header, index) => {
+                        if (header) { // Check if header exists to avoid errors
+                            const lowerCaseHeader = header.toLowerCase().replace(/ /g, ' '); // Convert header to lowercase and handle spaces
+                            formattedRow[lowerCaseHeader] = row[index];
+                        }
+                    });
+                    return formattedRow;
+                });
+
+
+                if (formattedDatabase.length > 0 && (!formattedDatabase[0].code || !formattedDatabase[0].name || !formattedDatabase[0]['supplier name'])) { // Updated column titles
+                    displayError('excelFileError', 'Excel file must have columns: code, name, and supplier name.'); // Updated column titles
                     return;
                 }
 
-                database = newDatabase;
-                saveDatabase();
-                displayMessage('Database uploaded and saved successfully!');
+                database = formattedDatabase; // Keep in-memory for now, maybe remove later
+                try {
+                    await saveDatabaseToFirebase(formattedDatabase); // Save to Firebase
+                    displayMessage('Database uploaded and saved to Firebase successfully!');
+                    // Optionally refresh database view: viewDatabase();
+                } catch (firebaseError) {
+                    console.error('Error saving database to Firebase:', firebaseError);
+                    displayError('excelFileError', 'Error saving database to Firebase.');
+                    displayMessage('Error saving database to Firebase.', true);
+                }
+
             };
             reader.onerror = function (error) {
                 displayError('excelFileError', 'Error reading the Excel file.');
@@ -709,39 +787,51 @@
             reader.readAsArrayBuffer(file);
         }
 
-        // viewDatabase function
-        function viewDatabase() {
+        // viewDatabase function - modified to fetch from Firebase and use lowercase column titles (No changes needed)
+        async function viewDatabase() {
             const popup = document.getElementById('databasePopup');
             const tableBody = popup.querySelector('#databaseTable tbody');
             tableBody.innerHTML = '';
 
-            database.forEach(item => {
-                const row = tableBody.insertRow();
-                row.insertCell().textContent = item.Code || '';
-                row.insertCell().textContent = item.Name || '';
-                row.insertCell().textContent = item['Supplier Name'] || '';
-            });
+            try {
+                const querySnapshot = await db.collection(databaseCollectionName).get();
+                querySnapshot.forEach(doc => {
+                    const item = doc.data();
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = item.code || ''; // Updated column title
+                    row.insertCell().textContent = item.name || ''; // Updated column title
+                    row.insertCell().textContent = item['supplier name'] || ''; // Updated column title
+                });
+                popup.style.display = 'block';
+                document.getElementById('overlay').style.display = 'block';
 
-            popup.style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
+            } catch (error) {
+                console.error('Error fetching database from Firebase:', error);
+                displayMessage('Error fetching database from Firebase.', true);
+            }
         }
 
 
-        // closeDatabasePopup function
+        // closeDatabasePopup function (No changes needed)
         function closeDatabasePopup() {
             document.getElementById('databasePopup').style.display = 'none';
             document.getElementById('overlay').style.display = 'none';
         }
 
-        // clearDatabase function
-        function clearDatabase() {
-            database = [];
-            saveDatabase();
-            displayMessage('Database cleared successfully!');
+        // clearDatabase function - modified to clear Firebase database (No changes needed)
+        async function clearDatabase() {
+            try {
+                await clearFirebaseCollection(databaseCollectionName);
+                database = []; // Clear in-memory database as well (optional)
+                displayMessage('Database cleared from Firebase successfully!');
+            } catch (error) {
+                console.error('Error clearing database from Firebase:', error);
+                displayMessage('Error clearing database from Firebase.', true);
+            }
         }
 
-        // getItemDetails function
-        function getItemDetails() {
+        // getItemDetails function - modified to fetch from Firebase and use lowercase column titles (No changes needed)
+        async function getItemDetails() {
             const code = document.getElementById('code').value.trim();
             clearError('codeError');
 
@@ -750,34 +840,39 @@
                 return;
             }
 
-            const item = database.find(item => item.Code === code);
-
-            if (item) {
-                document.getElementById('name').value = item.Name || '';
-                document.getElementById('supplierName').value = item['Supplier Name'] || '';
-                displayMessage('Item details found.');
-            } else {
-                document.getElementById('name').value = '';
-                document.getElementById('supplierName').value = '';
-                displayMessage('Item details not found.', true);
+            try {
+                const docSnapshot = await db.collection(databaseCollectionName).doc(code).get();
+                if (docSnapshot.exists) {
+                    const item = docSnapshot.data();
+                    document.getElementById('name').value = item.name || ''; // Updated column title
+                    document.getElementById('supplierName').value = item['supplier name'] || ''; // Updated column title
+                    displayMessage('Item details found.');
+                } else {
+                    document.getElementById('name').value = '';
+                    document.getElementById('supplierName').value = '';
+                    displayMessage('Item details not found.', true);
+                }
+            } catch (error) {
+                console.error('Error fetching item details from Firebase:', error);
+                displayMessage('Error fetching item details.', true);
             }
         }
 
-        // toggleAlternateSupplier function
+        // toggleAlternateSupplier function (No changes needed)
         function toggleAlternateSupplier() {
             const checkBox = document.getElementById('alternateSupplierCheck');
             const alternateSupplierDiv = document.getElementById('alternateSupplierDiv');
             alternateSupplierDiv.style.display = checkBox.checked ? 'block' : 'none';
         }
 
-        // toggleCurrentPriceField function
+        // toggleCurrentPriceField function (No changes needed)
         function toggleCurrentPriceField() {
             const typeSelect = document.getElementById('type');
             const currentPriceDiv = document.getElementById('currentPriceDiv');
             currentPriceDiv.style.display = typeSelect.value === 'مرتجع' ? 'block' : 'none';
         }
 
-        // calculateTotal function
+        // calculateTotal function (No changes needed)
         function calculateTotal() {
             clearError('costError');
             clearError('vatError');
@@ -815,7 +910,7 @@
         }
 
 
-        // addToList function
+        // addToList function - modified to save to Local Storage
         function addToList() {
             const code = document.getElementById('code').value;
             const name = document.getElementById('name').value;
@@ -837,7 +932,7 @@
                 return;
             }
 
-            entries.push({
+            const entryData = { // Data to save to Local Storage
                 code: code,
                 name: name,
                 supplier: alternateSupplierCheck && alternateSupplierName ? alternateSupplierName : supplierName,
@@ -848,15 +943,16 @@
                 case: casePrice,
                 type: type,
                 current: type === 'مرتجع' ? currentPrice : ''
-            });
+            };
 
-            saveEntries();
-            updateEntriesTable();
+            entries.push(entryData); // Add to in-memory entries array
+            saveEntriesToLocalStorage(); // Save to local storage
+            updateEntriesTable(); // Update the displayed table
+            displayMessage('Item added to local list.');
             clearInputFields();
-            displayMessage('Item added to list.');
         }
 
-        // clearInputFields function
+        // clearInputFields function (No changes needed)
         function clearInputFields() {
             document.getElementById('code').value = '';
             document.getElementById('name').value = '';
@@ -881,12 +977,12 @@
         }
 
 
-        // updateEntriesTable function
+        // updateEntriesTable function - modified to fetch and display from in-memory entries array (No changes needed)
         function updateEntriesTable() {
             const entriesTableBody = document.querySelector('#entriesTable tbody');
             entriesTableBody.innerHTML = '';
 
-            entries.forEach((entry, index) => {
+            entries.forEach((entry, index) => { // Still using in-memory 'entries' array for display
                 const row = entriesTableBody.insertRow();
                 row.insertCell().textContent = entry.code;
                 row.insertCell().textContent = entry.name;
@@ -903,30 +999,83 @@
                 const deleteButton = document.createElement('button');
                 deleteButton.className = 'btn btn-danger btn-sm';
                 deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
-                deleteButton.onclick = () => deleteEntry(index);
+                deleteButton.onclick = () => deleteLocalEntry(index); // Delete from local storage
                 actionsCell.appendChild(deleteButton);
             });
         }
 
-        // deleteEntry function
-        function deleteEntry(index) {
-            entries.splice(index, 1);
-            saveEntries();
-            updateEntriesTable();
-            displayMessage('Entry deleted.');
-        }
-
-        // clearAll function
-        function clearAll() {
-            entries = [];
-            saveEntries();
-            updateEntriesTable();
-            clearInputFields();
-            displayMessage('All entries cleared.');
+        // deleteLocalEntry function - deletes entry from local storage and updates table
+        function deleteLocalEntry(index) {
+            entries.splice(index, 1); // Remove from in-memory array
+            saveEntriesToLocalStorage(); // Update local storage
+            updateEntriesTable(); // Refresh the table
+            displayMessage('Entry deleted from local list.');
         }
 
 
-        // exportToJPG function
+        // uploadEntriesToFirebase function - uploads entries from local storage to Firebase
+        async function uploadEntriesToFirebase() {
+            if (entries.length === 0) {
+                displayMessage('No entries to upload.', true);
+                return;
+            }
+
+            try {
+                const batch = db.batch();
+                entries.forEach(entry => {
+                    const docRef = db.collection(entriesCollectionName).doc(entry.code);
+                    batch.set(docRef, entry);
+                });
+                await batch.commit();
+                clearEntriesFromLocalStorage(); // Clear local storage after successful upload
+                entries = []; // Clear in-memory entries
+                loadEntriesFromFirebase(); // Reload from Firebase to ensure consistency
+                displayMessage('Entries uploaded to database successfully!');
+            } catch (error) {
+                console.error('Error uploading entries to Firebase:', error);
+                displayMessage('Error uploading entries to database.', true);
+            }
+        }
+
+
+        // loadEntriesFromFirebase function - fetches entries from Firebase and updates in-memory entries array and table
+        async function loadEntriesFromFirebase() {
+            entries = loadEntriesFromLocalStorage(); // First load local entries to display immediately
+            try {
+                const querySnapshot = await db.collection(entriesCollectionName).get();
+                const firebaseEntries = [];
+                querySnapshot.forEach(doc => {
+                    firebaseEntries.push(doc.data());
+                });
+
+                // Merge local and Firebase entries (optional - for now just replace local with firebase after upload)
+                entries = firebaseEntries; // Replace local entries with Firebase entries after upload
+                saveEntriesToLocalStorage(); // Update local storage to be in sync with Firebase
+                updateEntriesTable(); // Update the table with fetched entries
+            } catch (error) {
+                console.error('Error loading entries from Firebase:', error);
+                displayMessage('Error loading entries from Firebase, showing locally saved entries.', true);
+                updateEntriesTable(); // Still update table to show local entries even if Firebase load fails
+            }
+        }
+
+
+        // clearAll function - modified to clear entries from Firebase and Local Storage
+        async function clearAll() {
+            try {
+                await clearFirebaseCollection(entriesCollectionName); // Clear Firebase entries
+                clearEntriesFromLocalStorage(); // Clear local storage entries
+                entries = []; // Clear in-memory entries array
+                updateEntriesTable(); // Clear the table display
+                displayMessage('All entries cleared from Firebase and Local Storage.');
+            } catch (error) {
+                console.error('Error clearing all entries from Firebase:', error);
+                displayMessage('Error clearing all entries from Firebase.', true);
+            }
+        }
+
+
+        // exportToJPG function (No changes needed)
         function exportToJPG() {
             console.log("exportToJPG function started");
 
