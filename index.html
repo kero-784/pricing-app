@@ -22,7 +22,7 @@
             --card-header-background: #e9ecef;
             --text-color-dark: #343a40;
             --text-color-light: #ffffff;
-            --accent-color: #28a745;
+            --accent-color: #28a745; /* Green for success/excel export */
         }
 
         body {
@@ -131,6 +131,13 @@
             border-color: var(--primary-color);
             box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
         }
+        .error-message {
+            color: red;
+            font-size: 0.8em;
+            width: 100%; /* Ensure error messages take full width below input if wrapped */
+            text-align: right;
+            padding-top: 2px;
+        }
 
         .adjustable-width.code-input {
             width: 120px; /* Further reduced width */
@@ -182,12 +189,24 @@
             transform: scale(1.02);
         }
 
-        .btn-secondary, .btn-danger, .btn-info {
+        .btn-secondary, .btn-danger, .btn-info, .btn-success { /* Added .btn-success */
             border-radius: 8px;
             padding: 0.5rem 0.9rem; /* Slightly smaller button padding */
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
         }
+         .btn-success {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            color: var(--text-color-light);
+        }
+        .btn-success:hover {
+            background-color: #1e7e34; /* Darker green */
+            border-color: #1e7e34;
+            transform: scale(1.02);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+        }
+
 
         .btn-secondary:hover, .btn-danger:hover, .btn-info:hover {
             transform: scale(1.02);
@@ -298,6 +317,8 @@
             z-index: 1050;
             opacity: 0;
             transition: opacity 0.3s ease, transform 0.3s ease;
+            width: 90%; /* Make popup wider */
+            max-width: 600px; /* Max width for popup */
         }
 
         #databasePopup.show {
@@ -312,6 +333,11 @@
             color: var(--text-color-dark);
         }
 
+        #databasePopup #databaseTableContainer { /* Added container for scrolling */
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
         #databasePopup #databaseTable {
             width: 100%;
             border-collapse: collapse;
@@ -321,11 +347,15 @@
             padding: 6px 10px; /* Smaller popup table cell padding */
             border-bottom: 1px solid #eee;
             text-align: left;
+            white-space: nowrap; /* Prevent text wrapping in popup table */
         }
 
         #databasePopup #databaseTable th {
             background-color: var(--card-header-background);
             font-weight: bold;
+            position: sticky; /* Sticky header for scrollable table */
+            top: 0;
+            z-index: 1;
         }
 
         #databasePopup #databaseTable tbody tr:last-child td {
@@ -345,6 +375,12 @@
 
         #overlay.show {
             display: block;
+        }
+
+        .export-buttons-container { /* Container for export buttons */
+            margin-top: 1rem;
+            display: flex;
+            gap: 10px; /* Space between export buttons */
         }
     </style>
 </head>
@@ -374,12 +410,12 @@
             <div class="card-header">Item Details & Calculation</div>
             <div class="card-body">
                 <div class="form-row"> <!-- Row for Code and Type -->
-                    <div class="form-group col-md-6"> <!-- Adjust column size as needed -->
+                    <div class="form-group col-md-6">
                         <label for="code">Code:</label>
                         <input type="text" class="form-control adjustable-width code-input" id="code" oninput="getItemDetails()">
                         <div id="codeError" class="error-message"></div>
                     </div>
-                    <div class="form-group col-md-6"> <!-- Adjust column size as needed -->
+                    <div class="form-group col-md-6">
                         <label for="type">Type:</label>
                         <select class="form-control adjustable-width type-select" id="type"
                             onchange="toggleCurrentPriceField()">
@@ -388,20 +424,19 @@
                         </select>
                     </div>
                 </div>
-                <!-- Current Price Input (Shown only for "مرتجع") -->
-                <div class="form-group" id="currentPriceDiv" style="display:none; display: flex;"> <!-- Flex to keep label and input inline when visible -->
+                <div class="form-group" id="currentPriceDiv" style="display:none;">
                     <label for="currentPrice">Current Price:</label>
-                    <input type="number" class="form-control adjustable-width price-input" id="currentPrice"
+                    <input type="number" step="0.001" class="form-control adjustable-width price-input" id="currentPrice"
                         oninput="calculateTotal()">
                     <div id="currentPriceError" class="error-message"></div>
                 </div>
                 <div class="form-group">
                     <label for="name">Name:</label>
-                    <input type="text" class="form-control adjustable-width" id="name" readonly>
+                    <input type="text" class="form-control" id="name" readonly>
                 </div>
                 <div class="form-group">
                     <label for="supplierName">Supplier Name:</label>
-                    <input type="text" class="form-control adjustable-width" id="supplierName" readonly>
+                    <input type="text" class="form-control" id="supplierName" readonly>
                 </div>
                 <div class="form-group">
                     <label for="alternateSupplierCheck">شراء من مورد اخر:</label>
@@ -413,12 +448,12 @@
                 </div>
                 <div class="form-group" id="alternateSupplierDiv" style="display: none;">
                     <label for="alternateSupplierName">Alternate Supplier Name:</label>
-                    <input type="text" class="form-control adjustable-width" id="alternateSupplierName">
+                    <input type="text" class="form-control" id="alternateSupplierName">
                 </div>
-                <div class="form-row"> <!-- Row for Case Cost and Unit -->
+                <div class="form-row">
                     <div class="form-group col-md-6">
                         <label for="cost">Case Cost:</label>
-                        <input type="number" class="form-control adjustable-width unit-input" id="cost" required
+                        <input type="number" step="0.001" class="form-control adjustable-width unit-input" id="cost" required
                             oninput="calculateTotal()">
                         <div id="costError" class="error-message"></div>
                     </div>
@@ -426,9 +461,10 @@
                         <label for="unit">Units per Case:</label>
                         <input type="number" class="form-control adjustable-width unit-input" id="unit" value="1"
                             oninput="calculateTotal()">
+                        <div id="unitError" class="error-message"></div> <!-- Added error display for unit -->
                     </div>
                 </div>
-                <div class="form-row"> <!-- Row for Discount and VAT -->
+                <div class="form-row">
                     <div class="form-group col-md-6">
                         <label for="discount">Discount (%):</label>
                         <input type="number" class="form-control adjustable-width discount-input" id="discount" value="0"
@@ -446,15 +482,15 @@
                 </div>
                 <div class="form-group">
                     <label for="unitPrice">Unit Price (After Discount & VAT):</label>
-                    <input type="text" class="form-control adjustable-width" id="unitPrice" readonly>
+                    <input type="text" class="form-control adjustable-width price-input" id="unitPrice" readonly>
                 </div>
                 <div class="form-group">
                     <label for="casePrice">Case Price (After Discount & VAT):</label>
-                    <input type="text" class="form-control adjustable-width" id="casePrice" readonly>
+                    <input type="text" class="form-control adjustable-width price-input" id="casePrice" readonly>
                 </div>
 
 
-                <button class="btn btn-primary" onclick="addToList()"><i class="fas fa-save"></i> Save to Local</button>
+                <button class="btn btn-primary mr-2" onclick="addToList()"><i class="fas fa-save"></i> Save to Local</button>
                 <button class="btn btn-danger" onclick="clearAll()"><i class="fas fa-broom"></i> Clear All Entries</button>
 
             </div>
@@ -490,26 +526,32 @@
 
 
         <!-- Export Section -->
-        <button class="btn btn-info" onclick="exportToJPG()"><i class="fas fa-download"></i> Export to JPG</button>
+        <div class="export-buttons-container">
+             <button class="btn btn-success" onclick="exportToExcel()"><i class="fas fa-file-excel"></i> Export to Excel</button>
+             <button class="btn btn-info" onclick="exportToJPG()"><i class="fas fa-file-image"></i> Export to JPG</button>
+        </div>
+
 
         <!-- Popup for Database View -->
         <div id="databasePopup">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <h3>Database</h3>
                 <button onclick="closeDatabasePopup()" class="btn btn-secondary btn-sm"><i
                         class="fas fa-times"></i> Close</button>
             </div>
-            <table id="databaseTable">
-                <thead>
-                    <tr>
-                        <th>Code</th>
-                        <th>Name</th>
-                        <th>Supplier Name</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+            <div id="databaseTableContainer"> <!-- Scrollable container for table -->
+                <table id="databaseTable">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Name</th>
+                            <th>Supplier Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div id="overlay"></div>
@@ -519,15 +561,15 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
-    <!-- Firebase SDK (Add these lines if you still need Firebase for entries - KEEP FOR NOW) -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 
     <script>
-        // Firebase Configuration (REPLACE WITH YOUR ACTUAL CONFIG - KEEP IF YOU STILL NEED FIREBASE FOR ENTRIES)
+        // Firebase Configuration
        const firebaseConfig = {
           apiKey: "AIzaSyAqB5syqP1BVfA9dUx3A6zvokDw3oacy_E",
           authDomain: "data-base-2c8bf.firebaseapp.com",
@@ -538,21 +580,17 @@
           measurementId: "G-PMJ02H7PK2"
         };
 
-        // Initialize Firebase (KEEP IF YOU STILL NEED FIREBASE FOR ENTRIES)
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore(); // Firestore database reference (KEEP IF YOU STILL NEED FIREBASE FOR ENTRIES)
+        const db = firebase.firestore();
 
 
-        let database = []; // In-memory database
-        let entries = [];   // In-memory entries array
-        const databaseFileNameLocal = "pricing database.xlsx";
-        const githubDatabaseFileName = "pricing database.xlsx";
-        const googleSheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQNrRFFRPe_jrOrDZM58gRqxfsA0deD60_q2jkA7XJRRfJQ7IiBdIqNDN7JdMawjw/pub?output=csv"; // REPLACE!
-        const databaseCollectionName = 'databaseItems'; // Firestore collection for database items (NO LONGER USED FOR SAVING DATABASE)
-        const entriesCollectionName = 'entries';       // Firestore collection for entries
-        const LOCAL_STORAGE_ENTRIES_KEY = 'pricingAppEntries'; // Key for local storage
+        let database = [];
+        let entries = [];
+        const googleSheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQNrRFFRPe_jrOrDZM58gRqxfsA0deD60_q2jkA7XJRRfJQ7IiBdIqNDN7JdMawjw/pub?output=csv";
+        const databaseCollectionName = 'databaseItems'; // Used for potential future Firebase DB item sync
+        const entriesCollectionName = 'entries';       // Used for potential future Firebase entry sync
+        const LOCAL_STORAGE_ENTRIES_KEY = 'pricingAppEntries';
 
-        // --- Local Storage Functions for Entries ---
         function saveEntriesToLocalStorage() {
             localStorage.setItem(LOCAL_STORAGE_ENTRIES_KEY, JSON.stringify(entries));
         }
@@ -566,39 +604,36 @@
             localStorage.removeItem(LOCAL_STORAGE_ENTRIES_KEY);
         }
 
-        // Function to show loading indicator
         function showLoadingIndicator() {
             document.getElementById('loading-indicator').style.display = 'flex';
         }
 
-        // Function to hide loading indicator
         function hideLoadingIndicator() {
             document.getElementById('loading-indicator').style.display = 'none';
         }
 
-        // Function to display a message with animation
         function displayMessage(message, isError = false) {
             const messageContainer = document.getElementById('message-container');
             messageContainer.textContent = message;
-            messageContainer.className = isError ? 'error show' : 'show'; // Add 'show' class for animation
+            messageContainer.className = isError ? 'error show' : 'show';
             messageContainer.style.display = 'block';
             setTimeout(() => {
-                messageContainer.classList.remove('show'); // Remove 'show' class to fade out
+                messageContainer.classList.remove('show');
                 setTimeout(() => {
-                    messageContainer.style.display = 'none'; // Then hide completely after animation
-                }, 400); // Match transition duration (0.4s in CSS)
+                    messageContainer.style.display = 'none';
+                }, 400);
             }, 3000);
         }
 
-        // Function to display error messages
         function displayError(elementId, message) {
             const errorElement = document.getElementById(elementId);
             if (errorElement) {
                 errorElement.textContent = message;
+                // errorElement.style.color = 'red'; // Already handled by CSS .error-message
+                // errorElement.style.fontSize = '0.8em';
             }
         }
 
-        // Function to clear error messages
         function clearError(elementId) {
             const errorElement = document.getElementById(elementId);
             if (errorElement) {
@@ -606,63 +641,38 @@
             }
         }
 
-        // Function to add button click animation
-        function addButtonClickAnimation(button) {
-            button.classList.add('clicked');
-            setTimeout(() => {
-                button.classList.remove('clicked');
-            }, 300);
-        }
 
-        // Auto-load database from Google Sheet and save to Firebase (No changes needed - MODIFIED for indicator)
         function autoLoadDatabase() {
-            showLoadingIndicator(); // Show loading indicator
-            let databaseURL = googleSheetCsvUrl;
-
-            console.log("Auto-loading from Google Sheet CSV URL:", databaseURL);
-
-            fetch(databaseURL)
+            showLoadingIndicator();
+            fetch(googleSheetCsvUrl)
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     return response.text();
                 })
                 .then(csvData => {
                     const newDatabase = parseCSV(csvData);
-                    if (newDatabase.length > 0 && (!newDatabase[0].code || !newDatabase[0].name || !newDatabase[0]['supplier name'])) { // Updated column titles
-                        displayError('excelFileError', 'Google Sheet must have columns: code, name, and supplier name.'); // Updated column titles
+                    if (newDatabase.length > 0 && (!newDatabase[0].code || !newDatabase[0].name || !newDatabase[0]['supplier name'])) {
+                        displayMessage('Google Sheet must have columns: code, name, and supplier name.', true);
                         return;
                     }
-
-                    database = newDatabase; // Store in in-memory 'database' variable
-
-                })
-                .then(() => {
-                    console.log('autoLoadDatabase: Database AUTO-LOADED from Google Sheet (in-memory)');
-                    displayMessage('Database auto-loaded successfully from Google Sheet (in-memory)!');
-                    // Optionally, refresh the database view after auto-load
-                    // viewDatabase(); // Uncomment if you want to automatically show the database popup
+                    database = newDatabase;
+                    displayMessage('Database auto-loaded successfully from Google Sheet!');
                 })
                 .catch(error => {
-                    console.error('autoLoadDatabase: Error loading or processing database file from Google Sheet:', error);
-                    displayError('excelFileError', `Error auto-loading database from Google Sheet: ${error.message}.`);
-                    displayMessage(`Error auto-loading database from Google Sheet. ${error.message}`, true);
+                    console.error('Error auto-loading database from Google Sheet:', error);
+                    displayMessage(`Error auto-loading database: ${error.message}.`, true);
                 })
-                .finally(() => { // ADDED finally block to hide indicator
-                    hideLoadingIndicator(); // Hide loading indicator
+                .finally(() => {
+                    hideLoadingIndicator();
                 });
         }
 
-
-        // Function to parse CSV data (No changes needed)
         function parseCSV(csvText) {
             const lines = csvText.trim().split('\n');
-            const headers = lines[0].split(',').map(header => header.trim().toLowerCase().replace(/ /g, ' ')); // Convert headers to lowercase and handle spaces
+            const headers = lines[0].split(',').map(header => header.trim().toLowerCase().replace(/\r$/, ''));
             const data = [];
-
             for (let i = 1; i < lines.length; i++) {
-                const values = lines[i].split(',').map(value => value.trim());
+                const values = lines[i].split(',').map(value => value.trim().replace(/\r$/, ''));
                 if (values.length === headers.length) {
                     const rowData = {};
                     for (let j = 0; j < headers.length; j++) {
@@ -675,195 +685,215 @@
         }
 
 
-        // Load initial data when the page loads
         window.onload = function () {
-            // loadEntries(); // No longer loading entries from localStorage - will load from localStorage and Firebase on demand
-            loadEntriesFromLocalStorageAndUpdateTable(); // Load entries from LocalStorage on page load
-            autoLoadDatabase(); // Still auto-load database on page load (for initial setup/sync)
+            loadEntriesFromLocalStorageAndUpdateTable();
+            autoLoadDatabase();
+            toggleCurrentPriceField();
         };
 
-        // Function to load entries from LocalStorage and update the table
         function loadEntriesFromLocalStorageAndUpdateTable() {
-            entries = loadEntriesFromLocalStorage(); // Load from local storage first
-            updateEntriesTable(); // Update the table with local storage entries
+            entries = loadEntriesFromLocalStorage();
+            updateEntriesTable();
         }
 
-
-        // goHome function (No changes needed)
-        function goHome() {
-            window.location.href = '/';
-        }
-
-
-        // viewDatabase function - modified to fetch from Firebase and use lowercase column titles (No changes needed)
         function viewDatabase() {
             const popup = document.getElementById('databasePopup');
             const overlay = document.getElementById('overlay');
-
-            popup.classList.add('show'); // Add 'show' class to animate in
-            overlay.classList.add('show'); // Add 'show' class to overlay
-            popup.style.display = 'block'; // Ensure block display for animation to work
-            overlay.style.display = 'block'; // Ensure overlay is displayed
+            popup.classList.add('show');
+            overlay.classList.add('show');
+            popup.style.display = 'block';
+            overlay.style.display = 'block';
 
             const tableBody = popup.querySelector('#databaseTable tbody');
             tableBody.innerHTML = '';
-
+            if (database.length === 0) {
+                const row = tableBody.insertRow();
+                const cell = row.insertCell();
+                cell.colSpan = 3;
+                cell.textContent = "Database is empty or not loaded yet.";
+                cell.style.textAlign = "center";
+                return;
+            }
             database.forEach(item => {
-                    const row = tableBody.insertRow();
-                    row.insertCell().textContent = item.code || ''; // Updated column title
-                    row.insertCell().textContent = item.name || ''; // Updated column title
-                    row.insertCell().textContent = item['supplier name'] || ''; // Updated column title
-                });
+                const row = tableBody.insertRow();
+                row.insertCell().textContent = item.code || '';
+                row.insertCell().textContent = item.name || '';
+                row.insertCell().textContent = item['supplier name'] || '';
+            });
         }
 
-
-        // closeDatabasePopup function (No changes needed)
         function closeDatabasePopup() {
             const popup = document.getElementById('databasePopup');
             const overlay = document.getElementById('overlay');
-
-            popup.classList.remove('show'); // Remove 'show' class to animate out
-            overlay.classList.remove('show'); // Remove 'show' class from overlay
-
+            popup.classList.remove('show');
+            overlay.classList.remove('show');
             setTimeout(() => {
-                popup.style.display = 'none'; // Hide popup after animation
-                overlay.style.display = 'none'; // Hide overlay after animation
-            }, 300); // Match transition duration (0.3s in CSS)
+                popup.style.display = 'none';
+                overlay.style.display = 'none';
+            }, 300);
         }
 
-        // clearDatabase function - modified to clear Firebase database (No changes needed)
         async function clearDatabase() {
-            try {
-                await clearFirebaseCollection(databaseCollectionName); // Clear Firebase database collection
-                database = []; // Clear in-memory database
-                displayMessage('Database cleared from Firebase and memory!');
-            } catch (error) {
-                console.error('Error clearing Firebase database:', error);
-                displayMessage('Error clearing Firebase database.', true);
+            if (confirm("Are you sure you want to clear the locally loaded database (from Google Sheet)? This will not affect the Google Sheet itself.")) {
+                database = [];
+                displayMessage('In-memory database (from Google Sheet) cleared!');
+                const popupTableBody = document.querySelector('#databasePopup #databaseTable tbody');
+                if (popupTableBody) {
+                     popupTableBody.innerHTML = ''; // Clear current view if open
+                     const row = popupTableBody.insertRow();
+                     const cell = row.insertCell();
+                     cell.colSpan = 3;
+                     cell.textContent = "Database is empty or not loaded yet.";
+                     cell.style.textAlign = "center";
+                }
             }
         }
 
-        // getItemDetails function - modified to fetch from Firebase and use lowercase column titles (No changes needed)
+
         function getItemDetails() {
             const code = document.getElementById('code').value.trim();
             clearError('codeError');
+            document.getElementById('name').value = '';
+            document.getElementById('supplierName').value = '';
 
-            if (!code) {
-                // If code input is cleared, clear item details as well
-                document.getElementById('name').value = '';
-                document.getElementById('supplierName').value = '';
-                return; // Exit function early if no code
+            if (!code) return;
+
+            const foundItem = database.find(item => item.code === code);
+            if (foundItem) {
+                document.getElementById('name').value = foundItem.name || '';
+                document.getElementById('supplierName').value = foundItem['supplier name'] || '';
+                // displayMessage('Item details found.'); // Can be a bit noisy, optional
+            } else {
+                displayMessage('Item details not found in the loaded database.', true);
             }
-
-            const foundItem = database.find(item => item.code === code); // Search in in-memory database
-
-                if (foundItem) {
-                    document.getElementById('name').value = foundItem.name || ''; // Updated column title
-                    document.getElementById('supplierName').value = foundItem['supplier name'] || ''; // Updated column title
-                    displayMessage('Item details found.');
-                } else {
-                    document.getElementById('name').value = '';
-                    document.getElementById('supplierName').value = '';
-                    displayMessage('Item details not found.', true);
-                }
-
         }
 
-        // toggleAlternateSupplier function (No changes needed)
         function toggleAlternateSupplier() {
             const checkBox = document.getElementById('alternateSupplierCheck');
             const alternateSupplierDiv = document.getElementById('alternateSupplierDiv');
-            alternateSupplierDiv.style.display = checkBox.checked ? 'block' : 'none';
+            alternateSupplierDiv.style.display = checkBox.checked ? 'flex' : 'none';
         }
 
-        // toggleCurrentPriceField function (No changes needed)
         function toggleCurrentPriceField() {
             const typeSelect = document.getElementById('type');
             const currentPriceDiv = document.getElementById('currentPriceDiv');
-            currentPriceDiv.style.display = typeSelect.value === 'مرتجع' ? 'flex' : 'none'; // Change to 'flex'
+            currentPriceDiv.style.display = typeSelect.value === 'مرتجع' ? 'flex' : 'none';
         }
 
-        // calculateTotal function (No changes needed)
         function calculateTotal() {
             clearError('costError');
             clearError('vatError');
             clearError('currentPriceError');
+            clearError('unitError');
 
             const cost = parseFloat(document.getElementById('cost').value) || 0;
-            const unit = parseInt(document.getElementById('unit').value) || 1;
+            const unit = parseInt(document.getElementById('unit').value) || 0; // Allow 0 for intermediate calc before validation
             const discount = parseFloat(document.getElementById('discount').value) || 0;
             const vatRate = parseFloat(document.getElementById('vat').value) || 0;
-            const type = document.getElementById('type').value;
-            const currentPrice = parseFloat(document.getElementById('currentPrice').value) || 0;
 
-
-            if (isNaN(cost) || cost < 0) {
-                displayError('costError', 'Cost must be a valid positive number.');
-                return;
+            let valid = true;
+            if (cost < 0) {
+                displayError('costError', 'Cost must be a non-negative number.');
+                valid = false;
             }
-            if (isNaN(vatRate) || vatRate < 0) {
-                displayError('vatError', 'VAT must be a valid positive number.');
-                return;
-            }
-            if (type === 'مرتجع' && (isNaN(currentPrice) || currentPrice < 0)) {
-                displayError('currentPriceError', 'Current Price must be a valid positive number for مرتجع.');
-                return;
+            if (unit <= 0) {
+                displayError('unitError', 'Units per case must be positive.');
+                valid = false;
             }
 
+            if (!valid) {
+                document.getElementById('unitPrice').value = '';
+                document.getElementById('casePrice').value = '';
+                return;
+            }
 
             let discountedCost = cost * (1 - discount / 100);
             let costWithVat = discountedCost * (1 + vatRate / 100);
-            let unitPriceValue = costWithVat / unit;
+            let unitPriceValue = (unit > 0) ? (costWithVat / unit) : 0;
 
-
-            document.getElementById('unitPrice').value = unitPriceValue.toFixed(2);
-            document.getElementById('casePrice').value = costWithVat.toFixed(2);
+            document.getElementById('unitPrice').value = unitPriceValue.toFixed(3);
+            document.getElementById('casePrice').value = costWithVat.toFixed(3);
         }
 
 
-        // addToList function - modified to save to Local Storage (No changes needed)
         function addToList() {
-            const code = document.getElementById('code').value;
-            const name = document.getElementById('name').value;
-            const supplierName = document.getElementById('supplierName').value;
+            const code = document.getElementById('code').value.trim();
+            const name = document.getElementById('name').value.trim();
+            const supplierName = document.getElementById('supplierName').value.trim();
             const alternateSupplierCheck = document.getElementById('alternateSupplierCheck').checked;
-            const alternateSupplierName = document.getElementById('alternateSupplierName').value;
-            const cost = parseFloat(document.getElementById('cost').value);
-            const unit = parseInt(document.getElementById('unit').value);
-            const discount = parseFloat(document.getElementById('discount').value);
-            const vat = document.getElementById('vat').value;
+            const alternateSupplierName = document.getElementById('alternateSupplierName').value.trim();
+            const costInput = document.getElementById('cost').value;
+            const unitInput = document.getElementById('unit').value;
+            const discount = parseFloat(document.getElementById('discount').value); // Defaulted to 0 in calculateTotal if empty
+            const vat = document.getElementById('vat').value; // Defaulted to 0 in calculateTotal if empty
             const unitPrice = document.getElementById('unitPrice').value;
             const casePrice = document.getElementById('casePrice').value;
             const type = document.getElementById('type').value;
-            const currentPrice = document.getElementById('currentPrice').value;
+            const currentPriceInput = document.getElementById('currentPrice').value;
+
+            let isValid = true;
+            clearError('codeError');
+            clearError('costError');
+            clearError('unitError');
+            clearError('currentPriceError');
 
 
-            if (!code || isNaN(cost)) {
-                displayMessage('Please fill in all required fields correctly.', true);
+            if (!code) {
+                displayError('codeError', 'Code is required.');
+                isValid = false;
+            }
+            if (costInput === '' || isNaN(parseFloat(costInput)) || parseFloat(costInput) < 0) {
+                displayError('costError', 'Valid case cost is required.');
+                isValid = false;
+            }
+            const unit = parseInt(unitInput);
+             if (isNaN(unit) || unit <= 0) {
+                displayError('unitError', 'Valid units per case required (must be > 0).');
+                isValid = false;
+            }
+
+            let currentFormatted = '';
+            if (type === 'مرتجع') {
+                if (currentPriceInput === '' || isNaN(parseFloat(currentPriceInput)) || parseFloat(currentPriceInput) < 0) {
+                    displayError('currentPriceError', 'Valid current price is required for "مرتجع" type.');
+                    isValid = false;
+                } else {
+                    currentFormatted = parseFloat(currentPriceInput).toFixed(3);
+                }
+            }
+
+            if (!unitPrice || !casePrice) { // Ensure calculations were successful
+                displayMessage('Please ensure all price calculations are complete.', true);
+                isValid = false;
+            }
+
+
+            if (!isValid) {
+                displayMessage('Please correct the errors before saving.', true);
                 return;
             }
 
-            const entryData = { // Data to save to Local Storage
+
+            const entryData = {
                 code: code,
                 name: name,
                 supplier: alternateSupplierCheck && alternateSupplierName ? alternateSupplierName : supplierName,
-                units: unit,
-                discount: discount,
+                units: unit, // Use parsed unit
+                discount: isNaN(discount) ? 0 : discount,
                 vat: vat,
                 piece: unitPrice,
                 case: casePrice,
                 type: type,
-                current: type === 'مرتجع' ? currentPrice : ''
+                current: currentFormatted
             };
 
-            entries.push(entryData); // Add to in-memory entries array
-            saveEntriesToLocalStorage(); // Save to local storage
-            updateEntriesTable(); // Update the displayed table
+            entries.push(entryData);
+            saveEntriesToLocalStorage();
+            updateEntriesTable();
             displayMessage('Item added to local list.');
             clearInputFields();
         }
 
-        // clearInputFields function (No changes needed)
         function clearInputFields() {
             document.getElementById('code').value = '';
             document.getElementById('name').value = '';
@@ -878,22 +908,23 @@
             document.getElementById('unitPrice').value = '';
             document.getElementById('casePrice').value = '';
             document.getElementById('currentPrice').value = '';
-            document.getElementById('currentPriceDiv').style.display = 'none';
             document.getElementById('type').value = 'شراء';
+            toggleCurrentPriceField();
+
 
             clearError('codeError');
             clearError('costError');
             clearError('vatError');
             clearError('currentPriceError');
+            clearError('unitError');
         }
 
 
-        // updateEntriesTable function - modified to fetch and display from in-memory entries array (No changes needed)
         function updateEntriesTable() {
             const entriesTableBody = document.querySelector('#entriesTable tbody');
             entriesTableBody.innerHTML = '';
 
-            entries.forEach((entry, index) => { // Still using in-memory 'entries' array for display
+            entries.forEach((entry, index) => {
                 const row = entriesTableBody.insertRow();
                 row.insertCell().textContent = entry.code;
                 row.insertCell().textContent = entry.name;
@@ -910,106 +941,96 @@
                 const deleteButton = document.createElement('button');
                 deleteButton.className = 'btn btn-danger btn-sm';
                 deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
-                deleteButton.onclick = () => deleteLocalEntry(index); // Delete from local storage
+                deleteButton.onclick = () => deleteLocalEntry(index);
                 actionsCell.appendChild(deleteButton);
             });
         }
 
-        // deleteLocalEntry function - deletes entry from local storage and updates table (No changes needed)
         function deleteLocalEntry(index) {
-            entries.splice(index, 1); // Remove from in-memory array
-            saveEntriesToLocalStorage(); // Update local storage
-            updateEntriesTable(); // Refresh the table
-            displayMessage('Entry deleted from local list.');
+            if (confirm("Are you sure you want to delete this entry from the local list?")) {
+                entries.splice(index, 1);
+                saveEntriesToLocalStorage();
+                updateEntriesTable();
+                displayMessage('Entry deleted from local list.');
+            }
         }
 
+        async function clearAll() {
+             if (confirm("Are you sure you want to clear all entries from the local list?")) {
+                // This primarily clears local. Firebase clearing is more complex and depends on sync strategy.
+                clearEntriesFromLocalStorage();
+                entries = [];
+                updateEntriesTable();
+                displayMessage('All local entries cleared.');
+            }
+        }
 
-        // uploadEntriesToFirebase function - uploads entries from local storage to Firebase (No changes needed)
-        async function uploadEntriesToFirebase() {
+        function exportToExcel() {
             if (entries.length === 0) {
-                displayMessage('No entries to upload.', true);
+                displayMessage('No entries to export.', true);
                 return;
             }
 
             try {
-                const batch = db.batch();
-                entries.forEach(entry => {
-                    const docRef = db.collection(entriesCollectionName).doc(entry.code);
-                    batch.set(docRef, entry);
-                });
-                await batch.commit();
-                clearEntriesFromLocalStorage(); // Clear local storage after successful upload
-                entries = []; // Clear in-memory entries
-                loadEntriesFromFirebase(); // Reload from Firebase to ensure consistency
-                displayMessage('Entries uploaded to database successfully!');
-            } catch (error) {
-                console.error('Error uploading entries to Firebase:', error);
-                displayMessage('Error uploading entries to database.', true);
-            }
-        }
-
-
-        // loadEntriesFromFirebase function - fetches entries from Firebase and updates in-memory entries array and table (No changes needed)
-        async function loadEntriesFromFirebase() {
-            entries = loadEntriesFromLocalStorage(); // First load local entries to display immediately
-            try {
-                const querySnapshot = await db.collection(entriesCollectionName).get();
-                const firebaseEntries = [];
-                querySnapshot.forEach(doc => {
-                    firebaseEntries.push(doc.data());
+                const dataForExcel = entries.map(entry => {
+                    return {
+                        "Code": entry.code,
+                        "Name": entry.name,
+                        "Supplier": entry.supplier,
+                        "Units": entry.units,
+                        "Discount (%)": entry.discount,
+                        "VAT (%)": entry.vat,
+                        "Piece Price": entry.piece,
+                        "Case Price": entry.case,
+                        "Type": entry.type,
+                        "Current Price": entry.current
+                    };
                 });
 
-                // Merge local and Firebase entries (optional - for now just replace local with firebase after upload)
-                entries = firebaseEntries; // Replace local entries with Firebase entries after upload
-                saveEntriesToLocalStorage(); // Update local storage to be in sync with Firebase
-                updateEntriesTable(); // Update the table with fetched entries
+                const worksheet = XLSX.utils.json_to_sheet(dataForExcel);
+
+                const columnWidths = [];
+                const header = Object.keys(dataForExcel[0] || {});
+                header.forEach(key => {
+                    let max_width = key.length;
+                    dataForExcel.forEach(row => {
+                         if (row[key] && row[key].toString().length > max_width) {
+                            max_width = row[key].toString().length;
+                        }
+                    });
+                    columnWidths.push({ wch: max_width + 2 });
+                });
+                worksheet['!cols'] = columnWidths;
+
+
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Entries");
+
+                XLSX.writeFile(workbook, "pricing_entries.xlsx");
+                displayMessage('Entries exported to Excel successfully!');
+
             } catch (error) {
-                console.error('Error loading entries from Firebase:', error);
-                displayMessage('Error loading entries from Firebase, showing locally saved entries.', true);
-                updateEntriesTable(); // Still update table to show local entries even if Firebase load fails
+                console.error('Error exporting to Excel:', error);
+                displayMessage('Error exporting to Excel. Check console for details.', true);
             }
         }
 
-
-        // clearAll function - modified to clear entries from Firebase and Local Storage (No changes needed)
-        async function clearAll() {
-            try {
-                await clearFirebaseCollection(entriesCollectionName); // Clear Firebase entries
-                clearEntriesFromLocalStorage(); // Clear local storage entries
-                entries = []; // Clear in-memory entries array
-                updateEntriesTable(); // Clear the table display
-                displayMessage('All entries cleared from Firebase and Local Storage.');
-            } catch (error) {
-                console.error('Error clearing all entries from Firebase:', error);
-                displayMessage('Error clearing all entries from Firebase.', true);
-            }
-        }
-
-
-        // NEW clearFirebaseCollection function (if not already present) - ADDED THIS MISSING FUNCTION
-        async function clearFirebaseCollection(collectionName) {
-            const collectionRef = db.collection(collectionName);
-            const querySnapshot = await collectionRef.get();
-            const batch = db.batch();
-            querySnapshot.forEach(doc => {
-                batch.delete(doc.ref);
-            });
-            return batch.commit();
-        }
-
-
-        // exportToJPG function (No changes needed)
         function exportToJPG() {
             console.log("exportToJPG function started");
 
             const table = document.getElementById('entriesTable');
-            const hiddenCanvas = document.getElementById('hiddenCanvas');
+            // const hiddenCanvas = document.getElementById('hiddenCanvas'); // Declared in HTML
 
-            // Remove text-overflow and word-break styles temporarily for accurate rendering
+            if (entries.length === 0) {
+                displayMessage('No entries to export as JPG.', true);
+                return;
+            }
+
+            // Temporarily adjust styles for rendering as in the original version provided
             const originalStyles = {};
             const tds = table.querySelectorAll('td');
             tds.forEach(td => {
-                originalStyles[td] = {
+                originalStyles[td] = { // Using td element as key
                     whiteSpace: td.style.whiteSpace,
                     wordBreak: td.style.wordBreak,
                     textOverflow: td.style.textOverflow
@@ -1024,10 +1045,10 @@
                 scale: 2,
                 useCORS: true,
                 logging: true,
-                scrollY: window.scrollY * -1, // try this
-                scrollX: 0,
-                windowWidth: document.body.scrollWidth,
-                windowHeight: document.body.scrollHeight
+                scrollY: window.scrollY * -1, // Original option
+                scrollX: 0,                   // Original option
+                windowWidth: document.body.scrollWidth,  // Original option
+                windowHeight: document.body.scrollHeight // Original option
             }).then(canvas => {
                 console.log("html2canvas .then block executed");
                 try {
@@ -1047,9 +1068,11 @@
                 console.log("html2canvas .finally block executed");
                 // Restore original styles after rendering
                 tds.forEach(td => {
-                    td.style.whiteSpace = originalStyles[td].whiteSpace;
-                    td.style.wordBreak = originalStyles[td].wordBreak;
-                    td.style.textOverflow = originalStyles[td].textOverflow;
+                    if (originalStyles[td]) {
+                        td.style.whiteSpace = originalStyles[td].whiteSpace;
+                        td.style.wordBreak = originalStyles[td].wordBreak;
+                        td.style.textOverflow = originalStyles[td].textOverflow;
+                    }
                 });
             }).catch(error => {
                 console.log("html2canvas .catch block executed", error);
@@ -1058,6 +1081,12 @@
             });
             console.log("exportToJPG function finished (after html2canvas call)");
         }
+
+        // Firebase related functions (largely for potential future use, as current focus is local)
+        // async function uploadEntriesToFirebase() { ... }
+        // async function loadEntriesFromFirebase() { ... }
+        // async function clearFirebaseCollection(collectionName) { ... }
+
     </script>
 </body>
 
