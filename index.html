@@ -23,6 +23,8 @@
             --text-color-dark: #343a40;
             --text-color-light: #ffffff;
             --accent-color: #28a745; /* Green for success/excel export */
+            --danger-color: #dc3545;
+            --danger-color-darker: #c82333;
         }
 
         body {
@@ -98,10 +100,10 @@
 
         /* --- Form Styling --- */
         .form-group {
-            margin-bottom: 1rem; /* Further reduced margin-bottom for more compact layout */
+            margin-bottom: 1rem;
             display: flex;
             align-items: center;
-            flex-wrap: wrap; /* Allow wrapping for smaller screens */
+            flex-wrap: wrap;
         }
 
         .form-group label {
@@ -112,13 +114,13 @@
             text-align: left;
             flex-shrink: 0;
             width: auto;
-            white-space: nowrap; /* Prevent label text from wrapping */
+            white-space: nowrap;
         }
 
         .form-control {
             border: 1px solid #ced4da;
             border-radius: 8px;
-            padding: 0.6rem 0.7rem; /* Slightly smaller padding */
+            padding: 0.6rem 0.7rem;
             box-shadow: none !important;
             transition: border-color 0.3s ease;
             vertical-align: middle;
@@ -134,67 +136,64 @@
         .error-message {
             color: red;
             font-size: 0.8em;
-            width: 100%; /* Ensure error messages take full width below input if wrapped */
+            width: 100%;
             text-align: right;
             padding-top: 2px;
         }
 
-        .adjustable-width.code-input {
-            width: 120px; /* Further reduced width */
-        }
-
-        .adjustable-width.type-select {
-            width: 100px; /* Width for type select */
-        }
-
-        .adjustable-width.price-input {
-            width: 100px; /* Further reduced width */
-        }
-
-        .adjustable-width.unit-input {
-            width: 80px; /* Width for unit inputs */
-        }
-
+        .adjustable-width.code-input { width: 120px; }
+        .adjustable-width.type-select { width: 100px; }
+        .adjustable-width.price-input { width: 100px; }
+        .adjustable-width.unit-input { width: 80px; }
         .adjustable-width.discount-input,
-        .adjustable-width.vat-select {
-            width: 90px; /* Width for discount and vat */
-        }
+        .adjustable-width.vat-select { width: 90px; }
 
-
-        .inline-form {
-            display: flex;
-            align-items: center;
-            gap: 8px; /* Reduced gap in inline forms */
-        }
-
-        .inline-form .form-control {
-            margin-bottom: 0;
-        }
+        .inline-form { display: flex; align-items: center; gap: 8px; }
+        .inline-form .form-control { margin-bottom: 0; }
 
         /* --- Buttons (General) --- */
         .btn-primary {
             background-color: var(--primary-color);
             border-color: var(--primary-color);
             color: var(--text-color-light);
-            border-radius: 8px;
-            padding: 0.6rem 1rem; /* Slightly smaller button padding */
-            transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
         }
-
         .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
             background-color: var(--primary-color-darker) !important;
             border-color: var(--primary-color-darker) !important;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+            color: var(--text-color-light);
+        }
+        .btn-danger:hover, .btn-danger:focus, .btn-danger:active {
+            background-color: var(--danger-color-darker) !important;
+            border-color: var(--danger-color-darker) !important;
+        }
+
+
+        .btn-secondary, .btn-info, .btn-success { /* Standard styling for these */
+             /* Bootstrap default will apply or define specific colors if needed */
+        }
+
+        /* Common button styles for custom and Bootstrap */
+        .btn { /* Ensure all buttons share these base styles */
+            border-radius: 8px;
+            padding: 0.6rem 1rem; /* Standardized padding */
+            transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+            margin-right: 5px; /* Add some space between buttons */
+        }
+        .btn:last-child {
+            margin-right: 0; /* No margin for the last button in a group */
+        }
+
+        .btn:hover, .btn:focus, .btn:active {
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
             transform: scale(1.02);
         }
 
-        .btn-secondary, .btn-danger, .btn-info, .btn-success { /* Added .btn-success */
-            border-radius: 8px;
-            padding: 0.5rem 0.9rem; /* Slightly smaller button padding */
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-        }
          .btn-success {
             background-color: var(--accent-color);
             border-color: var(--accent-color);
@@ -203,184 +202,85 @@
         .btn-success:hover {
             background-color: #1e7e34; /* Darker green */
             border-color: #1e7e34;
-            transform: scale(1.02);
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
-        }
-
-
-        .btn-secondary:hover, .btn-danger:hover, .btn-info:hover {
-            transform: scale(1.02);
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
         }
 
         /* --- Entries Table Styling --- */
-        .table-responsive {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            overflow: auto;
-        }
-
-        #entriesTable {
-            margin-bottom: 0;
-            border-collapse: collapse;
-            width: 100%;
-        }
-
+        .table-responsive { border: 1px solid #ddd; border-radius: 8px; overflow: auto; }
+        #entriesTable { margin-bottom: 0; border-collapse: collapse; width: 100%; }
         #entriesTable thead th {
             background-color: var(--card-header-background);
             color: var(--text-color-dark);
             font-weight: bold;
-            padding: 8px 12px; /* Smaller header padding */
+            padding: 8px 12px;
             border-bottom: 2px solid #ddd;
             text-align: left;
         }
-
-        #entriesTable tbody tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        #entriesTable tbody tr:hover {
-            background-color: #f2f2f2;
-            transition: background-color 0.2s ease;
-        }
-
+        #entriesTable tbody tr:nth-child(even) { background-color: #f9f9f9; }
+        #entriesTable tbody tr:hover { background-color: #f2f2f2; transition: background-color 0.2s ease; }
         #entriesTable td {
-            padding: 6px 10px; /* Smaller cell padding */
+            padding: 6px 10px;
             border-bottom: 1px solid #eee;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             text-align: center;
         }
-
-        #entriesTable tbody tr:last-child td {
-            border-bottom: none;
-        }
+        #entriesTable tbody tr:last-child td { border-bottom: none; }
 
         /* --- Message Container Animation --- */
         #message-container {
-            display: none;
-            position: fixed;
-            top: 20px;
-            left: 50%;
+            display: none; position: fixed; top: 20px; left: 50%;
             transform: translateX(-50%);
             background-color: rgba(0, 123, 255, 0.9);
             color: var(--text-color-light);
-            padding: 10px 15px; /* Smaller message padding */
-            border-radius: 8px;
-            z-index: 1100;
-            opacity: 0;
-            transition: opacity 0.4s ease, top 0.4s ease;
-            top: -50px;
+            padding: 10px 15px; border-radius: 8px; z-index: 1100;
+            opacity: 0; transition: opacity 0.4s ease, top 0.4s ease; top: -50px;
         }
-
-        #message-container.show {
-            opacity: 1;
-            top: 20px;
-        }
-
-        #message-container.error {
-            background-color: rgba(220, 53, 69, 0.9);
-        }
+        #message-container.show { opacity: 1; top: 20px; }
+        #message-container.error { background-color: rgba(220, 53, 69, 0.9); }
 
         /* --- Loading Indicator Styles --- */
         #loading-indicator {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(255, 255, 255, 0.7);
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            display: none; flex-direction: column; justify-content: center; align-items: center;
             z-index: 1000;
         }
-
-        .spinner-border {
-            width: 3rem;
-            height: 3rem;
-        }
+        .spinner-border { width: 3rem; height: 3rem; }
 
         /* --- Database Popup Styling and Animation --- */
         #databasePopup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
+            display: none; position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%) scale(0.95);
             background-color: var(--card-background);
-            padding: 20px; /* Smaller popup padding */
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-            z-index: 1050;
-            opacity: 0;
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            width: 90%; /* Make popup wider */
-            max-width: 600px; /* Max width for popup */
+            padding: 20px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            z-index: 1050; opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease;
+            width: 90%; max-width: 600px;
         }
-
-        #databasePopup.show {
-            display: block;
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
-        }
-
-        #databasePopup h3 {
-            margin-top: 0;
-            margin-bottom: 12px; /* Smaller popup heading margin */
-            color: var(--text-color-dark);
-        }
-
-        #databasePopup #databaseTableContainer { /* Added container for scrolling */
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        #databasePopup #databaseTable {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
+        #databasePopup.show { display: block; opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        #databasePopup h3 { margin-top: 0; margin-bottom: 12px; color: var(--text-color-dark); }
+        #databasePopup #databaseTableContainer { max-height: 400px; overflow-y: auto; }
+        #databasePopup #databaseTable { width: 100%; border-collapse: collapse; }
         #databasePopup #databaseTable th, #databasePopup #databaseTable td {
-            padding: 6px 10px; /* Smaller popup table cell padding */
-            border-bottom: 1px solid #eee;
-            text-align: left;
-            white-space: nowrap; /* Prevent text wrapping in popup table */
+            padding: 6px 10px; border-bottom: 1px solid #eee; text-align: left; white-space: nowrap;
         }
-
         #databasePopup #databaseTable th {
-            background-color: var(--card-header-background);
-            font-weight: bold;
-            position: sticky; /* Sticky header for scrollable table */
-            top: 0;
-            z-index: 1;
+            background-color: var(--card-header-background); font-weight: bold;
+            position: sticky; top: 0; z-index: 1;
         }
-
-        #databasePopup #databaseTable tbody tr:last-child td {
-            border-bottom: none;
-        }
+        #databasePopup #databaseTable tbody tr:last-child td { border-bottom: none; }
 
         #overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1040;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); z-index: 1040;
         }
+        #overlay.show { display: block; }
 
-        #overlay.show {
-            display: block;
-        }
-
-        .export-buttons-container { /* Container for export buttons */
+        .actions-button-container { /* General container for action buttons */
             margin-top: 1rem;
             display: flex;
-            gap: 10px; /* Space between export buttons */
+            gap: 10px; /* Space between buttons */
+            flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
         }
     </style>
 </head>
@@ -409,7 +309,7 @@
         <div class="card mb-3">
             <div class="card-header">Item Details & Calculation</div>
             <div class="card-body">
-                <div class="form-row"> <!-- Row for Code and Type -->
+                <div class="form-row">
                     <div class="form-group col-md-6">
                         <label for="code">Code:</label>
                         <input type="text" class="form-control adjustable-width code-input" id="code" oninput="getItemDetails()">
@@ -461,7 +361,7 @@
                         <label for="unit">Units per Case:</label>
                         <input type="number" class="form-control adjustable-width unit-input" id="unit" value="1"
                             oninput="calculateTotal()">
-                        <div id="unitError" class="error-message"></div> <!-- Added error display for unit -->
+                        <div id="unitError" class="error-message"></div>
                     </div>
                 </div>
                 <div class="form-row">
@@ -488,11 +388,8 @@
                     <label for="casePrice">Case Price (After Discount & VAT):</label>
                     <input type="text" class="form-control adjustable-width price-input" id="casePrice" readonly>
                 </div>
-
-
-                <button class="btn btn-primary mr-2" onclick="addToList()"><i class="fas fa-save"></i> Save to Local</button>
-                <button class="btn btn-danger" onclick="clearAll()"><i class="fas fa-broom"></i> Clear All Entries</button>
-
+                <!-- MOVED Clear All Entries button from here -->
+                <button class="btn btn-primary" onclick="addToList()"><i class="fas fa-save"></i> Save to Local</button>
             </div>
         </div>
 
@@ -525,10 +422,11 @@
         </div>
 
 
-        <!-- Export Section -->
-        <div class="export-buttons-container">
+        <!-- Export and Clear Section -->
+        <div class="actions-button-container"> <!-- Renamed from export-buttons-container -->
              <button class="btn btn-success" onclick="exportToExcel()"><i class="fas fa-file-excel"></i> Export to Excel</button>
              <button class="btn btn-info" onclick="exportToJPG()"><i class="fas fa-file-image"></i> Export to JPG</button>
+             <button class="btn btn-danger" onclick="clearAll()"><i class="fas fa-broom"></i> Clear All Entries</button> <!-- MOVED HERE -->
         </div>
 
 
@@ -539,7 +437,7 @@
                 <button onclick="closeDatabasePopup()" class="btn btn-secondary btn-sm"><i
                         class="fas fa-times"></i> Close</button>
             </div>
-            <div id="databaseTableContainer"> <!-- Scrollable container for table -->
+            <div id="databaseTableContainer">
                 <table id="databaseTable">
                     <thead>
                         <tr>
@@ -562,7 +460,9 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
+            integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
@@ -587,8 +487,6 @@
         let database = [];
         let entries = [];
         const googleSheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQNrRFFRPe_jrOrDZM58gRqxfsA0deD60_q2jkA7XJRRfJQ7IiBdIqNDN7JdMawjw/pub?output=csv";
-        const databaseCollectionName = 'databaseItems'; // Used for potential future Firebase DB item sync
-        const entriesCollectionName = 'entries';       // Used for potential future Firebase entry sync
         const LOCAL_STORAGE_ENTRIES_KEY = 'pricingAppEntries';
 
         function saveEntriesToLocalStorage() {
@@ -629,8 +527,6 @@
             const errorElement = document.getElementById(elementId);
             if (errorElement) {
                 errorElement.textContent = message;
-                // errorElement.style.color = 'red'; // Already handled by CSS .error-message
-                // errorElement.style.fontSize = '0.8em';
             }
         }
 
@@ -739,7 +635,7 @@
                 displayMessage('In-memory database (from Google Sheet) cleared!');
                 const popupTableBody = document.querySelector('#databasePopup #databaseTable tbody');
                 if (popupTableBody) {
-                     popupTableBody.innerHTML = ''; // Clear current view if open
+                     popupTableBody.innerHTML = '';
                      const row = popupTableBody.insertRow();
                      const cell = row.insertCell();
                      cell.colSpan = 3;
@@ -762,7 +658,6 @@
             if (foundItem) {
                 document.getElementById('name').value = foundItem.name || '';
                 document.getElementById('supplierName').value = foundItem['supplier name'] || '';
-                // displayMessage('Item details found.'); // Can be a bit noisy, optional
             } else {
                 displayMessage('Item details not found in the loaded database.', true);
             }
@@ -787,7 +682,7 @@
             clearError('unitError');
 
             const cost = parseFloat(document.getElementById('cost').value) || 0;
-            const unit = parseInt(document.getElementById('unit').value) || 0; // Allow 0 for intermediate calc before validation
+            const unit = parseInt(document.getElementById('unit').value) || 0;
             const discount = parseFloat(document.getElementById('discount').value) || 0;
             const vatRate = parseFloat(document.getElementById('vat').value) || 0;
 
@@ -824,8 +719,8 @@
             const alternateSupplierName = document.getElementById('alternateSupplierName').value.trim();
             const costInput = document.getElementById('cost').value;
             const unitInput = document.getElementById('unit').value;
-            const discount = parseFloat(document.getElementById('discount').value); // Defaulted to 0 in calculateTotal if empty
-            const vat = document.getElementById('vat').value; // Defaulted to 0 in calculateTotal if empty
+            const discount = parseFloat(document.getElementById('discount').value);
+            const vat = document.getElementById('vat').value;
             const unitPrice = document.getElementById('unitPrice').value;
             const casePrice = document.getElementById('casePrice').value;
             const type = document.getElementById('type').value;
@@ -862,8 +757,8 @@
                 }
             }
 
-            if (!unitPrice || !casePrice) { // Ensure calculations were successful
-                displayMessage('Please ensure all price calculations are complete.', true);
+            if (!unitPrice || !casePrice) { // Check if calculations produced values
+                displayMessage('Price calculations are incomplete. Please check inputs.', true);
                 isValid = false;
             }
 
@@ -878,7 +773,7 @@
                 code: code,
                 name: name,
                 supplier: alternateSupplierCheck && alternateSupplierName ? alternateSupplierName : supplierName,
-                units: unit, // Use parsed unit
+                units: unit,
                 discount: isNaN(discount) ? 0 : discount,
                 vat: vat,
                 piece: unitPrice,
@@ -957,7 +852,6 @@
 
         async function clearAll() {
              if (confirm("Are you sure you want to clear all entries from the local list?")) {
-                // This primarily clears local. Firebase clearing is more complex and depends on sync strategy.
                 clearEntriesFromLocalStorage();
                 entries = [];
                 updateEntriesTable();
@@ -1017,27 +911,23 @@
 
         function exportToJPG() {
             console.log("exportToJPG function started");
-
             const table = document.getElementById('entriesTable');
-            // const hiddenCanvas = document.getElementById('hiddenCanvas'); // Declared in HTML
-
             if (entries.length === 0) {
                 displayMessage('No entries to export as JPG.', true);
                 return;
             }
 
-            // Temporarily adjust styles for rendering as in the original version provided
             const originalStyles = {};
             const tds = table.querySelectorAll('td');
             tds.forEach(td => {
-                originalStyles[td] = { // Using td element as key
+                originalStyles[td] = {
                     whiteSpace: td.style.whiteSpace,
                     wordBreak: td.style.wordBreak,
                     textOverflow: td.style.textOverflow
                 };
-                td.style.whiteSpace = 'nowrap'; // Force single line
-                td.style.wordBreak = 'normal';   // Prevent word breaks
-                td.style.textOverflow = 'clip'; // Show full text
+                td.style.whiteSpace = 'nowrap';
+                td.style.wordBreak = 'normal';
+                td.style.textOverflow = 'clip';
             });
             console.log("Before html2canvas call");
 
@@ -1045,17 +935,17 @@
                 scale: 2,
                 useCORS: true,
                 logging: true,
-                scrollY: window.scrollY * -1, // Original option
-                scrollX: 0,                   // Original option
-                windowWidth: document.body.scrollWidth,  // Original option
-                windowHeight: document.body.scrollHeight // Original option
+                scrollY: window.scrollY * -1,
+                scrollX: 0,
+                windowWidth: document.body.scrollWidth,
+                windowHeight: document.body.scrollHeight,
             }).then(canvas => {
                 console.log("html2canvas .then block executed");
                 try {
-                    const imgData = canvas.toDataURL('image/jpeg', 0.9);
+                    const imgData = canvas.toDataURL('image/jpeg', 0.9); // Already JPEG
                     const link = document.createElement('a');
                     link.href = imgData;
-                    link.download = 'entries_table.jpg';
+                    link.download = 'entries_table.jpg'; // Already .jpg
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
@@ -1066,7 +956,6 @@
                 }
             }).finally(() => {
                 console.log("html2canvas .finally block executed");
-                // Restore original styles after rendering
                 tds.forEach(td => {
                     if (originalStyles[td]) {
                         td.style.whiteSpace = originalStyles[td].whiteSpace;
@@ -1081,13 +970,6 @@
             });
             console.log("exportToJPG function finished (after html2canvas call)");
         }
-
-        // Firebase related functions (largely for potential future use, as current focus is local)
-        // async function uploadEntriesToFirebase() { ... }
-        // async function loadEntriesFromFirebase() { ... }
-        // async function clearFirebaseCollection(collectionName) { ... }
-
     </script>
 </body>
-
 </html>
