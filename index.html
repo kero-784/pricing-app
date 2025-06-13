@@ -5,15 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Pricing & Inquiry App</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-        integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- Enhanced CSS Styles with Animations (Pricing App) --- */
+        /* CSS is unchanged and correct */
         :root {
             --primary-color: #007bff; --primary-color-darker: #0056b3; --secondary-color: #6c757d;
             --background-color: #f8f9fa; --card-background: #ffffff; --card-header-background: #e9ecef;
@@ -117,8 +116,6 @@
         }
         #overlay.show { display: block; }
         .actions-button-container { margin-top: 1rem; display: flex; gap: 10px; flex-wrap: wrap; }
-        
-        /* --- CSS FOR INQUIRY POPUP (CORRECTED) --- */
         #inquiryPopup {
             max-width: 950px;
             direction: rtl;
@@ -126,14 +123,11 @@
             background-color: #f4f7f9;
             color: #212529;
             max-height: 90vh;
-            /* `display: flex` is REMOVED from here to allow it to be hidden by default */
             flex-direction: column;
         }
-        /* THIS NEW RULE applies flexbox ONLY when the popup is visible */
         #inquiryPopup.show {
             display: flex;
         }
-        
         #inquiryPopup .popup-header-controls {
             display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
             padding-bottom: 15px; border-bottom: 1px solid #dee2e6;
@@ -190,25 +184,18 @@
     </style>
 </head>
 <body>
-    <!-- (The entire body's HTML content remains the same as the previous version) -->
-    <!-- ... App container ... -->
-    <!-- ... Popups ... -->
-    <!-- The only change was in the <style> block, which is already reflected above. The rest of the HTML is correct. -->
-     <div id="app-container">
-        <!-- Loading Indicator -->
+    <div id="app-container">
+        <!-- HTML is unchanged -->
         <div id="loading-indicator">
             <div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>
             <p>Loading database...</p>
         </div>
-        <!-- Top Right Action Buttons -->
         <div class="top-actions">
             <button class="btn btn-info btn-sm" onclick="openInquiryPopup()" title="Inquire Exceptions"><i class="fas fa-search-dollar"></i></button>
             <button class="btn btn-secondary btn-sm" onclick="viewDatabase()" title="View Database"><i class="fas fa-database"></i></button>
             <button class="btn btn-danger btn-sm" onclick="clearDatabase()" title="Clear Local Database"><i class="fas fa-trash"></i></button>
         </div>
-        <!-- Message Container -->
         <div id="message-container"></div>
-        <!-- Data Retrieval & Calculation Section -->
         <div class="card mb-3">
             <div class="card-header">Item Details & Calculation</div>
             <div class="card-body">
@@ -220,8 +207,7 @@
                     </div>
                     <div class="form-group col-md-6">
                         <label for="type">Type:</label>
-                        <select class="form-control adjustable-width type-select" id="type"
-                            onchange="toggleCurrentPriceField()">
+                        <select class="form-control adjustable-width type-select" id="type" onchange="toggleCurrentPriceField()">
                             <option value="شراء">شراء</option>
                             <option value="مرتجع">مرتجع</option>
                         </select>
@@ -229,8 +215,7 @@
                 </div>
                 <div class="form-group" id="currentPriceDiv" style="display:none;">
                     <label for="currentPrice">Current Price:</label>
-                    <input type="number" step="0.001" class="form-control adjustable-width price-input" id="currentPrice"
-                        oninput="calculateTotal()">
+                    <input type="number" step="0.001" class="form-control adjustable-width price-input" id="currentPrice" oninput="calculateTotal()">
                     <div id="currentPriceError" class="error-message"></div>
                 </div>
                 <div class="form-group">
@@ -244,8 +229,7 @@
                 <div class="form-group">
                     <label for="alternateSupplierCheck">شراء من مورد اخر:</label>
                     <div class="form-check" style="padding-top: 8px; padding-bottom: 8px;">
-                        <input type="checkbox" class="form-check-input" id="alternateSupplierCheck"
-                            onchange="toggleAlternateSupplier()" style="margin-left: 0;">
+                        <input type="checkbox" class="form-check-input" id="alternateSupplierCheck" onchange="toggleAlternateSupplier()" style="margin-left: 0;">
                         <label class="form-check-label" for="alternateSupplierCheck" style="margin-left: 20px; margin-bottom: 0;"> </label>
                     </div>
                 </div>
@@ -256,22 +240,19 @@
                 <div class="form-row">
                     <div class="form-group col-md-6">
                         <label for="cost">Case Cost:</label>
-                        <input type="number" step="0.001" class="form-control adjustable-width unit-input" id="cost" required
-                            oninput="calculateTotal()">
+                        <input type="number" step="0.001" class="form-control adjustable-width unit-input" id="cost" required oninput="calculateTotal()">
                         <div id="costError" class="error-message"></div>
                     </div>
                     <div class="form-group col-md-6">
                         <label for="unit">Units per Case:</label>
-                        <input type="number" class="form-control adjustable-width unit-input" id="unit" value="1"
-                            oninput="calculateTotal()">
+                        <input type="number" class="form-control adjustable-width unit-input" id="unit" value="1" oninput="calculateTotal()">
                         <div id="unitError" class="error-message"></div>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group col-md-6">
                         <label for="discount">Discount (%):</label>
-                        <input type="number" class="form-control adjustable-width discount-input" id="discount" value="0"
-                            oninput="calculateTotal()">
+                        <input type="number" class="form-control adjustable-width discount-input" id="discount" value="0" oninput="calculateTotal()">
                     </div>
                     <div class="form-group col-md-6">
                         <label for="vat">VAT (%):</label>
@@ -294,7 +275,6 @@
                 <button class="btn btn-primary" onclick="addToList()"><i class="fas fa-save"></i> Save to Local</button>
             </div>
         </div>
-        <!-- Data Management Section -->
         <div class="card mb-3">
             <div class="card-header">Entries</div>
             <div class="card-body table-container">
@@ -311,15 +291,11 @@
                 </div>
             </div>
         </div>
-        <!-- Export and Clear Section -->
         <div class="actions-button-container">
              <button class="btn btn-success" onclick="exportToExcel()"><i class="fas fa-file-excel"></i> Export to Excel</button>
              <button class="btn btn-info" onclick="exportToJPG()"><i class="fas fa-file-image"></i> Export to JPG</button>
              <button class="btn btn-danger" onclick="clearAll()"><i class="fas fa-broom"></i> Clear All Entries</button>
         </div>
-
-        <!-- ======================= POPUPS =========================== -->
-        <!-- Popup for Database View -->
         <div id="databasePopup" class="popup-base">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <h3>Database</h3>
@@ -332,8 +308,6 @@
                 </table>
             </div>
         </div>
-
-        <!-- Popup for Inquiry App -->
         <div id="inquiryPopup" class="popup-base">
             <div class="popup-header-controls">
                 <button type="button" class="btn btn-danger btn-sm popup-close-btn" style="margin-left: auto;"><i class="fas fa-times"></i> إغلاق</button>
@@ -366,10 +340,7 @@
                 </div>
             </div>
         </div>
-
-        <!-- Overlay for all popups -->
         <div id="overlay"></div>
-
         <canvas id="hiddenCanvas" style="display:none;"></canvas>
     </div>
 
@@ -378,80 +349,23 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-
+    
     <script>
-        // All JavaScript is the same as the previous correct version.
-        // No changes are needed here.
         /*************************************************/
-        /* SCRIPT FOR PRICING APP (CORE LOGIC)           */
+        /*          APP CONFIGURATION & GLOBALS          */
         /*************************************************/
-        const firebaseConfig = {
-            apiKey: "AIzaSyAqB5syqP1BVfA9dUx3A6zvokDw3oacy_E", authDomain: "data-base-2c8bf.firebaseapp.com",
-            projectId: "data-base-2c8bf", storageBucket: "data-base-2c8bf.firebasestorage.app",
-            messagingSenderId: "958395018379", appId: "1:958395018379:web:eb7588afda28e32e5a788e", measurementId: "G-PMJ02H7PK2"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxKXwtUOp-NY9qlIgNr9RtZxyJdKHyYYIym-OieFSoviIMoYSS3Ram66uV7CnohXvoTEg/exec";
         let database = [];
         let entries = [];
-        const googleSheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQNrRFFRPe_jrOrDZM58gRqxfsA0deD60_q2jkA7XJRRfJQ7IiBdIqNDN7JdMawjw/pub?output=csv";
         const LOCAL_STORAGE_ENTRIES_KEY = 'pricingAppEntries';
-
-        function saveEntriesToLocalStorage() { localStorage.setItem(LOCAL_STORAGE_ENTRIES_KEY, JSON.stringify(entries)); }
-        function loadEntriesFromLocalStorage() { const storedEntries = localStorage.getItem(LOCAL_STORAGE_ENTRIES_KEY); return storedEntries ? JSON.parse(storedEntries) : []; }
-        function clearEntriesFromLocalStorage() { localStorage.removeItem(LOCAL_STORAGE_ENTRIES_KEY); }
-        function showLoadingIndicator() { document.getElementById('loading-indicator').style.display = 'flex'; }
-        function hideLoadingIndicator() { document.getElementById('loading-indicator').style.display = 'none'; }
-
-        function displayMessage(message, isError = false) {
-            const messageContainer = document.getElementById('message-container');
-            messageContainer.textContent = message;
-            messageContainer.className = isError ? 'error show' : 'show';
-            setTimeout(() => { messageContainer.classList.remove('show'); }, 3000);
-        }
-
-        function displayError(elementId, message) { const el = document.getElementById(elementId); if (el) el.textContent = message; }
-        function clearError(elementId) { const el = document.getElementById(elementId); if (el) el.textContent = ''; }
-
-        function autoLoadDatabase() {
-            showLoadingIndicator();
-            fetch(googleSheetCsvUrl)
-                .then(response => { if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`); return response.text(); })
-                .then(csvData => {
-                    const newDatabase = parseCSV(csvData);
-                    if (newDatabase.length > 0 && (!newDatabase[0].code || !newDatabase[0].name || !newDatabase[0]['supplier name'])) {
-                        displayMessage('Google Sheet must have columns: code, name, and supplier name.', true); return;
-                    }
-                    database = newDatabase;
-                    displayMessage('Database auto-loaded successfully from Google Sheet!');
-                })
-                .catch(error => { console.error('Error auto-loading database:', error); displayMessage(`Error auto-loading: ${error.message}.`, true); })
-                .finally(() => { hideLoadingIndicator(); });
-        }
-
-        function parseCSV(csvText) {
-            const lines = csvText.trim().split('\n');
-            const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/\r$/, ''));
-            const data = [];
-            for (let i = 1; i < lines.length; i++) {
-                const values = lines[i].split(',').map(v => v.trim().replace(/\r$/, ''));
-                if (values.length === headers.length) {
-                    const rowData = {};
-                    for (let j = 0; j < headers.length; j++) { rowData[headers[j]] = values[j]; }
-                    data.push(rowData);
-                }
-            }
-            return data;
-        }
         
+        /*************************************************/
+        /*     DATABASE & INITIALIZATION (MODIFIED)      */
+        /*************************************************/
         window.onload = function () {
             loadEntriesFromLocalStorageAndUpdateTable();
             autoLoadDatabase();
             toggleCurrentPriceField();
-
             document.addEventListener('click', function (event) {
                 if (event.target.closest('.popup-close-btn')) {
                     event.preventDefault(); 
@@ -460,33 +374,75 @@
                 }
             });
         };
-
-        function loadEntriesFromLocalStorageAndUpdateTable() { entries = loadEntriesFromLocalStorage(); updateEntriesTable(); }
-
+        async function autoLoadDatabase() {
+            showLoadingIndicator();
+            if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("PASTE_YOUR")) {
+                displayMessage("API URL is not configured in the script.", true);
+                hideLoadingIndicator();
+                return;
+            }
+            try {
+                const response = await fetch(`${GAS_WEB_APP_URL}?action=getItemDatabase`);
+                if (!response.ok) {
+                    throw new Error(`Network error: ${response.statusText}`);
+                }
+                const result = await response.json();
+                if (result.success) {
+                    if (result.data.length > 0 && (!result.data[0].code || !result.data[0].name || !result.data[0]['supplier name'])) {
+                        displayMessage('API data headers must be: code, name, supplier name', true);
+                    }
+                    database = result.data;
+                    displayMessage('Database loaded successfully from API!');
+                } else {
+                    throw new Error(result.error || 'An unknown API error occurred.');
+                }
+            } catch (error) {
+                console.error('Error loading database from API:', error);
+                displayMessage(`Error loading database: ${error.message}.`, true);
+            } finally {
+                hideLoadingIndicator();
+            }
+        }
         async function clearDatabase() {
-            if (confirm("Are you sure you want to clear the locally loaded database?")) {
-                database = []; displayMessage('In-memory database cleared!');
+            if (confirm("Are you sure you want to clear the locally loaded database? This will require a page reload to fetch it again.")) {
+                database = []; 
+                displayMessage('In-memory database cleared!');
                 const popupTableBody = document.querySelector('#databasePopup #databaseTable tbody');
                 if (popupTableBody) {
                      popupTableBody.innerHTML = '<tr><td colspan="3" style="text-align:center;">Database is empty.</td></tr>';
                 }
             }
         }
-
+        
+        /*************************************************/
+        /*   CORE PRICING APP LOGIC (UNCHANGED)          */
+        /*************************************************/
+        function saveEntriesToLocalStorage() { localStorage.setItem(LOCAL_STORAGE_ENTRIES_KEY, JSON.stringify(entries)); }
+        function loadEntriesFromLocalStorage() { const storedEntries = localStorage.getItem(LOCAL_STORAGE_ENTRIES_KEY); return storedEntries ? JSON.parse(storedEntries) : []; }
+        function clearEntriesFromLocalStorage() { localStorage.removeItem(LOCAL_STORAGE_ENTRIES_KEY); }
+        function showLoadingIndicator() { document.getElementById('loading-indicator').style.display = 'flex'; }
+        function hideLoadingIndicator() { document.getElementById('loading-indicator').style.display = 'none'; }
+        function displayMessage(message, isError = false) {
+            const messageContainer = document.getElementById('message-container');
+            messageContainer.textContent = message;
+            messageContainer.className = isError ? 'error show' : 'show';
+            setTimeout(() => { messageContainer.classList.remove('show'); }, 3000);
+        }
+        function displayError(elementId, message) { const el = document.getElementById(elementId); if (el) el.textContent = message; }
+        function clearError(elementId) { const el = document.getElementById(elementId); if (el) el.textContent = ''; }
+        function loadEntriesFromLocalStorageAndUpdateTable() { entries = loadEntriesFromLocalStorage(); updateEntriesTable(); }
         function getItemDetails() {
             const code = document.getElementById('code').value.trim(); clearError('codeError');
             document.getElementById('name').value = ''; document.getElementById('supplierName').value = '';
             if (!code) return;
-            const foundItem = database.find(item => item.code === code);
+            const foundItem = database.find(item => String(item.code) === code);
             if (foundItem) {
                 document.getElementById('name').value = foundItem.name || '';
                 document.getElementById('supplierName').value = foundItem['supplier name'] || '';
             } else { displayMessage('Item details not found.', true); }
         }
-
         function toggleAlternateSupplier() { document.getElementById('alternateSupplierDiv').style.display = document.getElementById('alternateSupplierCheck').checked ? 'flex' : 'none'; }
         function toggleCurrentPriceField() { document.getElementById('currentPriceDiv').style.display = document.getElementById('type').value === 'مرتجع' ? 'flex' : 'none'; }
-
         function calculateTotal() {
             clearError('costError'); clearError('unitError');
             const cost = parseFloat(document.getElementById('cost').value) || 0;
@@ -501,7 +457,6 @@
             document.getElementById('unitPrice').value = unitPriceValue.toFixed(3);
             document.getElementById('casePrice').value = costWithVat.toFixed(3);
         }
-
         function addToList() {
             let isValid = true;
             clearError('codeError'); clearError('costError'); clearError('unitError'); clearError('currentPriceError');
@@ -530,9 +485,8 @@
                 piece: document.getElementById('unitPrice').value, case: document.getElementById('casePrice').value,
                 type: type, current: currentFormatted
             });
-            saveEntriesToLocalStorage(); updateEntriesTable(); displayMessage('Item added to list.'); clearInputFields();
+            saveEntriesToLocalStorage(); updateEntriesTable(); displayMessage('Item added to local list.'); clearInputFields();
         }
-
         function clearInputFields() {
             document.getElementById('code').value = ''; document.getElementById('name').value = '';
             document.getElementById('supplierName').value = ''; document.getElementById('alternateSupplierCheck').checked = false;
@@ -543,7 +497,6 @@
             document.getElementById('currentPrice').value = ''; document.getElementById('type').value = 'شراء';
             toggleCurrentPriceField(); clearError('codeError'); clearError('costError'); clearError('unitError'); clearError('currentPriceError');
         }
-
         function updateEntriesTable() {
             const tableBody = document.querySelector('#entriesTable tbody');
             tableBody.innerHTML = '';
@@ -561,10 +514,8 @@
                 actionsCell.appendChild(deleteBtn);
             });
         }
-
-        function deleteLocalEntry(index) { if (confirm("Delete this entry?")) { entries.splice(index, 1); saveEntriesToLocalStorage(); updateEntriesTable(); displayMessage('Entry deleted.'); } }
-        async function clearAll() { if (confirm("Clear all entries?")) { clearEntriesFromLocalStorage(); entries = []; updateEntriesTable(); displayMessage('All entries cleared.'); } }
-
+        function deleteLocalEntry(index) { if (confirm("Delete this entry from the local list?")) { entries.splice(index, 1); saveEntriesToLocalStorage(); updateEntriesTable(); displayMessage('Entry deleted.'); } }
+        async function clearAll() { if (confirm("Clear all local entries?")) { clearEntriesFromLocalStorage(); entries = []; updateEntriesTable(); displayMessage('All local entries cleared.'); } }
         function exportToExcel() {
             if (entries.length === 0) { displayMessage('No entries to export.', true); return; }
             const dataForExcel = entries.map(e => ({ "Code": e.code, "Name": e.name, "Supplier": e.supplier, "Units": e.units, "Discount (%)": e.discount, "VAT (%)": e.vat, "Piece Price": e.piece, "Case Price": e.case, "Type": e.type, "Current Price": e.current }));
@@ -574,7 +525,6 @@
             XLSX.writeFile(wb, "pricing_entries.xlsx");
             displayMessage('Exported to Excel!');
         }
-
         function exportToJPG() {
             const table = document.getElementById('entriesTable');
             if (entries.length === 0) { displayMessage('No entries to export.', true); return; }
@@ -584,12 +534,11 @@
                 displayMessage('Exported to JPG!');
             }).catch(error => { console.error('JPG Export Error:', error); displayMessage('Error exporting to JPG.', true); });
         }
-
+        
         /*************************************************/
-        /* ROBUST POPUP CONTROL SYSTEM (UPDATED)         */
+        /*      POPUP CONTROL & INQUIRY APP (API)        */
         /*************************************************/
         let currentSearchController; 
-
         function openPopup(popupId) {
             const popup = document.getElementById(popupId);
             const overlay = document.getElementById('overlay');
@@ -600,73 +549,60 @@
             overlay.addEventListener('click', closeAllPopups);
             document.addEventListener('keydown', handleEscKey);
         }
-
         function closeAllPopups() {
             const openPopups = document.querySelectorAll('.popup-base.show');
             const overlay = document.getElementById('overlay');
-
             if (currentSearchController) {
                 currentSearchController.abort();
             }
-
             openPopups.forEach(p => p.classList.remove('show'));
             if (overlay) {
                 overlay.classList.remove('show');
                 overlay.removeEventListener('click', closeAllPopups);
             }
-            
             document.body.classList.remove('popup-open');
             document.removeEventListener('keydown', handleEscKey);
-
             const inquirySearchBtn = document.getElementById('searchBtn');
-            if (inquirySearchBtn) {
-                inquirySearchBtn.disabled = false;
-            }
+            if (inquirySearchBtn) inquirySearchBtn.disabled = false;
             const inquiryLoader = document.getElementById('loader');
-            if (inquiryLoader) {
-                inquiryLoader.style.display = 'none';
-            }
+            if (inquiryLoader) inquiryLoader.style.display = 'none';
             const queryMessage = document.getElementById('queryMessage');
-            if (queryMessage) {
-                 queryMessage.style.display = 'none';
-            }
+            if (queryMessage) queryMessage.style.display = 'none';
             const resultsContainer = document.getElementById('resultsContainer');
             if(resultsContainer) {
                 resultsContainer.style.display = 'none';
                 resultsContainer.innerHTML = '';
             }
         }
-
         function handleEscKey(event) { if (event.key === 'Escape') { closeAllPopups(); } }
-
         function viewDatabase() {
             const tableBody = document.querySelector('#databasePopup #databaseTable tbody');
             tableBody.innerHTML = '';
-            if (database.length === 0) { tableBody.innerHTML = '<tr><td colspan="3" style="text-align:center;">Database is empty or not loaded.</td></tr>';
-            } else { database.forEach(item => { const row = tableBody.insertRow(); row.insertCell().textContent = item.code || ''; row.insertCell().textContent = item.name || ''; row.insertCell().textContent = item['supplier name'] || ''; }); }
+            if (database.length === 0) { 
+                tableBody.innerHTML = '<tr><td colspan="3" style="text-align:center;">Database is empty or not loaded.</td></tr>';
+            } else { 
+                database.forEach(item => { 
+                    const row = tableBody.insertRow(); 
+                    row.insertCell().textContent = item.code || ''; 
+                    row.insertCell().textContent = item.name || ''; 
+                    row.insertCell().textContent = item['supplier name'] || ''; 
+                }); 
+            }
             openPopup('databasePopup');
         }
-
         function openInquiryPopup() { openPopup('inquiryPopup'); }
-
-        /*************************************************/
-        /* SCRIPT FOR INQUIRY POPUP (UPDATED)            */
-        /*************************************************/
-        const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxBZi1K-z8ecjbukUcfsZWkPgBqSw0H2xDTpZBcaIdoKQS9Y0D2DJ54gbf0n6uvwmYXRw/exec';
-        const URL_PLACEHOLDER_STRING = 'YOUR_GAS_URL_PLACEHOLDER_REPLACE_ME';
         const searchBtn = document.getElementById('searchBtn');
         const searchTypeSelect = document.getElementById('searchType');
         const searchTermInput = document.getElementById('searchTerm');
         const resultsContainer = document.getElementById('resultsContainer');
         const queryMessage = document.getElementById('queryMessage');
         const loader = document.getElementById('loader');
+        
+        // ** THE FIX IS HERE ** All keys with spaces are now wrapped in proper quotes.
+        const fieldIcons = {title: `<svg class="title-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"></path></svg>`,GeneratedCode: `<svg class="field-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"></path></svg>`,Timestamp: `<svg class="field-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm4.2 14.2L11 13V7h1.5v5.2l4.5 2.7-.8 1.3z"></path></svg>`,PurchasingOfficer: `<svg class="field-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>`,EntryDate: `<svg class="field-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z"></path></svg>`,"Period Start Date": `<svg class="field-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z"></path></svg>`,"Period End Date": `<svg class="field-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z"></path></svg>`,SupplierName: `<svg class="field-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"></path></svg>`,SupplierCode: `<svg class="field-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"></path></svg>`,Exception: `<svg class="field-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z"></path></svg>`,"default": `<svg class="field-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4v2.5l-3 3-1.4-1.4L10.1 6H8v5h5V8.9l-2.5 2.5-1.4-1.4 3-3V4z"></path></svg>`};
 
-        const fieldIcons = { /* ... Icons object remains the same ... */ };
-        let criticalConfigErrorInquiry = false;
-        if (GAS_WEB_APP_URL === URL_PLACEHOLDER_STRING || !GAS_WEB_APP_URL) { criticalConfigErrorInquiry = true; if(searchBtn) searchBtn.disabled = true; }
         function showMessageInquiry(message, type = 'info') { queryMessage.textContent = message; queryMessage.className = `message-area ${type}`; queryMessage.style.display = 'block'; }
         function hideMessageInquiry() { queryMessage.style.display = 'none'; }
-
         function displayResults(data) {
             resultsContainer.innerHTML = ''; resultsContainer.style.display = 'none'; hideMessageInquiry();
             if (!data || data.length === 0) { showMessageInquiry('لم يتم العثور على نتائج تطابق بحثك.', 'no-results'); return; }
@@ -681,8 +617,8 @@
                 const cardTitleText = record.GeneratedCode ? `بيانات الاستثناء (الكود: ${record.GeneratedCode})` : `بيانات الاستثناء #${index + 1}`;
                 let cardFieldsHtml = '';
                 for (const key in fieldOrderAndLabels) {
-                    if (Object.hasOwnProperty.call(fieldOrderAndLabels, key)) {
-                        const label = fieldOrderAndLabels[key]; let value = record[key]; const iconSvg = fieldIcons[key] || fieldIcons.default;
+                    if (Object.hasOwnProperty.call(fieldOrderAndLabels, key) && record.hasOwnProperty(key)) {
+                        const label = fieldOrderAndLabels[key]; let value = record[key]; const iconSvg = fieldIcons[key] || fieldIcons["default"];
                         const fieldClass = key === "Exception" ? "card-field exception-field" : "card-field";
                         const dateKeys = ["Timestamp", "EntryDate", "Period Start Date", "Period End Date"];
                         if (dateKeys.includes(key) && value) {
@@ -697,33 +633,32 @@
             });
             resultsContainer.style.display = 'flex';
         }
-
         searchBtn.addEventListener('click', async () => {
-            if (criticalConfigErrorInquiry) { showMessageInquiry('خطأ حرج: لم يتم تكوين رابط Google Apps Script.', 'error'); return; }
+            if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("PASTE_YOUR")) {
+                showMessageInquiry('خطأ حرج: لم يتم تكوين رابط API.', 'error');
+                return;
+            }
             const searchType = searchTypeSelect.value; const searchTerm = searchTermInput.value.trim();
             if (!searchTerm) { showMessageInquiry('الرجاء إدخال قيمة للبحث.', 'error'); searchTermInput.focus(); return; }
-            
             currentSearchController = new AbortController();
             const signal = currentSearchController.signal;
-
             hideMessageInquiry(); resultsContainer.style.display = 'none'; resultsContainer.innerHTML = '';
             loader.style.display = 'block'; searchBtn.disabled = true;
             const params = new URLSearchParams({ action: 'inquireData', searchType: searchType, searchTerm: searchTerm });
-            
             try {
-                const response = await fetch(`${GAS_WEB_APP_URL}?${params.toString()}`, { 
-                    method: 'GET', 
-                    mode: 'cors',
-                    signal: signal 
-                });
+                const response = await fetch(`${GAS_WEB_APP_URL}?${params.toString()}`, { signal });
                 if (!response.ok) { throw new Error(`خطأ في الشبكة أو السيرفر: ${response.status} ${response.statusText}`); }
                 const result = await response.json();
-                if (result.success && result.data) { displayResults(result.data); } else { showMessageInquiry(result.error || result.message || 'حدث خطأ غير متوقع.', 'error'); }
+                if (result.success) {
+                    displayResults(result.data);
+                } else {
+                    showMessageInquiry(result.error || 'حدث خطأ غير متوقع في API.', 'error');
+                }
             } catch (error) {
                 if (error.name === 'AbortError') {
                     console.log('Fetch aborted by user action.');
                 } else {
-                    console.error('[Fetch API] CATCH BLOCK:', error);
+                    console.error('Inquiry Fetch Error:', error);
                     showMessageInquiry(`فشل الاستعلام: ${error.message}`, 'error');
                 }
             } finally {
