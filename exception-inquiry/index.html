@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exception Inquiry </title>
+<link rel="icon" type="image/png" href="favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- CSS for Standalone Inquiry App --- */
+        :root {
+            --primary-color: #0077cc;
+            --primary-color-darker: #005ea3;
+            --danger-color: #dc3545;
+            --background-color: #f4f7f9;
+            --card-background: #ffffff;
+            --text-color-dark: #212529;
+            --text-color-medium: #495057;
+            --text-color-light: #6c757d;
+            --border-color: #dee2e6;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color-dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        #app-container {
+            background-color: var(--card-background);
+            padding: 25px 35px;
+            border-radius: 0.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .app-header {
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--text-color-dark);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: var(--text-color-medium);
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ced4da;
+            border-radius: 0.3rem;
+            font-size: 1rem;
+            font-family: 'Cairo', sans-serif;
+            background-color: #fdfdff;
+            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+            box-sizing: border-box; /* Ensures padding doesn't affect width */
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 .2rem rgba(0, 119, 204, .25);
+            outline: 0;
+        }
+        
+        .search-action-group {
+            display: flex;
+            align-items: flex-end;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .search-action-group .form-group {
+            flex-grow: 1;
+            margin-bottom: 0;
+        }
+        
+        #searchBtn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 0.3rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 500;
+            transition: all .15s ease-in-out;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            height: 48px; /* Match input height */
+        }
+
+        #searchBtn:hover {
+            background-color: var(--primary-color-darker);
+            box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075);
+        }
+
+        #searchBtn:disabled {
+            background-color: #adb5bd;
+            color: var(--text-color-light);
+            cursor: not-allowed;
+            box-shadow: none;
+            opacity: 0.65;
+        }
+
+        #searchBtn .icon {
+            width: 1em;
+            height: 1em;
+        }
+
+        #resultsContainer {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .result-card {
+            background-color: #ffffff;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: box-shadow 0.25s ease-in-out, border-right-color 0.25s ease-in-out;
+            overflow: hidden;
+            border-right: 5px solid var(--primary-color);
+            border-left: none;
+        }
+        .result-card:hover {
+            box-shadow: 0 6px 18px rgba(0,0,0,0.1), 0 2px 6px rgba(0,0,0,0.07);
+        }
+        .result-card.expired-exception {
+             border-right-color: var(--danger-color);
+             background-color: #fff8f8;
+        }
+        .result-card.expired-exception .card-header h2 {
+            color: var(--danger-color);
+        }
+        .result-card .card-header {
+            padding: 18px 25px;
+            background-color: #f9fbfd;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .result-card h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: color 0.25s ease-in-out;
+        }
+
+        .title-icon {
+            width: 1.2em;
+            height: 1.2em;
+            fill: currentColor;
+            flex-shrink: 0;
+        }
+
+        .result-card .card-body {
+            padding: 15px 25px 20px 25px;
+        }
+
+        .card-field {
+            display: grid;
+            grid-template-columns: minmax(140px, auto) 1fr;
+            gap: 6px 12px;
+            align-items: start;
+            padding: 10px 0;
+            border-bottom: 1px dashed #e9ecef;
+        }
+        .card-field:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .card-field:first-child {
+            padding-top: 5px;
+        }
+        .field-label {
+            font-weight: 500;
+            color: #454f5b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .field-icon {
+            width: 1.1em;
+            height: 1.1em;
+            fill: #6c757d;
+            flex-shrink: 0;
+        }
+        .field-value {
+            font-weight: 400;
+            color: #2a2f36;
+            word-break: break-word;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+        .card-field.exception-field .field-value {
+            white-space: pre-wrap;
+            background-color: #fdfdfd;
+            padding: 8px 10px;
+            border-radius: 0.3rem;
+            border: 1px solid #f0f0f0;
+            font-size: 0.9rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .card-body .expiry-warning {
+             padding: 10px 15px;
+             margin-bottom: 15px;
+             border-radius: 0.3rem;
+             background-color: #f8d7da;
+             color: #721c24;
+             border: 1px solid #f5c6cb;
+             font-weight: 500;
+             text-align: center;
+        }
+        .message-area {
+            padding: 15px 20px;
+            margin-top: 20px;
+            border-radius: 0.3rem;
+            text-align: center;
+            border: 1px solid transparent;
+            font-size: 0.95rem;
+            display: none; /* Hidden by default */
+        }
+        .message-area.info {
+            background-color: #e0f3ff;
+            color: #004085;
+            border-color: #b8daff;
+        }
+        .message-area.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+        .message-area.no-results {
+            background-color: #fff3cd;
+            color: #856404;
+            border-color: #ffeeba;
+        }
+
+        .loader-container {
+            text-align: center;
+            padding: 20px 0;
+            height: 60px;
+        }
+
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px auto;
+            display: none; /* Hidden by default */
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="app-container">
+        <h1 class="app-header">الاستعلام عن الاستثناءات</h1>
+        
+        <div class="form-group">
+            <label for="searchType">نوع البحث:</label>
+            <select id="searchType">
+                <option value="GeneratedCode">بحث بكود الاستثناء</option>
+                <option value="SupplierCode">بحث بكود المورد</option>
+            </select>
+        </div>
+        
+        <div class="search-action-group">
+            <div class="form-group">
+                <label for="searchTerm">قيمة البحث:</label>
+                <input type="text" id="searchTerm" placeholder="ادخل كود الاستثناء أو كود المورد">
+            </div>
+            <button id="searchBtn" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" class="icon">
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                </svg>
+                <span>بحث</span>
+            </button>
+        </div>
+        
+        <div class="loader-container">
+            <div class="loader" id="loader"></div>
+        </div>
+        
+        <div id="queryMessage" class="message-area"></div>
+        
+        <div id="resultsContainer"></div>
+    </div>
+
+    <!-- SCRIPT SECTION -->
+    <script>
+        /*************************************************/
+        /*      INQUIRY APP CONFIGURATION & GLOBALS      */
+        /*************************************************/
+        
+        // --- IMPORTANT: CONFIGURE YOUR GOOGLE APPS SCRIPT URL HERE ---
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxKXwtUOp-NY9qlIgNr9RtZxyJdKHyYYIym-OieFSoviIMoYSS3Ram66uV7CnohXvoTEg/exec";
+
+        // Abort controller to cancel previous requests
+        let currentSearchController;
+
+        // DOM Element Selectors
+        const searchBtn = document.getElementById('searchBtn');
+        const searchTypeSelect = document.getElementById('searchType');
+        const searchTermInput = document.getElementById('searchTerm');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const queryMessage = document.getElementById('queryMessage');
+        const loader = document.getElementById('loader');
+
+        // SVG icons for result fields
+        const fieldIcons = {
+            title: `<svg class="title-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"></path></svg>`,
+            GeneratedCode: `<svg class="field-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"></path></svg>`,
+            Timestamp: `<svg class="field-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm4.2 14.2L11 13V7h1.5v5.2l4.5 2.7-.8 1.3z"></path></svg>`,
+            PurchasingOfficer: `<svg class="field-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>`,
+            EntryDate: `<svg class="field-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z"></path></svg>`,
+            "Period Start Date": `<svg class="field-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z"></path></svg>`,
+            "Period End Date": `<svg class="field-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z"></path></svg>`,
+            SupplierName: `<svg class="field-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"></path></svg>`,
+            SupplierCode: `<svg class="field-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"></path></svg>`,
+            Exception: `<svg class="field-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z"></path></svg>`,
+            "default": `<svg class="field-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4v2.5l-3 3-1.4-1.4L10.1 6H8v5h5V8.9l-2.5 2.5-1.4-1.4 3-3V4z"></path></svg>`
+        };
+        
+        /*************************************************/
+        /*              UI & HELPER FUNCTIONS            */
+        /*************************************************/
+
+        function showMessage(message, type = 'info') {
+            queryMessage.textContent = message;
+            queryMessage.className = `message-area ${type}`;
+            queryMessage.style.display = 'block';
+        }
+
+        function hideMessage() {
+            queryMessage.style.display = 'none';
+        }
+
+        function displayResults(data) {
+            resultsContainer.innerHTML = '';
+            resultsContainer.style.display = 'none';
+            hideMessage();
+
+            if (!data || data.length === 0) {
+                showMessage('لم يتم العثور على نتائج تطابق بحثك.', 'no-results');
+                return;
+            }
+
+            const fieldOrderAndLabels = {
+                "GeneratedCode": "كود الاستثناء", "Timestamp": "وقت التسجيل", "PurchasingOfficer": "مسؤول المشتريات",
+                "EntryDate": "تاريخ الإدخال", "Period Start Date": "تاريخ بداية الفترة", "Period End Date": "تاريخ نهاية الفترة",
+                "SupplierName": "اسم المورد", "SupplierCode": "كود المورد", "Exception": "تفاصيل الاستثناء"
+            };
+
+            data.forEach((record, index) => {
+                let expiryWarningHtml = '';
+                let cardExtraClass = '';
+                const endDateString = record["Period End Date"];
+
+                if (endDateString) {
+                    const endDate = new Date(endDateString);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    if (!isNaN(endDate.getTime()) && endDate < today) {
+                        expiryWarningHtml = `<div class="expiry-warning">تنبيه: فترة هذا الاستثناء قد انتهت.</div>`;
+                        cardExtraClass = 'expired-exception';
+                    }
+                }
+
+                const card = document.createElement('div');
+                card.className = `result-card ${cardExtraClass}`;
+                const cardTitleText = record.GeneratedCode ? `بيانات الاستثناء (الكود: ${record.GeneratedCode})` : `بيانات الاستثناء #${index + 1}`;
+                
+                let cardFieldsHtml = '';
+                for (const key in fieldOrderAndLabels) {
+                    if (Object.hasOwnProperty.call(fieldOrderAndLabels, key) && record.hasOwnProperty(key)) {
+                        const label = fieldOrderAndLabels[key];
+                        let value = record[key];
+                        const iconSvg = fieldIcons[key] || fieldIcons["default"];
+                        const fieldClass = key === "Exception" ? "card-field exception-field" : "card-field";
+                        
+                        // Format dates to DD-MM-YYYY
+                        const dateKeys = ["Timestamp", "EntryDate", "Period Start Date", "Period End Date"];
+                        if (dateKeys.includes(key) && value) {
+                            try {
+                                const dateObj = new Date(value);
+                                if (!isNaN(dateObj.getTime())) {
+                                    const day = String(dateObj.getDate()).padStart(2, '0');
+                                    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                                    const year = dateObj.getFullYear();
+                                    value = `${day}-${month}-${year}`;
+                                }
+                            } catch (e) { /* ignore formatting errors */ }
+                        }
+                        
+                        value = (value === undefined || value === null || String(value).trim() === "") ? "غير متوفر" : value;
+                        cardFieldsHtml += `<div class="${fieldClass}"><strong class="field-label">${iconSvg} <span>${label}:</span></strong><span class="field-value">${value}</span></div>`;
+                    }
+                }
+                
+                card.innerHTML = `<div class="card-header"><h2>${fieldIcons.title} ${cardTitleText}</h2></div><div class="card-body">${expiryWarningHtml}${cardFieldsHtml}</div>`;
+                resultsContainer.appendChild(card);
+            });
+
+            resultsContainer.style.display = 'flex';
+        }
+        
+        /*************************************************/
+        /*               API CALL & EVENTS               */
+        /*************************************************/
+        
+        async function performSearch() {
+             if (currentSearchController) {
+                currentSearchController.abort(); // Abort previous fetch request
+            }
+            if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("PASTE_YOUR")) {
+                showMessage('خطأ حرج: لم يتم تكوين رابط API.', 'error');
+                return;
+            }
+
+            const searchType = searchTypeSelect.value;
+            const searchTerm = searchTermInput.value.trim();
+            if (!searchTerm) {
+                showMessage('الرجاء إدخال قيمة للبحث.', 'error');
+                searchTermInput.focus();
+                return;
+            }
+            
+            currentSearchController = new AbortController();
+            const signal = currentSearchController.signal;
+
+            hideMessage();
+            resultsContainer.style.display = 'none';
+            resultsContainer.innerHTML = '';
+            loader.style.display = 'block';
+            searchBtn.disabled = true;
+
+            const params = new URLSearchParams({
+                action: 'inquireData',
+                searchType: searchType,
+                searchTerm: searchTerm
+            });
+
+            try {
+                const response = await fetch(`${GAS_WEB_APP_URL}?${params.toString()}`, { signal });
+                if (!response.ok) {
+                    throw new Error(`خطأ في الشبكة أو السيرفر: ${response.status} ${response.statusText}`);
+                }
+                const result = await response.json();
+                if (result.success) {
+                    displayResults(result.data);
+                } else {
+                    showMessage(result.error || 'حدث خطأ غير متوقع في API.', 'error');
+                }
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    console.log('Fetch aborted by user action.');
+                } else {
+                    console.error('Inquiry Fetch Error:', error);
+                    showMessage(`فشل الاستعلام: ${error.message}`, 'error');
+                }
+            } finally {
+                loader.style.display = 'none';
+                searchBtn.disabled = false;
+                currentSearchController = null;
+            }
+        }
+
+        // Event Listeners
+        searchBtn.addEventListener('click', performSearch);
+        searchTermInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Prevent form submission
+                performSearch();
+            }
+        });
+
+    </script>
+</body>
+</html>

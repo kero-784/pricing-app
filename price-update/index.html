@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Prices & Exceptions </title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Main App Container -->
+    <div id="app-container">
+        <div id="refresh-indicator" style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background-color: var(--primary-color); display: none; z-index: 1001; transition: opacity 0.3s ease;"></div>
+        <div id="loading-indicator">
+            <div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>
+            <p>Loading database...</p>
+        </div>
+        <div class="top-actions">
+            <button class="btn btn-secondary btn-sm" onclick="viewDatabase()" title="View Database" data-toggle="tooltip" data-placement="bottom"><i class="fas fa-database"></i></button>
+            <button class="btn btn-primary btn-sm" onclick="refreshDatabase()" title="Refresh Database" data-toggle="tooltip" data-placement="bottom"><i class="fas fa-sync-alt"></i></button>
+            <button class="btn btn-danger btn-sm" onclick="clearDatabase()" title="Clear Local Database" data-toggle="tooltip" data-placement="bottom"><i class="fas fa-trash"></i></button>
+        </div>
+        <div id="message-container"></div>
+
+        <!-- Main Form Card -->
+        <div class="card mb-3">
+            <div class="card-header">Item Details & Pricing</div>
+            <div class="card-body">
+                <!-- Item Details Section -->
+                <div class="form-row">
+                    <div class="form-group col-md-6" style="position: relative;">
+                        <label for="code">Code:</label>
+                        <input type="text" class="form-control adjustable-width code-input" id="code" oninput="handleCodeInput()">
+                        <div id="autocomplete-suggestions" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 100; background: white; border: 1px solid #ddd; border-radius: 0 0 8px 8px; max-height: 200px; overflow-y: auto; display: none;"></div>
+                        <div id="codeError" class="error-message"></div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="type">Type:</label>
+                        <select class="form-control adjustable-width type-select" id="type" onchange="toggleCurrentPriceField()">
+                            <option value="شراء">شراء</option>
+                            <option value="مرتجع">مرتجع</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" id="currentPriceDiv" style="display:none;">
+                    <label for="currentPrice">Current Price:</label>
+                    <input type="number" step="0.001" class="form-control adjustable-width price-input" id="currentPrice">
+                    <div id="currentPriceError" class="error-message"></div>
+                </div>
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" class="form-control" id="name" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="supplierName">Supplier Name:</label>
+                    <input type="text" class="form-control" id="supplierName" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="alternateSupplierCheck">شراء من مورد اخر:</label>
+                    <div class="form-check" style="padding-top: 8px; padding-bottom: 8px;">
+                        <input type="checkbox" class="form-check-input" id="alternateSupplierCheck" onchange="toggleAlternateSupplier()" style="margin-left: 0;">
+                        <label class="form-check-label" for="alternateSupplierCheck" style="margin-left: 20px; margin-bottom: 0;"> </label>
+                    </div>
+                </div>
+                <div class="form-group" id="alternateSupplierDiv" style="display: none;">
+                    <label for="alternateSupplierName">Alternate Supplier Name:</label>
+                    <input type="text" class="form-control" id="alternateSupplierName">
+                </div>
+                <hr>
+
+                <!-- Simplified Pricing Section -->
+                <div class="form-group">
+                    <label for="unitPrice">Final Unit Price:</label>
+                    <div class="input-group">
+                        <input type="number" step="0.001" class="form-control" id="unitPrice" oninput="calculateMainTotal()">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button" onclick="openCalculatorModal()" title="Calculate from Case Cost">
+                                <i class="fas fa-calculator"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="unitPriceError" class="error-message w-100"></div>
+                </div>
+                <button class="btn btn-primary" onclick="addToList()"><i class="fas fa-save"></i> Save to Local</button>
+            </div>
+        </div>
+
+        <!-- Entries Table Card -->
+        <div class="card mb-3">
+            <div class="card-header">Entries</div>
+            <div class="card-body table-container">
+                <div class="table-responsive">
+                    <table id="entriesTable" class="table table-bordered table-striped">
+                        <!-- MODIFIED: Simplified table header -->
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Name</th>
+                                <th>Supplier</th>
+                                <th>Units</th>
+                                <th>Discount</th>
+                                <th>VAT</th>
+                                <th>Piece</th>
+                                <th>Case</th>
+                                <th>Type</th>
+                                <th>Current</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                        <tfoot style="font-weight: bold; background-color: #f2f2f2;">
+                           <tr>
+                                <td colspan="2">Total Entries: <span id="total-entries">0</span></td>
+                                <td colspan="5" style="text-align: right;">Grand Total (Case Price):</td>
+                                <td id="grand-total-case" style="text-align: center;">0.000</td>
+                                <td colspan="3"></td>
+                           </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="actions-button-container">
+             <button class="btn btn-success" onclick="exportToExcel()"><i class="fas fa-file-excel"></i> Export to Excel</button>
+             <button class="btn btn-info" onclick="exportToJPG()"><i class="fas fa-file-image"></i> Export to JPG</button>
+             <button class="btn btn-danger" onclick="clearAll()"><i class="fas fa-broom"></i> Clear All Entries</button>
+        </div>
+        
+        <!-- Popups and Modals Section -->
+        <div id="overlay"></div>
+        <canvas id="hiddenCanvas" style="display:none;"></canvas>
+        <div id="databasePopup" class="popup-base">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h3>Database</h3>
+                <button type="button" class="btn btn-secondary btn-sm popup-close-btn"><i class="fas fa-times"></i> Close</button>
+            </div>
+            <div id="databaseTableContainer">
+                <table id="databaseTable">
+                    <thead><tr><th>Code</th><th>Name</th><th>Supplier Name</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Price Calculator Modal -->
+        <div class="modal fade" id="calculatorModal" tabindex="-1" role="dialog" aria-labelledby="calculatorModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="calculatorModalLabel">Price Calculator</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="modalCost">Case Cost:</label>
+                            <input type="number" step="0.001" class="form-control" id="modalCost" oninput="calculateInModal()">
+                        </div>
+                        <div class="form-group">
+                            <label for="modalUnit">Units per Case:</label>
+                            <input type="number" class="form-control" id="modalUnit" oninput="calculateInModal()">
+                        </div>
+                        <div class="form-group">
+                            <label for="modalDiscount">Discount (%):</label>
+                            <input type="number" class="form-control" id="modalDiscount" value="0" oninput="calculateInModal()">
+                        </div>
+                        <div class="form-group">
+                            <label for="modalVat">VAT (%):</label>
+                            <select class="form-control" id="modalVat" oninput="calculateInModal()">
+                                <option value="0">0</option>
+                                <option value="5">5</option>
+                                <option value="14">14</option>
+                            </select>
+                        </div>
+                        <hr>
+                        <h5 class="text-center">Results</h5>
+                        <div class="form-group">
+                            <label>Final Unit Price:</label>
+                            <input type="text" class="form-control bg-light" id="modalUnitPriceResult" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Final Case Price:</label>
+                            <input type="text" class="form-control bg-light" id="modalCasePriceResult" readonly>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="applyCalculatorPrice()">Apply Price</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT SECTION -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
+    <!-- Your Custom JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>

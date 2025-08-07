@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طباعة شيلف مجمع</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+        
+        :root {
+            --bg-color: #f4f7fa; --preview-bg: #e2e8f0; --text-color: #334155;
+            --primary-color: #3b82f6; --primary-hover: #2563eb; --card-bg: #ffffff;
+            --border-color: #e2e8f0; --muted-text: #64748b;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.07), 0 4px 6px -4px rgba(0,0,0,0.07);
+            --radius-md: 8px; --radius-lg: 12px; --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            --label-price-color: #ef4444; --label-border-width: 1px; --label-border-style: dashed; --label-border-color: #cbd5e1;
+            --label-padding: 5px; --label-border-radius: 8px; --price-box-bg: rgba(255, 255, 255, 0.85);
+            --price-box-border-color: var(--label-price-color); --label-item-font-size: 16px;
+            --label-item-font-weight: 700; --label-item-text-transform: none; --label-price-font-size: 24px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Cairo', sans-serif; background-color: var(--bg-color); color: var(--text-color);
+            display: flex; height: 100vh; overflow: hidden; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+        }
+        .app-container { display: flex; width: 100%; height: 100%; flex-direction: row-reverse; }
+
+        .control-panel {
+            width: 450px; min-width: 420px; background-color: var(--bg-color);
+            padding: 30px; height: 100vh; overflow-y: auto; border-left: 1px solid var(--border-color);
+        }
+        .preview-panel {
+            flex-grow: 1; display: flex; flex-direction: column; align-items: center;
+            justify-content: center; padding: 30px; height: 100vh; background-color: var(--preview-bg);
+        }
+
+        h1 { font-size: 2rem; font-weight: 700; color: var(--text-color); margin-bottom: 25px; }
+        h2 { font-size: 1.25rem; font-weight: 600; color: var(--text-color); margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); }
+        h3 { font-size: 1.5rem; font-weight: 700; color: var(--primary-color); margin: 40px 0 25px 0; border-bottom: 2px solid; padding-bottom: 15px;}
+
+        button {
+            background-color: var(--primary-color);
+            color: white; border: none; padding: 12px 25px; border-radius: var(--radius-md); font-family: 'Cairo', sans-serif;
+            font-size: 1rem; font-weight: 600; cursor: pointer; transition: var(--transition); box-shadow: var(--shadow);
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        button:hover { background-color: var(--primary-hover); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        button:disabled { background-color: #94a3b8; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn-icon svg { width:18px; height:18px; }
+        
+        input, select {
+            width: 100%; padding: 10px 12px; border-radius: var(--radius-md); border: 1px solid var(--border-color);
+            font-family: 'Cairo', sans-serif; background-color: #f8fafc; transition: var(--transition);
+        }
+        input:focus, select:focus { border-color: var(--primary-color); background-color: white; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); outline: none; }
+        input[type="color"] { padding: 4px; height: 42px; }
+        input[type="checkbox"] { width: auto; }
+        
+        .section-card { background: var(--card-bg); padding: 25px; border-radius: var(--radius-lg); box-shadow: var(--shadow); margin-bottom: 30px; }
+        .loader { border: 4px solid #e2e8f0; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; display: none; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .app-status { padding: 15px 20px; margin-bottom: 20px; border-radius: var(--radius-md); color: #fff; text-align: center; font-weight: 600; box-shadow: var(--shadow); display: none; align-items: center; justify-content: center; gap: 10px; }
+        .app-status.error { background: #ef4444; }
+        .app-status.success { background: #22c55e; }
+        .app-status .icon svg { width: 20px; height: 20px; fill: white; }
+        
+        /* LAYOUT FIX: Restored original search control styles */
+        #search-controls { display: flex; gap: 10px; margin-bottom: 15px; }
+        #search-field { flex: 0 0 120px; }
+        #search-container { 
+            border: 1px solid var(--border-color); 
+            border-radius: var(--radius-md); 
+            padding: 5px; 
+            display: flex; 
+            align-items: center; 
+            background-color: #f8fafc; 
+            transition: var(--transition); 
+            flex-grow: 1; 
+        }
+        #search-container:focus-within { 
+            border-color: var(--primary-color); 
+            background-color: white; 
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); 
+        }
+        #search-input { 
+            border: none; 
+            flex-grow: 1; 
+            padding: 5px; 
+            outline: none; 
+            background: transparent; 
+        }
+        
+        .item-list { max-height: 30vh; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-lg); background: white; }
+        .item-card { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--border-color); transition: var(--transition); cursor: pointer; position: relative; }
+        .item-card:last-child { border-bottom: none; }
+        .item-card:hover { background-color: #f8fafc; }
+        .item-card.selected { background-color: #eff6ff; color: #1e40af; font-weight: 600; }
+        .item-card.selected::before { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 4px; background-color: var(--primary-color); }
+        .item-card input[type="checkbox"] { margin-left: 15px; transform: scale(1.3); accent-color: var(--primary-color); }
+        .item-card .details { display: flex; flex-direction: column; }
+        .item-card .item-meta { font-size: 12px; color: var(--muted-text); }
+        .item-card.selected .item-meta { color: #60a5fa; }
+
+        #a4-sheet {
+            background: white; width: 21cm; height: 29.7cm; box-shadow: var(--shadow-lg); padding: 1cm;
+            transform-origin: center center; transform: scale(0.65); display: grid; align-content: start;
+        }
+        #print-button { margin-top: 25px; }
+        
+        .price-label {
+            display: flex; flex-direction: row; align-items: center;
+            overflow: hidden; background-color: white; color: var(--text-color); font-family: 'Cairo', sans-serif;
+            border: var(--label-border-width) var(--label-border-style) var(--label-border-color); border-radius: var(--label-border-radius); padding: var(--label-padding);
+        }
+        .label-logo-area { flex: 0 0 25%; text-align: center; padding: 5px; height: 100%; display:flex; align-items:center; justify-content:center; }
+        .label-logo-area img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .label-info-area { flex: 1 1 auto; text-align: center; padding: 0 10px; font-size: var(--label-item-font-size); font-weight: var(--label-item-font-weight); text-transform: var(--label-item-text-transform); }
+        .label-price-area { flex: 0 0 30%; text-align: center; padding: 0 5px; }
+        .label-price-container { border: 2px solid var(--price-box-border-color); border-radius: 8px; text-align: center; background: var(--price-box-bg); padding: 5px 10px; display: inline-block; }
+        .label-price { font-size: var(--label-price-font-size); font-weight: 700; color: var(--label-price-color); white-space: nowrap; }
+
+        .slider-value { font-weight: 600; color: var(--primary-color); }
+        fieldset { border: none; border-radius: var(--radius-lg); padding: 20px; margin-bottom: 20px; background-color: #f8fafc; border: 1px solid var(--border-color); }
+        legend { font-weight: 700; color: var(--text-color); padding: 0 5px; font-size: 1.1rem; }
+        .control-group { margin-bottom: 20px; } .control-group:last-child { margin-bottom: 0; }
+        .control-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--muted-text); }
+        
+        .grid-2, .grid-3 { display: grid; gap: 15px; align-items: end; }
+        .grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
+        
+        #layout-calculation-status { background-color: #eef2ff; padding: 10px; border-radius: var(--radius-md); text-align: center; font-weight: 600; color: #4338ca; margin-top: 15px; display:none; }
+
+        #print-queue-list {
+            max-height: 25vh; overflow-y: auto; border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg); background: white;
+        }
+        .queue-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 15px; border-bottom: 1px solid var(--border-color);
+        }
+        .queue-item:last-child { border-bottom: none; }
+        .queue-item-details { display: flex; flex-direction: column; gap: 4px; }
+        .queue-item-name { font-weight: 600; color: var(--text-color); }
+        .queue-item-meta { font-size: 14px; color: var(--muted-text); }
+        .queue-item-remove {
+            background-color: #fee2e2; color: #b91c1c; border: none; width: 28px; height: 28px;
+            border-radius: 50%; font-size: 20px; font-weight: bold; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; line-height: 1;
+            padding: 0; transition: var(--transition);
+        }
+        .queue-item-remove:hover { background-color: #ef4444; color: white; transform: scale(1.1); box-shadow: none;}
+        #queue-summary {
+            margin-top: 15px; text-align: center; font-weight: 600; color: var(--primary-color);
+            background-color: #eef2ff; padding: 10px; border-radius: var(--radius-md);
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-color); }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+        @media print {
+            .control-panel, #print-button, .app-status { display: none !important; }
+            body, .app-container, .preview-panel { display: block !important; width: 100% !important; height: auto !important; overflow: visible !important; background: #fff !important; padding: 0 !important; margin: 0 !important; }
+            #a4-sheet { transform: none !important; box-shadow: none !important; border: none !important; padding: 0 !important; margin: 0 !important; width: 100% !important; height: 100% !important; display: grid !important; page-break-after: always; }
+            .price-label { page-break-inside: avoid !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; border-color: #000 !important; }
+            body.pre-printed-mode .price-label { border: none !important; background: transparent !important; }
+            body.pre-printed-mode .label-logo-area { visibility: hidden !important; }
+            body.pre-printed-mode .label-price-container { border: none !important; background: transparent !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="preview-panel">
+            <div id="a4-sheet"></div>
+            <button id="print-button" style="display:none;"><span class="btn-icon"></span> طباعة</button>
+        </div>
+        
+        <aside class="control-panel">
+            <h1>شيلف مجمع</h1>
+<a href="../index.html" style="text-decoration: none; display: block; text-align: center; margin-bottom: 25px; color: #0077cc; font-weight: 500;">← العودة إلى لوحة التحكم</a>
+            <div id="app-status" class="app-status"></div>
+
+            <section class="section-card">
+                <h2>1. تحميل البيانات</h2>
+                <div id="loader" class="loader"></div>
+            </section>
+
+            <section id="item-selection-section" class="section-card" style="display:none;">
+                <h2>2. بحث وتحديد الأصناف</h2>
+                <!-- LAYOUT FIX: Restored original HTML structure for search -->
+                <div id="search-controls">
+                    <select id="search-field"><option value="name">الاسم</option><option value="code">الكود</option></select>
+                    <div id="search-container">
+                        <input type="search" id="search-input" placeholder="اكتب هنا للبحث...">
+                    </div>
+                </div>
+                <div id="item-list" class="item-list"></div>
+            </section>
+
+            <section id="generation-section" class="section-card" style="display:none;">
+                 <h2>3. إضافة بطاقات للقائمة</h2>
+                 <div class="control-group">
+                    <div class="grid-3">
+                       <input type="number" id="price-input" placeholder="أدخل السعر" step="0.01" min="0">
+                       <input type="number" id="quantity-input" placeholder="الكمية" value="1" min="1">
+                       <button id="add-to-queue-btn">إضافة للقائمة</button>
+                    </div>
+                 </div>
+            </section>
+
+            <section id="print-queue-section" class="section-card" style="display:none;">
+                <h2>4. قائمة الطباعة</h2>
+                <div id="print-queue-list"></div>
+                <div id="queue-summary" style="display: none;"></div>
+            </section>
+
+
+            <h3>5. تخصيص التصميم</h3>
+            <fieldset>
+                <legend>إعدادات الطباعة</legend>
+                <div class="control-group">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: normal; color: var(--text-color);">
+                        <input type="checkbox" id="pre-printed-mode-checkbox" style="margin-left: 5px; transform: scale(1.1);">
+                        <span>الطباعة على نموذج مُعد مسبقاً<br><small style="color: var(--muted-text); font-weight: 400;">(إخفاء الشعار والإطارات عند الطباعة)</small></span>
+                    </label>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>تخطيط الصفحة</legend>
+                 <div id="layout-calculation-status"></div>
+            </fieldset>
+
+            <fieldset>
+                <legend>الإطار والحدود</legend>
+                <div class="control-group"><label>الحشو (px): <span id="label-padding-value" class="slider-value">5</span></label><input type="range" id="label-padding" min="0" max="20" value="5"></div>
+                <div class="control-group grid-3">
+                    <div><label>عرض الإطار (px)</label><input type="number" id="label-border-width" value="1" min="0"></div>
+                    <div><label>لون الإطار</label><input type="color" id="label-border-color" value="#cbd5e1"></div>
+                    <div><label>نمط الإطار</label><select id="label-border-style"><option value="dashed">متقطع (Dashed)</option><option value="solid">صلب (Solid)</option><option value="dotted">منقط (Dotted)</option><option value="double">مزدوج (Double)</option></select></div>
+                </div>
+                 <div class="control-group"><label>حواف دائرية (px): <span id="label-border-radius-value" class="slider-value">8</span></label><input type="range" id="label-border-radius" min="0" max="30" value="8"></div>
+            </fieldset>
+
+            <fieldset>
+                <legend>النصوص والخطوط</legend>
+                <div class="control-group grid-2">
+                     <div><label>خط الصنف (px): <span id="item-font-size-value" class="slider-value">16</span></label><input type="range" id="item-font-size" min="8" max="28" value="16"></div>
+                     <div><label>خط السعر (px): <span id="price-font-size-value" class="slider-value">24</span></label><input type="range" id="price-font-size" min="12" max="48" value="24"></div>
+                </div>
+                 <div class="control-group grid-2">
+                    <div><label>وزن الخط</label><select id="item-font-weight"><option value="400">عادي</option><option value="700" selected>عريض</option></select></div>
+                    <div><label>حالة الأحرف</label><select id="item-text-transform"><option value="none">عادي</option><option value="uppercase">أحرف كبيرة (Uppercase)</option></select></div>
+                 </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>الألوان</legend>
+                <div class="control-group grid-3">
+                    <div><label>خلفية السعر</label><input type="color" id="price-box-bg" value="#ffffff"></div>
+                    <div><label>إطار السعر</label><input type="color" id="price-box-border-color" value="#ef4444"></div>
+                    <div><label>لون السعر</label><input type="color" id="label-price-color" value="#ef4444"></div>
+                </div>
+            </fieldset>
+        </aside>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyMvUxMBy7UyTWAqT7EMYlwkTdh1Zdc0BWupeMVOYyJSWxcivkSBnozStQSfJGacklAXQ/exec';
+    
+    const icons = {
+        print: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 2.75C5 1.784 5.784 1 6.75 1h6.5c.966 0 1.75.784 1.75 1.75v3.552c.377.046.752.11 1.126.195.784.175 1.437.638 1.83 1.262.394.624.594 1.344.594 2.103v2.888c0 .76-.2 1.48-.594 2.104-.393.623-1.046 1.086-1.83 1.261-.374.086-.749.15-1.126.195v3.552C15 18.216 14.216 19 13.25 19h-6.5C5.784 19 5 18.216 5 17.25V2.75Zm.75 14.5v-2.888c0-.76.2-1.48.594-2.104.393-.623 1.046-1.086 1.83-1.261a23.99 23.99 0 0 1 2.652 0c.784.175 1.437.638 1.83 1.262.394.624.594 1.343.594 2.103v2.888a.75.75 0 0 1-.75.75h-8a.75.75 0 0 1-.75-.75Zm.75-9.75a.75.75 0 0 1 .75-.75h6.5a.75.75 0 0 1 0 1.5h-6.5a.75.75 0 0 1-.75-.75Zm0 3a.75.75 0 0 1 .75-.75h6.5a.75.75 0 0 1 0 1.5h-6.5a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd" /></svg>`,
+        success: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd" /></svg>`,
+        error: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" /></svg>`,
+    };
+    
+    const state = {
+        allItems: [], 
+        selectedItemIds: new Set(),
+        printQueue: [],
+        currentLogoSrc: 'logo.png',
+    };
+    
+    const dom = {
+        appStatus: document.getElementById('app-status'), loader: document.getElementById('loader'),
+        itemSelectionSection: document.getElementById('item-selection-section'),
+        generationSection: document.getElementById('generation-section'),
+        searchInput: document.getElementById('search-input'), searchField: document.getElementById('search-field'),
+        itemList: document.getElementById('item-list'),
+        priceInput: document.getElementById('price-input'), 
+        quantityInput: document.getElementById('quantity-input'),
+        addToQueueBtn: document.getElementById('add-to-queue-btn'),
+        printQueueSection: document.getElementById('print-queue-section'),
+        printQueueList: document.getElementById('print-queue-list'),
+        queueSummary: document.getElementById('queue-summary'),
+        a4Sheet: document.getElementById('a4-sheet'), printButton: document.getElementById('print-button'),
+        layoutStatus: document.getElementById('layout-calculation-status'),
+        prePrintedModeCheckbox: document.getElementById('pre-printed-mode-checkbox'),
+        controls: {}
+    };
+
+    const controlIds = [
+        'label-padding', 'label-border-width', 'label-border-color', 'label-border-style', 'label-border-radius', 
+        'item-font-size', 'price-font-size', 'item-font-weight', 'item-text-transform', 
+        'price-box-bg', 'price-box-border-color', 'label-price-color'
+    ];
+    controlIds.forEach(id => {
+        const camelCaseId = id.replace(/-(\w)/g, (match, p1) => p1.toUpperCase());
+        dom.controls[camelCaseId] = document.getElementById(id);
+    });
+
+    const debounce = (func, delay) => { let timeoutId; return (...args) => { clearTimeout(timeoutId); timeoutId = setTimeout(() => { func.apply(this, args); }, delay); }; };
+
+    const showStatus = (message, type = 'error') => {
+        const iconHtml = `<span class="icon">${type === 'success' ? icons.success : icons.error}</span>`;
+        dom.appStatus.innerHTML = iconHtml + message;
+        dom.appStatus.className = `app-status ${type}`;
+        dom.appStatus.style.display = 'flex';
+        setTimeout(() => { dom.appStatus.style.display = 'none'; }, type === 'error' ? 8000 : 4000);
+    };
+
+    const findCommon = (arr) => {
+        if (!arr || arr.length === 0) return '';
+        const wordsArr = arr.map(s => String(s).split(' '));
+        let common = [];
+        for (let i = 0; i < wordsArr[0].length; i++) {
+            let word = wordsArr[0][i];
+            if (wordsArr.every(words => words[i] === word)) { common.push(word); } else { break; }
+        }
+        return common.join(' ');
+    };
+    
+    const extractUnit = (name) => {
+        const units = ['ملل', 'مل', 'جم', 'جرام', 'كجم', 'لتر', 'متر'];
+        const regex = new RegExp(`(\\d*\\.?\\d+\\s?(${units.join('|')}))($|\\s)`);
+        const match = name.match(regex);
+        return match ? match[1].trim() : null;
+    };
+
+    const renderItems = (items) => {
+        dom.itemList.innerHTML = '';
+        if (items.length === 0) {
+            dom.itemList.innerHTML = '<p style="text-align:center; padding: 20px; color: var(--muted-text);">لا توجد نتائج مطابقة</p>';
+            return;
+        }
+        items.forEach(item => {
+            const isSelected = state.selectedItemIds.has(item.id);
+            const card = document.createElement('label');
+            card.className = `item-card ${isSelected ? 'selected' : ''}`;
+            card.innerHTML = `<input type="checkbox" data-id="${item.id}" ${isSelected ? 'checked' : ''}><div class="details"><span class="item-name">${item.name}</span><span class="item-meta">الكود: ${item.code || 'N/A'}</span></div>`;
+            card.querySelector('input').addEventListener('change', (e) => {
+                const id = parseInt(e.target.dataset.id);
+                e.target.checked ? state.selectedItemIds.add(id) : state.selectedItemIds.delete(id);
+                card.classList.toggle('selected', e.target.checked);
+            });
+            dom.itemList.appendChild(card);
+        });
+    };
+    
+    const handleSearch = () => {
+        const query = dom.searchInput.value.toLowerCase().trim();
+        const field = dom.searchField.value;
+
+        if (!query) {
+            renderItems(state.allItems);
+            return;
+        }
+
+        const filtered = state.allItems.filter(item => {
+            const fieldToSearch = String(item[field] || '').toLowerCase();
+            return fieldToSearch.includes(query);
+        });
+        renderItems(filtered);
+    };
+
+    const debouncedSearch = debounce(handleSearch, 250);
+
+    const renderPrintQueue = () => {
+        dom.printQueueList.innerHTML = '';
+        const totalLabels = state.printQueue.reduce((sum, job) => sum + parseInt(job.quantity), 0);
+
+        if (state.printQueue.length === 0) {
+            dom.printQueueList.innerHTML = '<p style="text-align:center; padding: 20px; color: var(--muted-text);">قائمة الطباعة فارغة.</p>';
+            dom.printQueueSection.style.display = 'none';
+            dom.queueSummary.style.display = 'none';
+        } else {
+            dom.printQueueSection.style.display = 'block';
+            state.printQueue.forEach(job => {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'queue-item';
+                itemEl.innerHTML = `
+                    <div class="queue-item-details">
+                        <span class="queue-item-name">${job.name}</span>
+                        <span class="queue-item-meta">السعر: ${job.price.toFixed(2)} ج.م - الكمية: ${job.quantity}</span>
+                    </div>
+                    <button class="queue-item-remove" data-id="${job.id}" title="إزالة">&times;</button>
+                `;
+                dom.printQueueList.appendChild(itemEl);
+            });
+            dom.queueSummary.textContent = `الإجمالي: ${totalLabels} بطاقة`;
+            dom.queueSummary.style.display = 'block';
+        }
+    };
+    
+    const updatePreview = () => {
+        const { controls } = dom;
+        const root = document.documentElement.style;
+        Object.entries({
+            '--label-padding': `${controls.labelPadding.value}px`, '--label-border-width': `${controls.labelBorderWidth.value}px`,
+            '--label-border-style': controls.labelBorderStyle.value, '--label-border-color': controls.labelBorderColor.value,
+            '--label-border-radius': `${controls.labelBorderRadius.value}px`, '--price-box-bg': controls.priceBoxBg.value,
+            '--price-box-border-color': controls.priceBoxBorderColor.value, '--label-price-color': controls.labelPriceColor.value,
+            '--label-item-font-size': `${controls.itemFontSize.value}px`, '--label-item-font-weight': controls.itemFontWeight.value,
+            '--label-item-text-transform': controls.itemTextTransform.value, '--label-price-font-size': `${controls.priceFontSize.value}px`,
+        }).forEach(([prop, val]) => root.setProperty(prop, val));
+
+        const PAGE_HEIGHT_MM = 297, MARGIN_MM = 10, PRINTABLE_HEIGHT = PAGE_HEIGHT_MM - (MARGIN_MM * 2);
+        const labelHeight = 30, gap = 5;
+        const labelsPerPage = Math.floor((PRINTABLE_HEIGHT + gap) / (labelHeight + gap));
+        
+        dom.a4Sheet.innerHTML = '';
+        dom.a4Sheet.style.gridTemplateColumns = `1fr`;
+        dom.a4Sheet.style.gap = `${gap}mm`;
+        dom.a4Sheet.style.gridTemplateRows = `repeat(${labelsPerPage}, ${labelHeight}mm)`;
+        
+        const logoHtml = `<img src="${state.currentLogoSrc}" alt="Logo">`;
+        let labelsToRender = [];
+        
+        for (const job of state.printQueue) {
+            for (let i = 0; i < job.quantity; i++) {
+                labelsToRender.push(job);
+            }
+        }
+        
+        for (let i = 0; i < Math.min(labelsToRender.length, labelsPerPage); i++) {
+            const job = labelsToRender[i];
+            const label = document.createElement('div');
+            label.className = 'price-label';
+            label.innerHTML = `
+                <div class="label-logo-area">${logoHtml}</div>
+                <div class="label-info-area">${job.name}</div>
+                <div class="label-price-area"><div class="label-price-container"><div class="label-price">${job.price.toFixed(2)} ج.م</div></div></div>`;
+            dom.a4Sheet.appendChild(label);
+        }
+
+        const totalInQueue = state.printQueue.reduce((sum, job) => sum + parseInt(job.quantity), 0);
+        dom.layoutStatus.textContent = `سعة الصفحة: ${labelsPerPage} بطاقات | القائمة تحتوي على ${totalInQueue} بطاقة.`;
+        dom.layoutStatus.style.display = 'block';
+        
+        const printButtonIcon = dom.printButton.querySelector('.btn-icon');
+        if (printButtonIcon) printButtonIcon.innerHTML = icons.print;
+        dom.printButton.style.display = labelsToRender.length > 0 ? 'inline-flex' : 'none';
+    };
+
+    const handleAddToQueue = () => {
+        try {
+            if (state.selectedItemIds.size === 0) return showStatus('خطأ: يرجى تحديد صنف واحد على الأقل.', 'error');
+            const price = parseFloat(dom.priceInput.value);
+            if (isNaN(price) || price <= 0) return showStatus('خطأ: يرجى إدخال سعر صحيح وموجب.', 'error');
+            const quantity = parseInt(dom.quantityInput.value);
+            if (isNaN(quantity) || quantity < 1) return showStatus('خطأ: يرجى إدخال كمية صحيحة (1 أو أكثر).', 'error');
+            
+            const selectedItems = state.allItems.filter(item => state.selectedItemIds.has(item.id));
+            let newName;
+            
+            if (selectedItems.length === 1) { newName = selectedItems[0].name; } 
+            else {
+                const allNames = selectedItems.map(item => item.name);
+                let commonUnit = '';
+                const allUnits = allNames.map(name => extractUnit(name)).filter(Boolean);
+                if (allUnits.length > 0) {
+                    const unitCounts = allUnits.reduce((acc, unit) => { acc[unit] = (acc[unit] || 0) + 1; return acc; }, {});
+                    if(Object.keys(unitCounts).length > 0) { commonUnit = Object.keys(unitCounts).reduce((a, b) => unitCounts[a] > unitCounts[b] ? a : b); }
+                }
+                const namesWithoutUnits = allNames.map(name => name.replace(extractUnit(name) || '', '').trim());
+                const commonStart = findCommon(namesWithoutUnits);
+                const nameParts = [commonStart, "أنواع", commonUnit].filter(Boolean);
+                newName = nameParts.join(' ').replace(/\s+/g, ' ');
+            }
+            
+            const job = { id: Date.now(), name: newName, price, quantity };
+            state.printQueue.push(job);
+
+            // Reset the entire selection and search UI to a clean state
+            state.selectedItemIds.clear();
+            dom.priceInput.value = '';
+            dom.quantityInput.value = '1';
+            dom.searchInput.value = ''; // Clear the search box
+            handleSearch(); // Re-render the item list to show all items
+            
+            dom.priceInput.focus();
+
+            renderPrintQueue();
+            updatePreview();
+            showStatus(`تمت إضافة "${newName}" للقائمة.`, 'success');
+
+        } catch (error) {
+            console.error(error);
+            showStatus('حدث خطأ غير متوقع أثناء إضافة البطاقة.', 'error');
+        }
+    };
+
+    const loadData = async () => {
+        if (!WEB_APP_URL || !WEB_APP_URL.includes('script.google.com')) { return showStatus('خطأ فادح: لم يتم تحديد رابط API.', 'error'); }
+        dom.loader.style.display = 'block';
+        try {
+            const response = await fetch(WEB_APP_URL);
+            if (!response.ok) throw new Error(`فشل الاتصال بالخادم (Status: ${response.status})`);
+            const data = await response.json();
+            if (data.error) throw new Error(data.message);
+            state.allItems = data.map((item, index) => ({ ...item, id: item.id || index }));
+            if (state.allItems.length > 0) {
+                showStatus(`تم تحميل ${state.allItems.length} صنف بنجاح.`, 'success');
+                dom.itemSelectionSection.style.display = 'block';
+                dom.generationSection.style.display = 'block';
+                renderItems(state.allItems);
+                updatePreview();
+            } else {
+                 showStatus('تم الاتصال بنجاح ولكن لم يتم العثور على بيانات.', 'info');
+            }
+        } catch (error) {
+            showStatus(`فشل تحميل البيانات: ${error.message}. تحقق من الرابط واتصالك بالانترنت.`, 'error');
+        } finally {
+            dom.loader.style.display = 'none';
+        }
+    };
+    
+    const debouncedUpdatePreview = debounce(updatePreview, 250);
+    dom.addToQueueBtn.addEventListener('click', handleAddToQueue);
+    dom.printButton.addEventListener('click', () => window.print());
+
+    dom.printQueueList.addEventListener('click', e => {
+        const removeButton = e.target.closest('.queue-item-remove');
+        if (removeButton) {
+            const jobId = parseInt(removeButton.dataset.id);
+            state.printQueue = state.printQueue.filter(job => job.id !== jobId);
+            renderPrintQueue();
+            updatePreview();
+        }
+    });
+
+    dom.searchInput.addEventListener('input', debouncedSearch);
+    dom.searchField.addEventListener('change', handleSearch);
+    
+    Object.values(dom.controls).forEach(control => {
+        if (!control) return;
+        const event = ['range', 'color', 'number', 'text'].includes(control.type) ? 'input' : 'change';
+        control.addEventListener(event, debouncedUpdatePreview);
+    });
+    
+    const sliderValueIds = ['label-padding', 'label-border-radius', 'item-font-size', 'price-font-size'];
+    sliderValueIds.forEach(id => {
+        const input = document.getElementById(id);
+        const valueSpan = document.getElementById(`${id}-value`);
+        if(input && valueSpan) {
+            valueSpan.textContent = input.value;
+            input.addEventListener('input', e => valueSpan.textContent = e.target.value);
+        }
+    });
+
+    dom.prePrintedModeCheckbox.addEventListener('change', (e) => {
+        document.body.classList.toggle('pre-printed-mode', e.target.checked);
+    });
+    
+    loadData();
+});
+</script>
+</body>
+</html>
