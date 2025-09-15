@@ -3,136 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KERO Branch Hub</title>
-    
+    <title>KERO Branch Tools</title>
     <link rel="icon" type="image/png" href="favicon.ico">
-    <!-- Google Fonts: Cairo for Arabic, Poppins for English -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;600&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        /* CSS remains the same */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        :root { --bg-color: #f3f3f3; --text-primary: #1a1a1d; --text-secondary: #5a6275; --tile-bg: rgba(255, 255, 255, 0.8); --tile-border: rgba(0, 0, 0, 0.08); --transition-speed: 0.3s; }
-        body { font-family: 'Cairo', 'Poppins', sans-serif; background-color: var(--bg-color); background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Cg fill-rule="evenodd"%3E%3Cg fill="%23e0e0e0" fill-opacity="0.4"%3E%3Cpath opacity=".5" d="M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
-            line-height: 1.5;
+        :root {
+            --bg-color: #030409;
+            --text-primary: #f0f0f0;
+            --text-secondary: #a0a3b1;
+            --card-bg: rgba(22, 25, 37, 0.3);
+            --card-border: rgba(255, 255, 255, 0.1);
+        }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        body {
+            font-family: 'Inter', 'Cairo', sans-serif;
+            background-color: var(--bg-color);
+            background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Cg fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.03"%3E%3Cpath opacity=".5" d="M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+            color: var(--text-primary);
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
+            align-items: center; justify-content: center;
+            padding: 2rem;
         }
-        header { text-align: center; padding: 3rem 1rem 1rem; }
-        header h1 { font-size: 2.5rem; font-weight: 700; font-family: 'Poppins', sans-serif; }
-        header p { font-size: 1.1rem; color: var(--text-secondary); font-family: 'Poppins', sans-serif;}
-        footer { text-align: center; padding: 2rem 1rem; color: var(--text-secondary); font-size: 0.9rem; }
-        footer a { color: #007aff; font-weight: 500; text-decoration: none; }
-        main { flex-grow: 1; display: grid; place-items: center; padding: 1rem; }
-        .tile-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: minmax(140px, auto); gap: 1rem; width: 100%; max-width: 900px; }
-        .app-tile { position: relative; padding: 1.5rem; border-radius: 8px; background: var(--tile-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--tile-border); box-shadow: 0 4px 12px rgba(0,0,0,0.05); color: var(--text-primary); text-decoration: none; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; transform-style: preserve-3d; transition: transform 0.1s linear, box-shadow var(--transition-speed) ease; }
-        .app-tile:hover { box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .app-tile::before { content: ''; position: absolute; top: var(--mouse-y, 50%); left: var(--mouse-x, 50%); width: 300px; height: 300px; background: radial-gradient(circle, rgba(255, 255, 255, 0.8), transparent 70%); transform: translate(-50%, -50%); opacity: 0; transition: opacity var(--transition-speed) ease; }
-        .app-tile:hover::before { opacity: 1; }
-        .tile-icon { font-size: 1.5rem; margin-bottom: 0.5rem; color: #fff; width: 48px; height: 48px; border-radius: 6px; display: grid; place-items: center; }
-        .tile-title { font-weight: 600; font-size: 1.25rem; line-height: 1.6; }
-        #price-update { grid-column: span 2; grid-row: span 2; align-items: flex-start; justify-content: space-between; }
-        #price-update .tile-icon { font-size: 2rem; width: 64px; height: 64px; border-radius: 8px; }
-        #price-update .tile-title { font-size: 1.75rem; }
-        .tile-description { font-size: 0.95rem; color: var(--text-secondary); font-family: 'Poppins', sans-serif;}
-        .tile-status { align-self: flex-end; font-size: 0.8rem; font-weight: 500; color: #34c759; font-family: 'Poppins', sans-serif; }
-        .tile-status::before { content: '● '; font-size: 1em; }
-        #expiry-report { grid-column: span 2; }
-        #price-update .tile-icon { background-color: #007aff; }
-        #expiry-report .tile-icon { background-color: #34c759; }
-        #shelf-label .tile-icon { background-color: #ff9500; }
-        #exception-inquiry .tile-icon { background-color: #af52de; }
+        .container { width: 100%; max-width: 900px; text-align: center; }
+        header { margin-bottom: 3rem; animation: fadeIn 1s ease-out backwards; }
+        header h1 { font-size: 3rem; font-weight: 700; }
+        header p { font-size: 1.1rem; color: var(--text-secondary); margin-top: 0.5rem; }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; }
+        .card {
+            position: relative;
+            text-decoration: none;
+            color: var(--text-primary);
+            transform: translateY(0px);
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .card:hover { transform: translateY(-10px); }
+        .card-content {
+            padding: 2rem;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            text-align: left;
+            position: relative; z-index: 2;
+        }
+        .card-aura {
+            position: absolute; top: 50%; left: 50%;
+            width: 150%; height: 150%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: radial-gradient(circle, var(--aura-color), transparent 70%);
+            opacity: 0;
+            filter: blur(60px);
+            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s ease-out;
+            z-index: 0;
+        }
+        .card:hover .card-aura { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        .card-border {
+            position: absolute; inset: -1px;
+            border: 2px solid transparent;
+            border-radius: 13px;
+            background: conic-gradient(from var(--angle), transparent, var(--aura-color), transparent) border-box;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude; -webkit-mask-composite: xor;
+            opacity: 0;
+            transition: opacity 0.4s ease-out;
+            animation: rotate 4s linear infinite paused;
+        }
+        .card:hover .card-border { opacity: 1; animation-play-state: running; }
+        .icon {
+            font-size: 1.8rem;
+            width: 50px; height: 50px;
+            display: grid; place-items: center;
+            border-radius: 8px; margin-bottom: 1.5rem;
+            background-color: var(--aura-color);
+            color: #fff;
+            box-shadow: 0 0 20px -5px var(--aura-color);
+        }
+        .card-title { font-family: 'Inter', 'Cairo', sans-serif; font-size: 1.5rem; font-weight: 500; }
+        .card-description { font-size: 1rem; color: var(--text-secondary); margin-top: 0.25rem; line-height: 1.6; }
+        
+        #price-update { --aura-color: #007aff; }
+        #expiry-report { --aura-color: #34c759; }
+        #shelf-label { --aura-color: #ff9500; }
+        #exception-inquiry { --aura-color: #af52de; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
         @media (max-width: 768px) {
-            .tile-grid { grid-template-columns: 1fr; grid-auto-rows: auto; }
-            .app-tile { grid-column: span 1 !important; grid-row: span 1 !important; }
-            #price-update { flex-direction: row; align-items: center; justify-content: flex-start; }
-            #price-update .tile-info { margin-left: 1rem; }
-            #price-update .tile-description, #price-update .tile-status { display: none; }
-            #price-update .tile-title { font-size: 1.25rem; }
-            #price-update .tile-icon { width: 50px; height: 50px; font-size: 1.8rem; }
+            body { padding: 1rem; } header h1 { font-size: 2.5rem; } .grid { grid-template-columns: 1fr; gap: 1.5rem; }
         }
     </style>
 </head>
 <body>
-
-    <header>
-        <h1>KERO Baranch Hub</h1>
-        <p>Centralized Dashboard For Branch Tools.</p>
-    </header>
-
-    <main>
-        <div class="tile-grid">
-            
-            <!-- CORRECTED LINK -->
-            <a href="price-update/" class="app-tile" id="price-update">
-                <div class="tile-header">
-                    <div class="tile-icon"><i class="fas fa-tags"></i></div>
-                    <div class="tile-info">
-                        <h2 class="tile-title">تعديل الاسعار</h2>
-                        <p class="tile-description">انشاء اذن تعديل سعر</p>
+    <div class="container">
+        <header><h1>KERO Branch Tools</h1><p>The essence of clarity and focus.</p></header>
+        <main>
+            <div class="grid">
+                <a href="price-update/" class="card" id="price-update">
+                    <div class="card-border"></div>
+                    <div class="card-aura"></div>
+                    <div class="card-content">
+                        <div class="icon"><i class="fas fa-tags"></i></div>
+                        <h2 class="card-title">تعديل الاسعار</h2>
+                        <p class="card-description">انشاء اذن تعديل سعر.</p>
                     </div>
-                </div>
-                <span class="tile-status">Online</span>
-            </a>
-            
-            <!-- CORRECTED LINK -->
-            <a href="expiry-report/" class="app-tile" id="expiry-report">
-                 <div class="tile-header">
-                    <div class="tile-icon"><i class="fas fa-calendar-times"></i></div>
-                    <h2 class="tile-title">جرد تاريخ الصلاحية</h2>
-                </div>
-            </a>
-            
-            <!-- CORRECTED LINK -->
-            <a href="shelf-label/" class="app-tile" id="shelf-label">
-                <div class="tile-header">
-                    <div class="tile-icon"><i class="fas fa-barcode"></i></div>
-                    <h2 class="tile-title">طباعة شيلف مجمع</h2>
-                </div>
-            </a>
-            
-            <!-- CORRECTED LINK -->
-            <a href="exception-inquiry/" class="app-tile" id="exception-inquiry">
-                <div class="tile-header">
-                    <div class="tile-icon"><i class="fas fa-file-invoice-dollar"></i></div>
-                    <h2 class="tile-title">الاستعلام عن استثناء</h2>
-                </div>
-            </a>
-
-        </div>
-    </main>
-    
-    <footer>
-        <p>© 2024 KERO Hub.V.1 </p>
-    </footer>
-
+                </a>
+                <a href="expiry-report/" class="card" id="expiry-report">
+                    <div class="card-border"></div>
+                    <div class="card-aura"></div>
+                    <div class="card-content">
+                        <div class="icon"><i class="fas fa-calendar-times"></i></div>
+                        <h2 class="card-title">جرد الصلاحية</h2>
+                        <p class="card-description">تسجيل المنتجات قريبة الانتهاء.</p>
+                    </div>
+                </a>
+                <a href="shelf-label/" class="card" id="shelf-label">
+                    <div class="card-border"></div>
+                    <div class="card-aura"></div>
+                    <div class="card-content">
+                        <div class="icon"><i class="fas fa-barcode"></i></div>
+                        <h2 class="card-title">طباعة شيلف</h2>
+                        <p class="card-description">انشاء وطباعة بطاقات الأسعار.</p>
+                    </div>
+                </a>
+                <a href="exception-inquiry/" class="card" id="exception-inquiry">
+                    <div class="card-border"></div>
+                    <div class="card-aura"></div>
+                    <div class="card-content">
+                        <div class="icon"><i class="fas fa-file-invoice-dollar"></i></div>
+                        <h2 class="card-title">استعلام استثناء</h2>
+                        <p class="card-description">البحث عن استثناءات الأسعار.</p>
+                    </div>
+                </a>
+            </div>
+        </main>
+    </div>
     <script>
-        // No changes needed in JavaScript
         document.addEventListener('DOMContentLoaded', () => {
-            if (window.innerWidth < 768 || 'ontouchstart' in window) {
-                return;
-            }
-            const tiles = document.querySelectorAll('.app-tile');
-            tiles.forEach(tile => {
-                tile.addEventListener('mousemove', (e) => {
-                    const rect = tile.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    tile.style.setProperty('--mouse-x', `${x}px`);
-                    tile.style.setProperty('--mouse-y', `${y}px`);
-                    const { width, height } = rect;
-                    const rotateX = (y / height - 0.5) * -15; 
-                    const rotateY = (x / width - 0.5) * 15;  
-                    tile.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
-                });
-                tile.addEventListener('mouseleave', () => {
-                    tile.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
-                });
+            const cards = document.querySelectorAll('.card-border');
+            cards.forEach(card => {
+                let angle = 0;
+                setInterval(() => {
+                    angle = (angle + 1) % 360;
+                    card.style.setProperty('--angle', `${angle}deg`);
+                }, 1000 / 60);
             });
         });
     </script>
