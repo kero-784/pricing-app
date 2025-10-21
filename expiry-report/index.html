@@ -60,7 +60,12 @@
         }
         .card-title .material-icons-outlined { color: var(--accent-primary); }
 
-        .input-group { display: flex; gap: 12px; }
+        .input-group { 
+            display: flex; 
+            gap: 12px; 
+            align-items: stretch;
+        }
+        .input-group input { flex-grow: 1; }
         input[type="text"], input[type="number"] {
             padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem;
             font-family: var(--font-family); outline: none; transition: all var(--transition-speed) ease;
@@ -84,6 +89,15 @@
         .btn-secondary:not(:disabled):hover { background-color: #dce1e6; }
         .btn-success { background-color: var(--accent-success); color: white; }
         .btn-success:not(:disabled):hover { background-color: #157347; transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .btn-icon {
+            padding: 0 12px;
+            background-color: #e9ecef;
+            color: var(--text-primary);
+            border: 1px solid transparent;
+        }
+        .btn-icon .material-icons-outlined { font-size: 22px; }
+        .btn-icon:not(:disabled):hover { background-color: #dce1e6; }
+
 
         #workspace-card {
             overflow: hidden; max-height: 0; padding-top: 0; padding-bottom: 0;
@@ -153,6 +167,30 @@
             z-index: 1001; transition: bottom 0.5s ease-in-out;
         }
         #toast.show { bottom: 24px; }
+        
+        /* === NEW: Barcode Scanner Modal Styles === */
+        #scanner-modal {
+            position: fixed; inset: 0; z-index: 1000;
+            background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+            display: none; justify-content: center; align-items: center;
+            padding: 16px;
+        }
+        #scanner-modal.visible { display: flex; }
+        .scanner-content {
+            background-color: var(--card-bg-color);
+            padding: 24px; border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md); text-align: center;
+            width: 100%; max-width: 500px;
+        }
+        #scanner-reader {
+            width: 100%; border: 1px solid var(--border-color);
+            border-radius: 8px; overflow: hidden;
+            margin-bottom: 16px;
+        }
+        #scanner-reader video {
+            width: 100% !important; height: auto !important;
+        }
+        /* End of new styles */
 
         @media (max-width: 600px) {
             .expiry-input-group { grid-template-columns: 1fr; gap: 8px; padding-right: 0;}
@@ -165,10 +203,9 @@
     <div id="toast"></div>
 
     <div id="app-container">
-        <!-- HTML Structure is Unchanged -->
         <header class="app-header">
             <h1>Product Expiry Report</h1>
-<a href="../index.html" style="text-decoration: none; display: block; text-align: center; margin-bottom: 25px; color: #0077cc; font-weight: 500;">← العودة إلى لوحة التحكم</a>
+            <a href="../index.html" style="text-decoration: none; display: block; text-align: center; margin-bottom: 25px; color: white; font-weight: 500;">← العودة إلى لوحة التحكم</a>
             <p>Keep The Records.</p>
         </header>
 
@@ -177,6 +214,9 @@
                 <h2 class="card-title"><span class="material-icons-outlined">search</span>Find an Item</h2>
                 <div class="input-group">
                     <input type="text" id="searchBarcodeInput" placeholder="Scan or Enter Barcode...">
+                    <button id="scanButton" class="btn-icon" title="Scan with camera" disabled>
+                        <span class="material-icons-outlined">photo_camera</span>
+                    </button>
                     <button id="searchButton" class="btn-primary" disabled>Search</button>
                 </div>
             </section>
@@ -212,8 +252,19 @@
         </main>
     </div>
     
+    <!-- NEW: Barcode Scanner Modal Structure -->
+    <div id="scanner-modal">
+        <div class="scanner-content">
+            <div id="scanner-reader"></div>
+            <button id="closeScannerButton" class="btn-secondary">Close Scanner</button>
+        </div>
+    </div>
+    
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <!-- NEW: Barcode Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
     <script>
         // === CONFIGURATION ===
         const appsScriptUrl = "https://script.google.com/macros/s/AKfycbxYBLxVmDvTN6ggLycCs0uVvAhjoH47azq_8R2Y-uX5fwE6h_YHh7XdvP16J8whC_nx/exec";
@@ -222,12 +273,27 @@
         // === GLOBAL VARIABLES ===
         let database = [], currentItem = null, enteredRecords = [];
         let barcodeHeader = '', nameHeader = '';
-        let editingRecordIndex = null; // NEW: To track which record is being edited
+        let editingRecordIndex = null;
+        let html5QrCode = null; // NEW: For scanner instance
 
-        // === DOM ELEMENT CACHE (unchanged) ===
-        const el = { loader: document.getElementById('loader-overlay'), loaderText: document.getElementById('loader-text'), toast: document.getElementById('toast'), searchInput: document.getElementById('searchBarcodeInput'), searchButton: document.getElementById('searchButton'), workspace: document.getElementById('workspace-card'), itemTitle: document.getElementById('item-title-display'), itemDetails: document.getElementById('item-details-list'), expiryInputs: document.getElementById('expiry-inputs'), addExpiryButton: document.getElementById('add-expiry-button'), discardButton: document.getElementById('discard-button'), saveButton: document.getElementById('save-button'), recordsTable: document.getElementById('records-table'), syncButton: document.getElementById('syncButton'), exportButton: document.getElementById('exportButton'), };
+        // === DOM ELEMENT CACHE ===
+        const el = {
+            loader: document.getElementById('loader-overlay'), loaderText: document.getElementById('loader-text'),
+            toast: document.getElementById('toast'),
+            searchInput: document.getElementById('searchBarcodeInput'), searchButton: document.getElementById('searchButton'),
+            workspace: document.getElementById('workspace-card'), itemTitle: document.getElementById('item-title-display'),
+            itemDetails: document.getElementById('item-details-list'), expiryInputs: document.getElementById('expiry-inputs'),
+            addExpiryButton: document.getElementById('add-expiry-button'), discardButton: document.getElementById('discard-button'),
+            saveButton: document.getElementById('save-button'), recordsTable: document.getElementById('records-table'),
+            syncButton: document.getElementById('syncButton'), exportButton: document.getElementById('exportButton'),
+            // NEW: Scanner elements
+            scanButton: document.getElementById('scanButton'),
+            scannerModal: document.getElementById('scanner-modal'),
+            scannerReader: document.getElementById('scanner-reader'),
+            closeScannerButton: document.getElementById('closeScannerButton')
+        };
         
-        // Unmodified functions...
+        // --- Core App Logic (Mostly Unchanged) ---
         const showLoader = (msg) => { el.loader.classList.add('visible'); el.loaderText.textContent = msg; };
         const hideLoader = () => el.loader.classList.remove('visible');
         let toastTimeout;
@@ -237,118 +303,71 @@
         async function initializeApp() { showLoader('Syncing database...'); loadDataFromLocalStorage(); const inventoryData = await fetchDataFromGoogleSheet(); if (inventoryData?.length) { database = inventoryData; const headers = Object.keys(database[0]); barcodeHeader = headers.find(h => h.toLowerCase().includes('barcode')) || ''; nameHeader = headers.find(h => h.toLowerCase().includes('name')) || ''; if (!barcodeHeader || !nameHeader) { alert("Data Error: Sheet needs 'barcode' and 'name' columns."); enableButtons(false); } else { localStorage.setItem('barcodeHeader', barcodeHeader); localStorage.setItem('nameHeader', nameHeader); enableButtons(true); showToast('Data synced successfully!'); } } else { showToast('Sync failed or database is empty.'); enableButtons(false); } hideLoader(); }
         const fetchDataFromGoogleSheet = async () => { if (!appsScriptUrl || appsScriptUrl.includes("PASTE_YOUR")) return null; try { const response = await fetch(appsScriptUrl); return response.ok ? await response.json() : null; } catch (error) { console.error("Fetch Error:", error); return null; } };
         const loadDataFromLocalStorage = () => { enteredRecords = JSON.parse(localStorage.getItem('enteredRecords') || '[]'); barcodeHeader = localStorage.getItem('barcodeHeader') || ''; nameHeader = localStorage.getItem('nameHeader') || ''; renderEnteredRecords(); };
-        const enableButtons = (isEnabled) => { [el.searchButton, el.exportButton].forEach(btn => btn.disabled = !isEnabled); };
-        const handleSearch = () => { const barcode = el.searchInput.value.trim(); if (!barcode) return; const foundItem = database.find(item => item[barcodeHeader]?.toString() === barcode); if (foundItem) showWorkspace(foundItem); else showToast('Item not found!'); };
         
-        // MODIFIED: Takes optional values to pre-fill the fields for editing.
-        const addExpiryEntry = (date = '', quantity = '') => {
-            const div = document.createElement('div');
-            div.className = 'expiry-input-group';
-            div.innerHTML = `<div class="date-input-wrapper"><input type="text" placeholder="${DATE_FORMAT.replace('Y','yyyy').replace('m','mm').replace('d','dd')}" class="expiry-date" value="${date}"><div class="date-quick-actions"><button type="button" class="quick-date-btn" data-action="today">Today</button><button type="button" class="quick-date-btn" data-action="plus_one_year">+1Y</button></div></div><input type="number" placeholder="Qty" min="1" value="${quantity}"><button type="button" class="btn-secondary btn-icon remove-row-btn" title="Remove row" onclick="this.parentElement.remove()"><span class="material-icons-outlined">delete_outline</span></button>`;
-            el.expiryInputs.appendChild(div);
-            const dateInput = div.querySelector('.expiry-date');
-            const fpInstance = flatpickr(dateInput, { dateFormat: DATE_FORMAT, allowInput: true, minDate: "today" });
-            div.querySelectorAll('.quick-date-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const action = btn.dataset.action;
-                    let newDate = new Date();
-                    if (action === 'plus_one_year') newDate.setFullYear(newDate.getFullYear() + 1);
-                    fpInstance.setDate(newDate, true);
+        // MODIFIED to include scan button
+        const enableButtons = (isEnabled) => {
+            [el.searchButton, el.exportButton, el.scanButton].forEach(btn => btn.disabled = !isEnabled);
+        };
+        
+        const handleSearch = () => { const barcode = el.searchInput.value.trim(); if (!barcode) return; const foundItem = database.find(item => item[barcodeHeader]?.toString() === barcode); if (foundItem) showWorkspace(foundItem); else showToast('Item not found!'); };
+        const addExpiryEntry = (date = '', quantity = '') => { const div = document.createElement('div'); div.className = 'expiry-input-group'; div.innerHTML = `<div class="date-input-wrapper"><input type="text" placeholder="${DATE_FORMAT.replace('Y','yyyy').replace('m','mm').replace('d','dd')}" class="expiry-date" value="${date}"><div class="date-quick-actions"><button type="button" class="quick-date-btn" data-action="today">Today</button><button type="button" class="quick-date-btn" data-action="plus_one_year">+1Y</button></div></div><input type="number" placeholder="Qty" min="1" value="${quantity}"><button type="button" class="btn-secondary btn-icon remove-row-btn" title="Remove row" onclick="this.parentElement.remove()"><span class="material-icons-outlined">delete_outline</span></button>`; el.expiryInputs.appendChild(div); const dateInput = div.querySelector('.expiry-date'); const fpInstance = flatpickr(dateInput, { dateFormat: DATE_FORMAT, allowInput: true, minDate: "today" }); div.querySelectorAll('.quick-date-btn').forEach(btn => { btn.addEventListener('click', () => { const action = btn.dataset.action; let newDate = new Date(); if (action === 'plus_one_year') newDate.setFullYear(newDate.getFullYear() + 1); fpInstance.setDate(newDate, true); }); }); if (!date) dateInput.focus(); };
+        const saveEntry = () => { const entryNodes = el.expiryInputs.querySelectorAll('.expiry-input-group'); if (entryNodes.length === 0) return showToast('Please add at least one expiry entry.'); const recordData = editingRecordIndex !== null ? { ...enteredRecords[editingRecordIndex] } : { ...currentItem }; Object.keys(recordData).forEach(key => { if (key.startsWith('expiryDate') || key.startsWith('quantity')) { delete recordData[key]; } }); for (let i = 0; i < entryNodes.length; i++) { const node = entryNodes[i]; const dateInput = node.querySelector('.expiry-date'); const qtyInput = node.querySelector('input[type="number"]'); if (!dateInput.value || !qtyInput.value) return showToast('Please fill all date and quantity fields.'); recordData[`expiryDate${i + 1}`] = dateInput.value; recordData[`quantity${i + 1}`] = parseInt(qtyInput.value, 10); } recordData.recordTime = new Date().toLocaleString('en-GB'); if (editingRecordIndex !== null) { enteredRecords[editingRecordIndex] = recordData; showToast('Entry updated successfully!'); } else { enteredRecords.unshift(recordData); showToast(`Entry saved with ${entryNodes.length} expiry date(s)!`); } localStorage.setItem('enteredRecords', JSON.stringify(enteredRecords)); renderEnteredRecords(); hideWorkspace(); };
+        const renderEnteredRecords = () => { const table = el.recordsTable; if (enteredRecords.length === 0) { table.innerHTML = '<tbody><tr><td colspan="5" style="text-align:center; padding: 48px; color: var(--text-secondary);">No entries recorded yet.</td></tr></tbody>'; return; } let maxExpiryPairs = 0; enteredRecords.forEach(rec => { const keys = Object.keys(rec).filter(k => k.startsWith('expiryDate')); if (keys.length > maxExpiryPairs) maxExpiryPairs = keys.length; }); let headers = ['Item', 'Barcode']; for (let i = 1; i <= maxExpiryPairs; i++) { headers.push(`Expiry ${i}`); headers.push(`Qty ${i}`); } headers.push('Actions'); const head = `<thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>`; const body = `<tbody>${enteredRecords.map((rec, index) => { let rowHtml = `<tr data-index="${index}"><td>${rec[nameHeader] || '–'}</td><td>${rec[barcodeHeader] || '–'}</td>`; for (let i = 1; i <= maxExpiryPairs; i++) { rowHtml += `<td>${rec[`expiryDate${i}`] || ''}</td><td>${rec[`quantity${i}`] || ''}</td>`; } rowHtml += `<td class="action-cell"><button class="action-btn edit-btn" onclick="handleEdit(${index})"><span class="material-icons-outlined">edit</span></button><button class="action-btn delete-btn" onclick="handleDelete(${index})"><span class="material-icons-outlined">delete</span></button></td></tr>`; return rowHtml; }).join('')}</tbody>`; table.innerHTML = head + body; };
+        const handleDelete = (index) => { if (confirm(`Are you sure you want to delete the entry for "${enteredRecords[index][nameHeader]}"?`)) { enteredRecords.splice(index, 1); localStorage.setItem('enteredRecords', JSON.stringify(enteredRecords)); renderEnteredRecords(); showToast('Entry deleted.'); } };
+        const handleEdit = (index) => { editingRecordIndex = index; const recordToEdit = enteredRecords[index]; showWorkspace(recordToEdit); el.expiryInputs.innerHTML = ''; let i = 1; while (recordToEdit[`expiryDate${i}`]) { addExpiryEntry(recordToEdit[`expiryDate${i}`], recordToEdit[`quantity${i}`]); i++; } };
+
+        // --- NEW: Barcode Scanner Functions ---
+
+        const onScanSuccess = (decodedText, decodedResult) => {
+            // Handle the scanned code result.
+            console.log(`Code matched = ${decodedText}`, decodedResult);
+            showToast(`Scanned: ${decodedText}`);
+            stopScanner();
+            el.searchInput.value = decodedText;
+            handleSearch(); // Automatically search after scan
+        };
+
+        const onScanFailure = (error) => {
+            // This callback is called frequently, so we typically ignore it.
+            // You can add logging here for debugging if needed.
+            // console.warn(`Code scan error = ${error}`);
+        };
+
+        const startScanner = () => {
+            el.scannerModal.classList.add('visible');
+            
+            // Lazy-initialize the scanner
+            if (!html5QrCode) {
+                html5QrCode = new Html5Qrcode("scanner-reader");
+            }
+            
+            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+            
+            // Start scanning. Prefer the back camera.
+            html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailure)
+            .catch(err => {
+                console.error("Failed to start scanner with back camera:", err);
+                showToast("Trying front camera...");
+                // Fallback to any available camera if the back camera fails
+                html5QrCode.start({ }, config, onScanSuccess, onScanFailure)
+                .catch(err2 => {
+                    showToast("Error: Could not access any camera.");
+                    console.error("Failed to start scanner with any camera:", err2);
+                    stopScanner();
                 });
             });
-            if (!date) dateInput.focus();
         };
-        
-        // MODIFIED: Now handles both creating a new record and updating an existing one.
-        const saveEntry = () => {
-            const entryNodes = el.expiryInputs.querySelectorAll('.expiry-input-group');
-            if (entryNodes.length === 0) return showToast('Please add at least one expiry entry.');
 
-            // Create a temporary record object from the form data
-            const recordData = editingRecordIndex !== null ? { ...enteredRecords[editingRecordIndex] } : { ...currentItem };
-            
-            // Clear out old expiry data before adding new
-            Object.keys(recordData).forEach(key => {
-                if (key.startsWith('expiryDate') || key.startsWith('quantity')) {
-                    delete recordData[key];
-                }
-            });
-
-            for (let i = 0; i < entryNodes.length; i++) {
-                const node = entryNodes[i];
-                const dateInput = node.querySelector('.expiry-date');
-                const qtyInput = node.querySelector('input[type="number"]');
-                if (!dateInput.value || !qtyInput.value) return showToast('Please fill all date and quantity fields.');
-                recordData[`expiryDate${i + 1}`] = dateInput.value;
-                recordData[`quantity${i + 1}`] = parseInt(qtyInput.value, 10);
+        const stopScanner = () => {
+            if (html5QrCode && html5QrCode.getState() === Html5Qrcode.SCANNING) {
+                html5QrCode.stop().catch(err => {
+                    console.error("Failed to cleanly stop the scanner.", err);
+                });
             }
-            recordData.recordTime = new Date().toLocaleString('en-GB');
-
-            if (editingRecordIndex !== null) {
-                // Update existing record
-                enteredRecords[editingRecordIndex] = recordData;
-                showToast('Entry updated successfully!');
-            } else {
-                // Add new record
-                enteredRecords.unshift(recordData);
-                showToast(`Entry saved with ${entryNodes.length} expiry date(s)!`);
-            }
-
-            localStorage.setItem('enteredRecords', JSON.stringify(enteredRecords));
-            renderEnteredRecords();
-            hideWorkspace();
-        };
-        
-        // MODIFIED: Adds the "Actions" column with Edit/Delete buttons.
-        const renderEnteredRecords = () => {
-            const table = el.recordsTable;
-            if (enteredRecords.length === 0) { table.innerHTML = '<tbody><tr><td colspan="5" style="text-align:center; padding: 48px; color: var(--text-secondary);">No entries recorded yet.</td></tr></tbody>'; return; }
-            let maxExpiryPairs = 0;
-            enteredRecords.forEach(rec => { const keys = Object.keys(rec).filter(k => k.startsWith('expiryDate')); if (keys.length > maxExpiryPairs) maxExpiryPairs = keys.length; });
-
-            let headers = ['Item', 'Barcode'];
-            for (let i = 1; i <= maxExpiryPairs; i++) { headers.push(`Expiry ${i}`); headers.push(`Qty ${i}`); }
-            headers.push('Actions');
-            const head = `<thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>`;
-            
-            const body = `<tbody>${enteredRecords.map((rec, index) => {
-                let rowHtml = `<tr data-index="${index}"><td>${rec[nameHeader] || '–'}</td><td>${rec[barcodeHeader] || '–'}</td>`;
-                for (let i = 1; i <= maxExpiryPairs; i++) { rowHtml += `<td>${rec[`expiryDate${i}`] || ''}</td><td>${rec[`quantity${i}`] || ''}</td>`; }
-                rowHtml += `<td class="action-cell">
-                                <button class="action-btn edit-btn" onclick="handleEdit(${index})"><span class="material-icons-outlined">edit</span></button>
-                                <button class="action-btn delete-btn" onclick="handleDelete(${index})"><span class="material-icons-outlined">delete</span></button>
-                           </td></tr>`;
-                return rowHtml;
-            }).join('')}</tbody>`;
-            table.innerHTML = head + body;
-        };
-        
-        // NEW: Handles the logic for deleting a record.
-        const handleDelete = (index) => {
-            if (confirm(`Are you sure you want to delete the entry for "${enteredRecords[index][nameHeader]}"?`)) {
-                enteredRecords.splice(index, 1);
-                localStorage.setItem('enteredRecords', JSON.stringify(enteredRecords));
-                renderEnteredRecords();
-                showToast('Entry deleted.');
-            }
+            el.scannerModal.classList.remove('visible');
         };
 
-        // NEW: Handles the logic for editing a record.
-        const handleEdit = (index) => {
-            editingRecordIndex = index;
-            const recordToEdit = enteredRecords[index];
-            showWorkspace(recordToEdit); // Use showWorkspace to set up the main details
-
-            // Clear the default expiry row and populate with the record's actual data
-            el.expiryInputs.innerHTML = '';
-            let i = 1;
-            while (recordToEdit[`expiryDate${i}`]) {
-                addExpiryEntry(recordToEdit[`expiryDate${i}`], recordToEdit[`quantity${i}`]);
-                i++;
-            }
-        };
-        
-        // === EVENT LISTENERS (unchanged) ===
+        // === EVENT LISTENERS ===
         document.addEventListener('DOMContentLoaded', initializeApp);
         el.syncButton.addEventListener('click', initializeApp);
         el.searchButton.addEventListener('click', handleSearch);
@@ -357,6 +376,10 @@
         el.discardButton.addEventListener('click', hideWorkspace);
         el.saveButton.addEventListener('click', saveEntry);
         el.exportButton.addEventListener('click', () => { if (enteredRecords.length === 0) return showToast('No records to export!'); if (confirm("Export entries to Excel and clear them from this session?")) { const ws = XLSX.utils.json_to_sheet(enteredRecords); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Inventory Records'); XLSX.writeFile(wb, `inventory_records_${new Date().toISOString().slice(0,10)}.xlsx`); enteredRecords = []; localStorage.setItem('enteredRecords', '[]'); renderEnteredRecords(); showToast("Data exported and cleared."); } });
+    
+        // NEW: Scanner event listeners
+        el.scanButton.addEventListener('click', startScanner);
+        el.closeScannerButton.addEventListener('click', stopScanner);
     </script>
 </body>
 </html>
