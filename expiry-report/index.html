@@ -168,14 +168,14 @@
         }
         #toast.show { bottom: 24px; }
         
-        /* === NEW: Barcode Scanner Modal Styles === */
+        /* === Barcode Scanner Modal Styles === */
         #scanner-modal {
             position: fixed; inset: 0; z-index: 1000;
             background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
-            display: none; justify-content: center; align-items: center;
-            padding: 16px;
+            display: none; flex-direction: column; justify-content: center; align-items: center;
+            padding: 16px; transition: opacity 0.3s ease; opacity: 0;
         }
-        #scanner-modal.visible { display: flex; }
+        #scanner-modal.visible { display: flex; opacity: 1; }
         .scanner-content {
             background-color: var(--card-bg-color);
             padding: 24px; border-radius: var(--border-radius);
@@ -186,11 +186,14 @@
             width: 100%; border: 1px solid var(--border-color);
             border-radius: 8px; overflow: hidden;
             margin-bottom: 16px;
+            min-height: 250px; /* Placeholder height */
+            background-color: #f1f3f5;
+            display: flex; justify-content: center; align-items: center;
+            color: var(--text-secondary);
         }
         #scanner-reader video {
             width: 100% !important; height: auto !important;
         }
-        /* End of new styles */
 
         @media (max-width: 600px) {
             .expiry-input-group { grid-template-columns: 1fr; gap: 8px; padding-right: 0;}
@@ -252,17 +255,15 @@
         </main>
     </div>
     
-    <!-- NEW: Barcode Scanner Modal Structure -->
     <div id="scanner-modal">
         <div class="scanner-content">
-            <div id="scanner-reader"></div>
+            <div id="scanner-reader">Starting Camera...</div>
             <button id="closeScannerButton" class="btn-secondary">Close Scanner</button>
         </div>
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
-    <!-- NEW: Barcode Scanner Library -->
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
     <script>
@@ -274,7 +275,7 @@
         let database = [], currentItem = null, enteredRecords = [];
         let barcodeHeader = '', nameHeader = '';
         let editingRecordIndex = null;
-        let html5QrCode = null; // NEW: For scanner instance
+        let html5QrCode = null;
 
         // === DOM ELEMENT CACHE ===
         const el = {
@@ -286,14 +287,13 @@
             addExpiryButton: document.getElementById('add-expiry-button'), discardButton: document.getElementById('discard-button'),
             saveButton: document.getElementById('save-button'), recordsTable: document.getElementById('records-table'),
             syncButton: document.getElementById('syncButton'), exportButton: document.getElementById('exportButton'),
-            // NEW: Scanner elements
             scanButton: document.getElementById('scanButton'),
             scannerModal: document.getElementById('scanner-modal'),
             scannerReader: document.getElementById('scanner-reader'),
             closeScannerButton: document.getElementById('closeScannerButton')
         };
         
-        // --- Core App Logic (Mostly Unchanged) ---
+        // --- Core App Logic (Unchanged except where noted) ---
         const showLoader = (msg) => { el.loader.classList.add('visible'); el.loaderText.textContent = msg; };
         const hideLoader = () => el.loader.classList.remove('visible');
         let toastTimeout;
@@ -303,12 +303,7 @@
         async function initializeApp() { showLoader('Syncing database...'); loadDataFromLocalStorage(); const inventoryData = await fetchDataFromGoogleSheet(); if (inventoryData?.length) { database = inventoryData; const headers = Object.keys(database[0]); barcodeHeader = headers.find(h => h.toLowerCase().includes('barcode')) || ''; nameHeader = headers.find(h => h.toLowerCase().includes('name')) || ''; if (!barcodeHeader || !nameHeader) { alert("Data Error: Sheet needs 'barcode' and 'name' columns."); enableButtons(false); } else { localStorage.setItem('barcodeHeader', barcodeHeader); localStorage.setItem('nameHeader', nameHeader); enableButtons(true); showToast('Data synced successfully!'); } } else { showToast('Sync failed or database is empty.'); enableButtons(false); } hideLoader(); }
         const fetchDataFromGoogleSheet = async () => { if (!appsScriptUrl || appsScriptUrl.includes("PASTE_YOUR")) return null; try { const response = await fetch(appsScriptUrl); return response.ok ? await response.json() : null; } catch (error) { console.error("Fetch Error:", error); return null; } };
         const loadDataFromLocalStorage = () => { enteredRecords = JSON.parse(localStorage.getItem('enteredRecords') || '[]'); barcodeHeader = localStorage.getItem('barcodeHeader') || ''; nameHeader = localStorage.getItem('nameHeader') || ''; renderEnteredRecords(); };
-        
-        // MODIFIED to include scan button
-        const enableButtons = (isEnabled) => {
-            [el.searchButton, el.exportButton, el.scanButton].forEach(btn => btn.disabled = !isEnabled);
-        };
-        
+        const enableButtons = (isEnabled) => { [el.searchButton, el.exportButton, el.scanButton].forEach(btn => btn.disabled = !isEnabled); };
         const handleSearch = () => { const barcode = el.searchInput.value.trim(); if (!barcode) return; const foundItem = database.find(item => item[barcodeHeader]?.toString() === barcode); if (foundItem) showWorkspace(foundItem); else showToast('Item not found!'); };
         const addExpiryEntry = (date = '', quantity = '') => { const div = document.createElement('div'); div.className = 'expiry-input-group'; div.innerHTML = `<div class="date-input-wrapper"><input type="text" placeholder="${DATE_FORMAT.replace('Y','yyyy').replace('m','mm').replace('d','dd')}" class="expiry-date" value="${date}"><div class="date-quick-actions"><button type="button" class="quick-date-btn" data-action="today">Today</button><button type="button" class="quick-date-btn" data-action="plus_one_year">+1Y</button></div></div><input type="number" placeholder="Qty" min="1" value="${quantity}"><button type="button" class="btn-secondary btn-icon remove-row-btn" title="Remove row" onclick="this.parentElement.remove()"><span class="material-icons-outlined">delete_outline</span></button>`; el.expiryInputs.appendChild(div); const dateInput = div.querySelector('.expiry-date'); const fpInstance = flatpickr(dateInput, { dateFormat: DATE_FORMAT, allowInput: true, minDate: "today" }); div.querySelectorAll('.quick-date-btn').forEach(btn => { btn.addEventListener('click', () => { const action = btn.dataset.action; let newDate = new Date(); if (action === 'plus_one_year') newDate.setFullYear(newDate.getFullYear() + 1); fpInstance.setDate(newDate, true); }); }); if (!date) dateInput.focus(); };
         const saveEntry = () => { const entryNodes = el.expiryInputs.querySelectorAll('.expiry-input-group'); if (entryNodes.length === 0) return showToast('Please add at least one expiry entry.'); const recordData = editingRecordIndex !== null ? { ...enteredRecords[editingRecordIndex] } : { ...currentItem }; Object.keys(recordData).forEach(key => { if (key.startsWith('expiryDate') || key.startsWith('quantity')) { delete recordData[key]; } }); for (let i = 0; i < entryNodes.length; i++) { const node = entryNodes[i]; const dateInput = node.querySelector('.expiry-date'); const qtyInput = node.querySelector('input[type="number"]'); if (!dateInput.value || !qtyInput.value) return showToast('Please fill all date and quantity fields.'); recordData[`expiryDate${i + 1}`] = dateInput.value; recordData[`quantity${i + 1}`] = parseInt(qtyInput.value, 10); } recordData.recordTime = new Date().toLocaleString('en-GB'); if (editingRecordIndex !== null) { enteredRecords[editingRecordIndex] = recordData; showToast('Entry updated successfully!'); } else { enteredRecords.unshift(recordData); showToast(`Entry saved with ${entryNodes.length} expiry date(s)!`); } localStorage.setItem('enteredRecords', JSON.stringify(enteredRecords)); renderEnteredRecords(); hideWorkspace(); };
@@ -316,55 +311,59 @@
         const handleDelete = (index) => { if (confirm(`Are you sure you want to delete the entry for "${enteredRecords[index][nameHeader]}"?`)) { enteredRecords.splice(index, 1); localStorage.setItem('enteredRecords', JSON.stringify(enteredRecords)); renderEnteredRecords(); showToast('Entry deleted.'); } };
         const handleEdit = (index) => { editingRecordIndex = index; const recordToEdit = enteredRecords[index]; showWorkspace(recordToEdit); el.expiryInputs.innerHTML = ''; let i = 1; while (recordToEdit[`expiryDate${i}`]) { addExpiryEntry(recordToEdit[`expiryDate${i}`], recordToEdit[`quantity${i}`]); i++; } };
 
-        // --- NEW: Barcode Scanner Functions ---
+        // --- NEW & IMPROVED: Barcode Scanner Functions ---
 
-        const onScanSuccess = (decodedText, decodedResult) => {
-            // Handle the scanned code result.
-            console.log(`Code matched = ${decodedText}`, decodedResult);
+        const onScanSuccess = async (decodedText, decodedResult) => {
             showToast(`Scanned: ${decodedText}`);
-            stopScanner();
+            await stopScanner(); // Await the stop function to ensure clean shutdown
             el.searchInput.value = decodedText;
-            handleSearch(); // Automatically search after scan
+            handleSearch();
         };
 
-        const onScanFailure = (error) => {
-            // This callback is called frequently, so we typically ignore it.
-            // You can add logging here for debugging if needed.
-            // console.warn(`Code scan error = ${error}`);
-        };
+        const onScanFailure = (error) => { /* We can ignore this */ };
 
         const startScanner = () => {
             el.scannerModal.classList.add('visible');
+            el.scannerReader.innerHTML = 'Starting Camera...';
             
-            // Lazy-initialize the scanner
             if (!html5QrCode) {
                 html5QrCode = new Html5Qrcode("scanner-reader");
             }
             
             const config = { fps: 10, qrbox: { width: 250, height: 250 } };
             
-            // Start scanning. Prefer the back camera.
-            html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailure)
+            // **IMPROVED**: Configuration with autofocus hint
+            const cameraConfig = {
+                facingMode: "environment",
+                advanced: [{ focusMode: "continuous" }] // Request continuous autofocus
+            };
+
+            html5QrCode.start(cameraConfig, config, onScanSuccess, onScanFailure)
             .catch(err => {
-                console.error("Failed to start scanner with back camera:", err);
-                showToast("Trying front camera...");
-                // Fallback to any available camera if the back camera fails
-                html5QrCode.start({ }, config, onScanSuccess, onScanFailure)
+                console.warn("Failed to start with advanced config, trying basic config.", err);
+                // Fallback to a basic config if advanced options fail
+                html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailure)
                 .catch(err2 => {
-                    showToast("Error: Could not access any camera.");
-                    console.error("Failed to start scanner with any camera:", err2);
-                    stopScanner();
+                    showToast("Error: Could not access camera.");
+                    console.error("Failed to start scanner with any camera config.", err2);
+                    el.scannerReader.innerHTML = 'Could not access camera.';
                 });
             });
         };
 
-        const stopScanner = () => {
-            if (html5QrCode && html5QrCode.getState() === Html5Qrcode.SCANNING) {
-                html5QrCode.stop().catch(err => {
-                    console.error("Failed to cleanly stop the scanner.", err);
-                });
+        // **IMPROVED**: Robust function to stop the scanner
+        const stopScanner = async () => {
+            try {
+                if (html5QrCode && html5QrCode.getState() === Html5Qrcode.SCANNING) {
+                    await html5QrCode.stop();
+                    console.log("Scanner stopped successfully.");
+                }
+            } catch (err) {
+                console.error("Failed to stop the scanner cleanly.", err);
+            } finally {
+                // This ensures the modal is always hidden, preventing UI glitches.
+                el.scannerModal.classList.remove('visible');
             }
-            el.scannerModal.classList.remove('visible');
         };
 
         // === EVENT LISTENERS ===
@@ -377,7 +376,7 @@
         el.saveButton.addEventListener('click', saveEntry);
         el.exportButton.addEventListener('click', () => { if (enteredRecords.length === 0) return showToast('No records to export!'); if (confirm("Export entries to Excel and clear them from this session?")) { const ws = XLSX.utils.json_to_sheet(enteredRecords); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Inventory Records'); XLSX.writeFile(wb, `inventory_records_${new Date().toISOString().slice(0,10)}.xlsx`); enteredRecords = []; localStorage.setItem('enteredRecords', '[]'); renderEnteredRecords(); showToast("Data exported and cleared."); } });
     
-        // NEW: Scanner event listeners
+        // Scanner event listeners
         el.scanButton.addEventListener('click', startScanner);
         el.closeScannerButton.addEventListener('click', stopScanner);
     </script>
