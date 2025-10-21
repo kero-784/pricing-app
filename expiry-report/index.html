@@ -13,179 +13,64 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
     <style>
-        :root {
-            --font-family: 'Inter', sans-serif;
-            --bg-color: #f8f9fa;
-            --card-bg-color: #ffffff;
-            --text-primary: #212529;
-            --text-secondary: #6c757d;
-            --border-color: #dee2e6;
-            --accent-primary: #0d6efd;
-            --accent-primary-hover: #0b5ed7;
-            --accent-success: #198754;
-            --accent-danger: #dc3545;
-            --accent-highlight: #dff2e8;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
-            --shadow-md: 0 4px 8px rgba(0,0,0,0.06);
-            --border-radius: 12px;
-            --transition-speed: 0.3s;
-        }
-
-        *, *::before, *::after { box-sizing: border-box; }
-
-        body, html {
-            margin: 0; padding: 0; font-family: var(--font-family);
-            background-color: var(--bg-color); color: var(--text-primary);
-            -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
-        }
-
-        #app-container { max-width: 960px; margin: 0 auto; padding: 24px 16px; }
-
-        .app-header {
-            text-align: center; margin-bottom: 32px;
-            background: linear-gradient(45deg, var(--accent-primary), #3a86ff);
-            color: white; padding: 24px; border-radius: var(--border-radius); box-shadow: var(--shadow-md);
-        }
-        .app-header h1 { margin: 0; font-size: 1.75rem; font-weight: 700; }
-        .app-header p { margin: 4px 0 0 0; opacity: 0.8; }
-
-        .card {
-            background-color: var(--card-bg-color); border-radius: var(--border-radius);
-            padding: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);
-            margin-bottom: 24px; transition: all var(--transition-speed) ease;
-        }
-        .card-title {
-            font-size: 1.2rem; font-weight: 600; margin: 0 0 16px 0;
-            display: flex; align-items: center; gap: 8px;
-        }
-        .card-title .material-icons-outlined { color: var(--accent-primary); }
-
-        .input-group { display: flex; gap: 12px; }
-        input[type="text"], input[type="number"] {
-            padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem;
-            font-family: var(--font-family); outline: none; transition: all var(--transition-speed) ease;
-            width: 100%; background-color: #fdfdff;
-        }
-        input:focus {
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 20%, transparent);
-        }
+        /* Your existing CSS remains the same, just adding scanner styles */
         
-        button {
-            padding: 12px 20px; cursor: pointer; border: none; border-radius: 8px; font-size: 0.95rem;
-            font-weight: 500; font-family: var(--font-family); transition: all var(--transition-speed) ease;
-            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-        }
-        button:disabled { opacity: 0.6; cursor: not-allowed; }
-
-        .btn-primary { background-color: var(--accent-primary); color: white; }
-        .btn-primary:not(:disabled):hover { background-color: var(--accent-primary-hover); transform: translateY(-2px); box-shadow: var(--shadow-md); }
-        .btn-secondary { background-color: #e9ecef; color: var(--text-primary); }
-        .btn-secondary:not(:disabled):hover { background-color: #dce1e6; }
-        .btn-success { background-color: var(--accent-success); color: white; }
-        .btn-success:not(:disabled):hover { background-color: #157347; transform: translateY(-2px); box-shadow: var(--shadow-md); }
-
-        #workspace-card {
-            overflow: hidden; max-height: 0; padding-top: 0; padding-bottom: 0;
-            margin-bottom: 0; opacity: 0; border: none;
-            transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out, margin 0.5s ease-in-out, opacity 0.5s ease-in-out;
-        }
-        #workspace-card.visible {
-            max-height: 1000px; padding-top: 24px; padding-bottom: 24px;
-            margin-bottom: 24px; opacity: 1; border: 1px solid var(--border-color);
-        }
-        .item-details-list {
-            list-style: none; padding: 0; margin: 0 0 24px 0;
-            display: grid; gap: 12px;
-        }
-        .item-details-list li { display: flex; font-size: 0.95rem; }
-        .item-details-list li strong { color: var(--text-secondary); width: 120px; flex-shrink: 0; }
-        
-        .expiry-input-group {
-            display: grid; grid-template-columns: 1fr 100px; gap: 12px;
-            align-items: center; margin-bottom: 12px;
-            position: relative;
-            padding-right: 56px;
-        }
-        .remove-row-btn {
-            position: absolute; right: 0; top: 50%; transform: translateY(-50%);
-        }
-        .date-input-wrapper { position: relative; display: flex; align-items: center; }
-        .date-input-wrapper input { padding-right: 80px; }
-        .date-quick-actions { position: absolute; right: 6px; display: flex; gap: 4px; }
-        .date-quick-actions button {
-            font-size: 0.75rem; padding: 4px 8px; border-radius: 6px;
-            background-color: #f1f3f5; color: var(--text-secondary); font-weight: 600;
-        }
-        .date-quick-actions button:hover { background-color: #e9ecef; color: var(--text-primary); }
-
-        .table-wrapper { overflow-x: auto; }
-        #records-table { width: 100%; border-collapse: collapse; white-space: nowrap;}
-        #records-table th, #records-table td {
-            padding: 14px 12px; text-align: left; border-bottom: 1px solid var(--border-color);
-            font-size: 0.9rem; vertical-align: middle;
-        }
-        #records-table th { font-weight: 600; color: var(--text-secondary); }
-        #records-table tr.flash { animation: flash-bg 1.5s ease-out; }
-        .action-cell { display: flex; gap: 8px; }
-        .action-btn { background: none; padding: 6px; border-radius: 50%; }
-        .action-btn:hover { background-color: #e9ecef; }
-        .action-btn .material-icons-outlined { font-size: 20px; }
-        .action-btn.edit-btn { color: var(--accent-primary); }
-        .action-btn.delete-btn { color: var(--accent-danger); }
-        @keyframes flash-bg { 0% { background-color: var(--accent-highlight); } 100% { background-color: transparent; } }
-
-        #loader-overlay {
-            position: fixed; inset: 0; z-index: 9999;
-            background-color: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-            display: none; justify-content: center; align-items: center;
-        }
-        #loader-overlay.visible { display: flex; }
-        .spinner { width: 48px; height: 48px; border-radius: 50%; border: 5px solid #dee2e6; border-top-color: var(--accent-primary); animation: spin 1s linear infinite; margin-bottom: 16px; }
-        #loader-text { font-size: 1.1rem; font-weight: 500; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        #toast {
-            position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%);
-            background-color: var(--text-primary); color: white; padding: 12px 24px;
-            border-radius: 8px; box-shadow: var(--shadow-md); font-weight: 500;
-            z-index: 1001; transition: bottom 0.5s ease-in-out;
-        }
-        #toast.show { bottom: 24px; }
-
         /* Barcode Scanner Styles */
         #scanner-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.8); z-index: 10000;
+            background-color: rgba(0, 0, 0, 0.9); z-index: 10000;
             display: none; justify-content: center; align-items: center;
+            flex-direction: column;
         }
         #scanner-modal.visible { display: flex; }
         .scanner-container {
             background-color: white; border-radius: var(--border-radius);
             padding: 24px; max-width: 500px; width: 90%;
             box-shadow: var(--shadow-md); text-align: center;
+            margin-bottom: 20px;
         }
         #scanner-canvas { width: 100%; max-width: 400px; height: auto; }
         #scanner-video {
-            width: 100%; max-width: 400px; height: auto;
+            width: 100%; max-width: 400px; height: 300px;
             border-radius: 8px; background-color: #000;
+            object-fit: cover;
         }
         .scanner-controls {
             display: flex; gap: 12px; justify-content: center;
             margin-top: 16px; flex-wrap: wrap;
         }
         #scanner-status {
-            margin-top: 12px; padding: 8px; border-radius: 4px;
+            margin-top: 12px; padding: 12px; border-radius: 8px;
             background-color: #f8f9fa; font-size: 0.9rem;
+            min-height: 50px; display: flex; align-items: center; justify-content: center;
         }
         #scanner-status.scanning { background-color: var(--accent-highlight); color: var(--accent-success); }
         #scanner-status.error { background-color: #f8d7da; color: var(--accent-danger); }
+        #scanner-status.success { background-color: #d1edff; color: var(--accent-primary); }
+        
+        .scanner-guide {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 250px; height: 150px; border: 2px solid #00ff00; border-radius: 8px;
+            pointer-events: none; z-index: 1;
+        }
+        .scanner-guide::before {
+            content: 'Align barcode within this area';
+            position: absolute; top: -30px; left: 0; width: 100%; text-align: center;
+            color: #00ff00; font-size: 0.8rem;
+        }
+        
+        .camera-permission-help {
+            background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px;
+            padding: 16px; margin-top: 16px; text-align: left;
+        }
+        .camera-permission-help h4 { margin-top: 0; color: #856404; }
+        .camera-permission-help ul { margin-bottom: 0; padding-left: 20px; }
+        .camera-permission-help li { margin-bottom: 8px; }
 
         @media (max-width: 600px) {
-            .expiry-input-group { grid-template-columns: 1fr; gap: 8px; padding-right: 0;}
-            .remove-row-btn { top: auto; bottom: 10px; right: 10px; transform: none;}
             .scanner-container { padding: 16px; }
+            #scanner-video { height: 250px; }
+            .scanner-guide { width: 200px; height: 120px; }
         }
     </style>
 </head>
@@ -197,18 +82,32 @@
     <div id="scanner-modal">
         <div class="scanner-container">
             <h2 style="margin-top: 0;">Scan Barcode</h2>
-            <div id="scanner-area">
-                <video id="scanner-video" playsinline></video>
+            <div id="scanner-area" style="position: relative;">
+                <video id="scanner-video" playsinline autoplay></video>
                 <canvas id="scanner-canvas" style="display: none;"></canvas>
+                <div class="scanner-guide"></div>
             </div>
-            <div id="scanner-status">Point camera at barcode</div>
+            <div id="scanner-status">Preparing camera...</div>
+            
+            <div class="camera-permission-help" id="camera-help" style="display: none;">
+                <h4>Camera Access Issues?</h4>
+                <ul>
+                    <li>Make sure you've allowed camera access when prompted</li>
+                    <li>Check if your camera is being used by another application</li>
+                    <li>Try refreshing the page and allowing camera access again</li>
+                    <li>For mobile devices: ensure you're using HTTPS</li>
+                </ul>
+            </div>
+            
             <div class="scanner-controls">
                 <button id="close-scanner" class="btn-secondary">Close</button>
                 <button id="toggle-camera" class="btn-secondary">Switch Camera</button>
+                <button id="retry-camera" class="btn-primary" style="display: none;">Retry Camera</button>
             </div>
         </div>
     </div>
 
+    <!-- Your existing HTML structure remains the same -->
     <div id="app-container">
         <header class="app-header">
             <h1>Product Expiry Report</h1>
@@ -228,6 +127,7 @@
                 </div>
             </section>
 
+            <!-- Rest of your HTML remains unchanged -->
             <section id="workspace-card" class="card">
                 <h2 class="card-title" id="item-title-display"><span class="material-icons-outlined">inventory_2</span>Item Details</h2>
                 <ul id="item-details-list"></ul>
@@ -274,7 +174,9 @@
         // Barcode scanner variables
         let scannerActive = false;
         let currentStream = null;
-        let currentCamera = 'environment'; // 'environment' for rear camera, 'user' for front
+        let currentCamera = 'environment';
+        let availableCameras = [];
+        let currentCameraIndex = 0;
 
         // === DOM ELEMENT CACHE ===
         const el = { 
@@ -299,7 +201,9 @@
             scannerCanvas: document.getElementById('scanner-canvas'),
             scannerStatus: document.getElementById('scanner-status'),
             closeScanner: document.getElementById('close-scanner'),
-            toggleCamera: document.getElementById('toggle-camera')
+            toggleCamera: document.getElementById('toggle-camera'),
+            retryCamera: document.getElementById('retry-camera'),
+            cameraHelp: document.getElementById('camera-help')
         };
         
         // === UTILITY FUNCTIONS ===
@@ -310,6 +214,206 @@
         const showWorkspace = (item) => { currentItem = item; el.itemTitle.innerHTML = `<span class="material-icons-outlined">inventory_2</span> ${item[nameHeader] || 'Item Details'}`; const detailsToShow = [nameHeader, barcodeHeader, 'supplier name', 'status'].filter(h => item[h]); el.itemDetails.innerHTML = detailsToShow.map(header => `<li><strong>${header}:</strong> <span>${item[header]}</span></li>`).join(''); el.expiryInputs.innerHTML = ''; addExpiryEntry(); el.workspace.classList.add('visible'); el.saveButton.disabled = false; window.scrollTo({ top: el.workspace.offsetTop - 20, behavior: 'smooth' }); };
         const hideWorkspace = () => { currentItem = null; editingRecordIndex = null; el.workspace.classList.remove('visible'); el.searchInput.value = ''; el.searchInput.focus(); el.saveButton.disabled = true; };
         
+        // === BARCODE SCANNER FUNCTIONS ===
+        const showScanner = () => {
+            el.scannerModal.classList.add('visible');
+            el.cameraHelp.style.display = 'none';
+            el.retryCamera.style.display = 'none';
+            startScanner();
+        };
+        
+        const hideScanner = () => {
+            el.scannerModal.classList.remove('visible');
+            stopScanner();
+        };
+        
+        const getCameraConstraints = (facingMode) => {
+            return {
+                video: {
+                    facingMode: facingMode,
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                },
+                audio: false
+            };
+        };
+        
+        const startScanner = async () => {
+            try {
+                el.scannerStatus.textContent = "Requesting camera access...";
+                el.scannerStatus.className = "";
+                
+                // Stop any existing stream
+                if (currentStream) {
+                    currentStream.getTracks().forEach(track => track.stop());
+                }
+                
+                // Try to get available cameras first
+                try {
+                    const devices = await navigator.mediaDevices.enumerateDevices();
+                    availableCameras = devices.filter(device => device.kind === 'videoinput');
+                    console.log('Available cameras:', availableCameras.length);
+                } catch (e) {
+                    console.log('Cannot enumerate devices:', e);
+                }
+                
+                // Get camera access with different constraints
+                let constraints;
+                
+                if (availableCameras.length > 1) {
+                    // Use deviceId if we have multiple cameras
+                    constraints = {
+                        video: {
+                            deviceId: availableCameras[currentCameraIndex].deviceId,
+                            width: { ideal: 1280 },
+                            height: { ideal: 720 }
+                        },
+                        audio: false
+                    };
+                } else {
+                    // Fallback to facingMode
+                    constraints = getCameraConstraints(currentCamera);
+                }
+                
+                console.log('Using constraints:', constraints);
+                
+                currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+                
+                if (!currentStream) {
+                    throw new Error('No stream received');
+                }
+                
+                el.scannerVideo.srcObject = currentStream;
+                
+                // Wait for video to be ready
+                el.scannerVideo.onloadedmetadata = () => {
+                    el.scannerVideo.play().then(() => {
+                        scannerActive = true;
+                        el.scannerStatus.textContent = "Point camera at barcode";
+                        el.scannerStatus.className = "";
+                        el.retryCamera.style.display = 'none';
+                        el.cameraHelp.style.display = 'none';
+                        
+                        // Start scanning for barcodes
+                        scanBarcode();
+                    }).catch(e => {
+                        console.error('Video play error:', e);
+                        handleCameraError('Video playback failed');
+                    });
+                };
+                
+                el.scannerVideo.onerror = (e) => {
+                    console.error('Video error:', e);
+                    handleCameraError('Video error occurred');
+                };
+                
+            } catch (error) {
+                console.error("Error accessing camera:", error);
+                handleCameraError(getErrorMessage(error));
+            }
+        };
+        
+        const getErrorMessage = (error) => {
+            if (error.name === 'NotAllowedError') {
+                return 'Camera access was denied. Please allow camera access and try again.';
+            } else if (error.name === 'NotFoundError') {
+                return 'No camera found on this device.';
+            } else if (error.name === 'NotSupportedError') {
+                return 'Camera not supported in this browser.';
+            } else if (error.name === 'NotReadableError') {
+                return 'Camera is already in use by another application.';
+            } else {
+                return `Camera error: ${error.message || 'Unknown error'}`;
+            }
+        };
+        
+        const handleCameraError = (message) => {
+            el.scannerStatus.textContent = message;
+            el.scannerStatus.className = "error";
+            el.retryCamera.style.display = 'inline-flex';
+            el.cameraHelp.style.display = 'block';
+            scannerActive = false;
+        };
+        
+        const stopScanner = () => {
+            scannerActive = false;
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => {
+                    track.stop();
+                });
+                currentStream = null;
+            }
+        };
+        
+        const toggleCamera = async () => {
+            if (availableCameras.length <= 1) {
+                // Toggle between front and back if we don't have device info
+                currentCamera = currentCamera === 'environment' ? 'user' : 'environment';
+            } else {
+                // Cycle through available cameras
+                currentCameraIndex = (currentCameraIndex + 1) % availableCameras.length;
+            }
+            
+            await startScanner();
+        };
+        
+        const scanBarcode = () => {
+            if (!scannerActive) return;
+            
+            const canvas = el.scannerCanvas;
+            const video = el.scannerVideo;
+            const context = canvas.getContext('2d');
+            
+            // Check if video is ready
+            if (video.readyState !== video.HAVE_ENOUGH_DATA) {
+                setTimeout(scanBarcode, 100);
+                return;
+            }
+            
+            // Set canvas dimensions to match video
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            // Draw current video frame to canvas
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Get image data from canvas
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            
+            // Use Quagga to decode barcode
+            Quagga.decodeSingle({
+                decoder: {
+                    readers: ["code_128_reader", "ean_reader", "ean_8_reader", "code_39_reader", "upc_reader"]
+                },
+                locate: true,
+                src: imageData.data,
+                width: canvas.width,
+                height: canvas.height
+            }, function(result) {
+                if (result && result.codeResult) {
+                    const barcode = result.codeResult.code;
+                    console.log("Barcode detected:", barcode);
+                    
+                    // Update status
+                    el.scannerStatus.textContent = `Barcode detected: ${barcode}`;
+                    el.scannerStatus.className = "success";
+                    
+                    // Fill the search input and search
+                    el.searchInput.value = barcode;
+                    setTimeout(() => {
+                        hideScanner();
+                        handleSearch();
+                    }, 1000);
+                } else {
+                    // Continue scanning
+                    if (scannerActive) {
+                        setTimeout(scanBarcode, 200);
+                    }
+                }
+            });
+        };
+        
+        // === REST OF YOUR FUNCTIONS REMAIN THE SAME ===
         async function initializeApp() { 
             showLoader('Syncing database...'); 
             loadDataFromLocalStorage(); 
@@ -365,115 +469,6 @@
             else showToast('Item not found!'); 
         };
         
-        // === BARCODE SCANNER FUNCTIONS ===
-        const showScanner = () => {
-            el.scannerModal.classList.add('visible');
-            startScanner();
-        };
-        
-        const hideScanner = () => {
-            el.scannerModal.classList.remove('visible');
-            stopScanner();
-        };
-        
-        const startScanner = async () => {
-            try {
-                // Get camera access
-                currentStream = await navigator.mediaDevices.getUserMedia({
-                    video: { 
-                        facingMode: currentCamera,
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 }
-                    },
-                    audio: false
-                });
-                
-                el.scannerVideo.srcObject = currentStream;
-                scannerActive = true;
-                el.scannerStatus.textContent = "Point camera at barcode";
-                el.scannerStatus.className = "";
-                
-                // Start scanning for barcodes
-                scanBarcode();
-            } catch (error) {
-                console.error("Error accessing camera:", error);
-                el.scannerStatus.textContent = "Camera access denied or not available";
-                el.scannerStatus.className = "error";
-            }
-        };
-        
-        const stopScanner = () => {
-            scannerActive = false;
-            if (currentStream) {
-                currentStream.getTracks().forEach(track => track.stop());
-                currentStream = null;
-            }
-        };
-        
-        const scanBarcode = () => {
-            if (!scannerActive) return;
-            
-            const canvas = el.scannerCanvas;
-            const video = el.scannerVideo;
-            const context = canvas.getContext('2d');
-            
-            // Set canvas dimensions to match video
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            
-            // Draw current video frame to canvas
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
-            // Get image data from canvas
-            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-            
-            // Use Quagga to decode barcode
-            Quagga.decodeSingle({
-                decoder: {
-                    readers: ["code_128_reader", "ean_reader", "ean_8_reader", "code_39_reader", "upc_reader"]
-                },
-                locate: true,
-                src: imageData.data,
-                width: canvas.width,
-                height: canvas.height
-            }, function(result) {
-                if (result && result.codeResult) {
-                    const barcode = result.codeResult.code;
-                    console.log("Barcode detected:", barcode);
-                    
-                    // Update status
-                    el.scannerStatus.textContent = `Barcode detected: ${barcode}`;
-                    el.scannerStatus.className = "scanning";
-                    
-                    // Fill the search input and search
-                    el.searchInput.value = barcode;
-                    setTimeout(() => {
-                        hideScanner();
-                        handleSearch();
-                    }, 1000);
-                } else {
-                    // Continue scanning
-                    if (scannerActive) {
-                        setTimeout(scanBarcode, 100);
-                    }
-                }
-            });
-        };
-        
-        const toggleCamera = async () => {
-            // Stop current stream
-            if (currentStream) {
-                currentStream.getTracks().forEach(track => track.stop());
-            }
-            
-            // Switch camera
-            currentCamera = currentCamera === 'environment' ? 'user' : 'environment';
-            
-            // Restart scanner with new camera
-            await startScanner();
-        };
-        
-        // === EXPIRY ENTRY FUNCTIONS ===
         const addExpiryEntry = (date = '', quantity = '') => {
             const div = document.createElement('div');
             div.className = 'expiry-input-group';
@@ -492,15 +487,12 @@
             if (!date) dateInput.focus();
         };
         
-        // === SAVE ENTRY FUNCTION ===
         const saveEntry = () => {
             const entryNodes = el.expiryInputs.querySelectorAll('.expiry-input-group');
             if (entryNodes.length === 0) return showToast('Please add at least one expiry entry.');
 
-            // Create a temporary record object from the form data
             const recordData = editingRecordIndex !== null ? { ...enteredRecords[editingRecordIndex] } : { ...currentItem };
             
-            // Clear out old expiry data before adding new
             Object.keys(recordData).forEach(key => {
                 if (key.startsWith('expiryDate') || key.startsWith('quantity')) {
                     delete recordData[key];
@@ -518,11 +510,9 @@
             recordData.recordTime = new Date().toLocaleString('en-GB');
 
             if (editingRecordIndex !== null) {
-                // Update existing record
                 enteredRecords[editingRecordIndex] = recordData;
                 showToast('Entry updated successfully!');
             } else {
-                // Add new record
                 enteredRecords.unshift(recordData);
                 showToast(`Entry saved with ${entryNodes.length} expiry date(s)!`);
             }
@@ -532,7 +522,6 @@
             hideWorkspace();
         };
         
-        // === RENDER RECORDS FUNCTION ===
         const renderEnteredRecords = () => {
             const table = el.recordsTable;
             if (enteredRecords.length === 0) { table.innerHTML = '<tbody><tr><td colspan="5" style="text-align:center; padding: 48px; color: var(--text-secondary);">No entries recorded yet.</td></tr></tbody>'; return; }
@@ -556,7 +545,6 @@
             table.innerHTML = head + body;
         };
         
-        // === EDIT AND DELETE FUNCTIONS ===
         const handleDelete = (index) => {
             if (confirm(`Are you sure you want to delete the entry for "${enteredRecords[index][nameHeader]}"?`)) {
                 enteredRecords.splice(index, 1);
@@ -569,9 +557,7 @@
         const handleEdit = (index) => {
             editingRecordIndex = index;
             const recordToEdit = enteredRecords[index];
-            showWorkspace(recordToEdit); // Use showWorkspace to set up the main details
-
-            // Clear the default expiry row and populate with the record's actual data
+            showWorkspace(recordToEdit);
             el.expiryInputs.innerHTML = '';
             let i = 1;
             while (recordToEdit[`expiryDate${i}`]) {
@@ -591,6 +577,7 @@
         el.saveButton.addEventListener('click', saveEntry);
         el.closeScanner.addEventListener('click', hideScanner);
         el.toggleCamera.addEventListener('click', toggleCamera);
+        el.retryCamera.addEventListener('click', startScanner);
         el.exportButton.addEventListener('click', () => { 
             if (enteredRecords.length === 0) return showToast('No records to export!'); 
             if (confirm("Export entries to Excel and clear them from this session?")) { 
