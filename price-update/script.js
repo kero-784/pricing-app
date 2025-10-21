@@ -1,7 +1,7 @@
 /*************************************************/
 /*          APP CONFIGURATION & GLOBALS          */
 /*************************************************/
-const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycby0cG_kldduPZ0IzbUWGg4YOxMSMXxVWfjvfdwQfqftgD8XJKhIoJdRztD-spLy8HsT/exec";
+const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyl1XjA77Z72Xg4y4f2-gFMoUh5c-CxJ-H_lbew51vd9I3j47F21RV04_ZW_RnJfOgN/exec";
 let database = [];
 let entries = [];
 const LOCAL_STORAGE_ENTRIES_KEY = 'pricingAppEntries';
