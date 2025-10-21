@@ -119,11 +119,13 @@
         </main>
     </div>
     
+  <!-- ... all of your HTML and CSS from above remains the same ... -->
+    
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <script>
         // === CONFIGURATION ===
-        const appsScriptUrl = "https://script.google.com/macros/s/AKfycbz8hQ9MiND1BU-JaI2FQ8U_FIurQ40NfZRpzBlkv2QfkMcP-CK5k2mkiS2ZWEN-nSjdJA/exec"; // <-- IMPORTANT
+        const appsScriptUrl = "https://script.google.com/macros/s/AKfycbz8hQ9MiND1BU-JaI2FQ8U_FIurQ40NfZRpzBlkv2QfkMcP-CK5k2mkiS2ZWEN-nSjdJA/exec"; // <-- Make sure this is the correct, deployed URL
         const DATE_FORMAT = "d-m-Y";
         const productDatabaseCacheKey = 'productDatabaseCache';
 
@@ -139,41 +141,62 @@
 
         async function initializeApp() {
             showLoader('Initializing...');
-            loadDataFromLocalStorage(); // Loads enteredRecords
-            
-            const cachedData = localStorage.getItem(productDatabaseCacheKey);
-            if (cachedData) {
-                console.log("Loading product database from local cache.");
-                database = JSON.parse(cachedData);
-                setupHeaders(database);
+            loadDataFromLocalStorage(); // This just loads the 'enteredRecords'
+
+            let isCacheValid = false;
+            const cachedDataString = localStorage.getItem(productDatabaseCacheKey);
+            if (cachedDataString) {
+                try {
+                    const cachedData = JSON.parse(cachedDataString);
+                    // NEW: A valid cache must be an array with at least one item.
+                    if (Array.isArray(cachedData) && cachedData.length > 0) {
+                        console.log("Loading product database from local cache.");
+                        database = cachedData;
+                        setupHeaders(database); // This will succeed
+                        isCacheValid = true;
+                    }
+                } catch (e) {
+                    console.error("Failed to parse cached data, clearing it.", e);
+                    localStorage.removeItem(productDatabaseCacheKey);
+                }
+            }
+
+            // If cache was not valid, we must sync.
+            if (!isCacheValid) {
+                console.log("No valid local cache found. Performing initial sync.");
+                await syncData();
+            } else {
                 hideLoader();
                 showToast("Loaded data from cache. Sync if needed.");
-            } else {
-                console.log("No local cache found. Performing initial sync.");
-                await syncData(); // Force sync if no cache exists
             }
         }
 
         async function syncData() {
             showLoader('Syncing with Google Sheets...');
             const inventoryData = await fetchDataFromGoogleSheet();
-            if (inventoryData) {
+            
+            // MODIFIED: Check if the fetched data is valid before processing
+            if (Array.isArray(inventoryData) && inventoryData.length > 0) {
                 database = inventoryData;
                 localStorage.setItem(productDatabaseCacheKey, JSON.stringify(database));
                 setupHeaders(database);
                 showToast('Data synced successfully!');
             } else {
-                showToast('Sync failed or database is empty.');
+                showToast('Sync failed or the database sheet is empty.');
                 enableButtons(false);
             }
             hideLoader();
         }
 
+        // MODIFIED: Made the initial check more robust to prevent errors.
         function setupHeaders(data) {
-            if (!data || data.length === 0) {
+            // This robust check prevents the "Cannot read properties of undefined" error.
+            if (!Array.isArray(data) || data.length === 0) {
+                console.error("setupHeaders called with invalid data. Disabling functionality.");
                 enableButtons(false);
                 return;
             }
+
             const headers = Object.keys(data[0]);
             barcodeHeader = headers.find(h => h.toLowerCase().includes('barcode')) || '';
             nameHeader = headers.find(h => h.toLowerCase().includes('name')) || '';
@@ -189,7 +212,7 @@
         }
 
         // --- UNMODIFIED HELPER & UI FUNCTIONS ---
-        // (The rest of the functions are identical to your original, well-written code)
+        // (The rest of your functions are correct and do not need to be changed)
         
         const showLoader = (msg) => { el.loader.classList.add('visible'); el.loaderText.textContent = msg; };
         const hideLoader = () => el.loader.classList.remove('visible');
@@ -282,7 +305,7 @@
         
         // === EVENT LISTENERS ===
         document.addEventListener('DOMContentLoaded', initializeApp);
-        el.syncButton.addEventListener('click', syncData); // MODIFIED
+        el.syncButton.addEventListener('click', syncData); // Now specifically for forcing a sync
         el.searchButton.addEventListener('click', handleSearch);
         el.searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') handleSearch(); });
         el.addExpiryButton.addEventListener('click', () => addExpiryEntry());
