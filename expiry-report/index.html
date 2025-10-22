@@ -109,9 +109,40 @@
         
         .expiry-input-group { display: grid; grid-template-columns: 1fr 100px; gap: 12px; align-items: center; margin-bottom: 12px; position: relative; padding-right: 56px; }
         .remove-row-btn { position: absolute; right: 0; top: 50%; transform: translateY(-50%); }
-        .date-input-wrapper { position: relative; display: flex; align-items: center; }
-        .date-input-wrapper input { padding-right: 80px; }
-        .date-quick-actions { position: absolute; right: 6px; display: flex; gap: 4px; }
+        
+        /* NEW: Improved Date Field Styles */
+        .custom-date-input {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: #fdfdff;
+            transition: all var(--transition-speed) ease;
+            position: relative;
+        }
+        .custom-date-input:focus-within {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 20%, transparent);
+        }
+        .custom-date-input .material-icons-outlined {
+            padding: 0 0 0 12px;
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
+        .custom-date-input .expiry-date {
+            border: none;
+            outline: none;
+            background: transparent;
+            padding: 12px;
+            flex-grow: 1;
+            width: 100%;
+            min-width: 50px;
+        }
+        .custom-date-input .date-quick-actions {
+            position: static;
+            display: flex; gap: 4px;
+            padding-right: 6px;
+        }
         .date-quick-actions button { font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; background-color: #f1f3f5; color: var(--text-secondary); font-weight: 600; }
         .date-quick-actions button:hover { background-color: #e9ecef; color: var(--text-primary); }
 
@@ -137,7 +168,7 @@
         #toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background-color: var(--text-primary); color: white; padding: 12px 24px; border-radius: 8px; box-shadow: var(--shadow-md); font-weight: 500; z-index: 10001; transition: bottom 0.5s ease-in-out; }
         #toast.show { bottom: 24px; }
         
-        /* --- NEW: Barcode Scanner Modal Styles --- */
+        /* Barcode Scanner Modal Styles */
         .scanner-modal-overlay {
             position: fixed; inset: 0; z-index: 10000;
             background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px);
@@ -168,12 +199,24 @@
         }
         @keyframes scan { 0% { top: 10%; } 50% { top: 90%; } 100% { top: 10%; } }
         .scanner-status { font-size: 0.9rem; color: var(--text-secondary); margin: 0; }
-        /* --- End of Scanner Styles --- */
-
 
         @media (max-width: 600px) {
-            .expiry-input-group { grid-template-columns: 1fr; gap: 8px; padding-right: 0;}
-            .remove-row-btn { top: auto; bottom: 10px; right: 10px; transform: none;}
+            .expiry-input-group {
+                grid-template-columns: 1fr;
+                gap: 8px;
+                padding-right: 0;
+            }
+            .remove-row-btn {
+                top: auto;
+                bottom: 10px;
+                right: 10px;
+                transform: none;
+            }
+            /* Improves usability of date buttons on touch devices */
+            .date-quick-actions button {
+                font-size: 0.8rem;
+                padding: 6px 10px;
+            }
         }
     </style>
 </head>
@@ -229,7 +272,7 @@
         </main>
     </div>
 
-    <!-- NEW: Barcode Scanner Modal HTML -->
+    <!-- Barcode Scanner Modal HTML -->
     <div id="scanner-modal" class="scanner-modal-overlay">
         <div class="scanner-modal-content">
             <h3 class="scanner-modal-title">Scan Barcode</h3>
@@ -274,7 +317,7 @@
             recordsTable: document.getElementById('records-table'),
             syncButton: document.getElementById('syncButton'),
             exportButton: document.getElementById('exportButton'),
-            // NEW Scanner elements
+            // Scanner elements
             scanButton: document.getElementById('scanButton'),
             scannerModal: document.getElementById('scanner-modal'),
             video: document.getElementById('video-scanner'),
@@ -282,7 +325,7 @@
             switchCameraButton: document.getElementById('switchCameraButton'),
         };
         
-        // --- Core App Functions (Unchanged) ---
+        // --- Core App Functions ---
         const showLoader = (msg) => { el.loader.classList.add('visible'); el.loaderText.textContent = msg; };
         const hideLoader = () => el.loader.classList.remove('visible');
         let toastTimeout;
@@ -294,13 +337,43 @@
         const loadDataFromLocalStorage = () => { enteredRecords = JSON.parse(localStorage.getItem('enteredRecords') || '[]'); barcodeHeader = localStorage.getItem('barcodeHeader') || ''; nameHeader = localStorage.getItem('nameHeader') || ''; renderEnteredRecords(); };
         const enableButtons = (isEnabled) => { [el.searchButton, el.exportButton].forEach(btn => btn.disabled = !isEnabled); };
         const handleSearch = () => { const barcode = el.searchInput.value.trim(); if (!barcode) return; const foundItem = database.find(item => item[barcodeHeader]?.toString() === barcode); if (foundItem) showWorkspace(foundItem); else showToast('Item not found!'); };
-        const addExpiryEntry = (date = '', quantity = '') => { const div = document.createElement('div'); div.className = 'expiry-input-group'; div.innerHTML = `<div class="date-input-wrapper"><input type="text" placeholder="${DATE_FORMAT.replace('Y','yyyy').replace('m','mm').replace('d','dd')}" class="expiry-date" value="${date}"><div class="date-quick-actions"><button type="button" class="quick-date-btn" data-action="today">Today</button><button type="button" class="quick-date-btn" data-action="plus_one_year">+1Y</button></div></div><input type="number" placeholder="Qty" min="1" value="${quantity}"><button type="button" class="btn-secondary btn-icon remove-row-btn" title="Remove row" onclick="this.parentElement.remove()"><span class="material-icons-outlined">delete_outline</span></button>`; el.expiryInputs.appendChild(div); const dateInput = div.querySelector('.expiry-date'); const fpInstance = flatpickr(dateInput, { dateFormat: DATE_FORMAT, allowInput: true, minDate: "today" }); div.querySelectorAll('.quick-date-btn').forEach(btn => { btn.addEventListener('click', () => { const action = btn.dataset.action; let newDate = new Date(); if (action === 'plus_one_year') newDate.setFullYear(newDate.getFullYear() + 1); fpInstance.setDate(newDate, true); }); }); if (!date) dateInput.focus(); };
+        
+        const addExpiryEntry = (date = '', quantity = '') => {
+            const div = document.createElement('div');
+            div.className = 'expiry-input-group';
+            div.innerHTML = `
+                <div class="custom-date-input">
+                    <span class="material-icons-outlined">calendar_today</span>
+                    <input type="text" placeholder="${DATE_FORMAT.replace('Y','yyyy').replace('m','mm').replace('d','dd')}" class="expiry-date" value="${date}">
+                    <div class="date-quick-actions">
+                        <button type="button" class="quick-date-btn" data-action="today">Today</button>
+                        <button type="button" class="quick-date-btn" data-action="plus_one_year">+1Y</button>
+                    </div>
+                </div>
+                <input type="number" placeholder="Qty" min="1" value="${quantity}">
+                <button type="button" class="btn-secondary btn-icon remove-row-btn" title="Remove row" onclick="this.parentElement.remove()">
+                    <span class="material-icons-outlined">delete_outline</span>
+                </button>`;
+            el.expiryInputs.appendChild(div);
+            const dateInput = div.querySelector('.expiry-date');
+            const fpInstance = flatpickr(dateInput, { dateFormat: DATE_FORMAT, allowInput: true, minDate: "today" });
+            div.querySelectorAll('.quick-date-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const action = btn.dataset.action;
+                    let newDate = new Date();
+                    if (action === 'plus_one_year') newDate.setFullYear(newDate.getFullYear() + 1);
+                    fpInstance.setDate(newDate, true);
+                });
+            });
+            if (!date) dateInput.focus();
+        };
+
         const saveEntry = () => { const entryNodes = el.expiryInputs.querySelectorAll('.expiry-input-group'); if (entryNodes.length === 0) return showToast('Please add at least one expiry entry.'); const recordData = editingRecordIndex !== null ? { ...enteredRecords[editingRecordIndex] } : { ...currentItem }; Object.keys(recordData).forEach(key => { if (key.startsWith('expiryDate') || key.startsWith('quantity')) { delete recordData[key]; } }); for (let i = 0; i < entryNodes.length; i++) { const node = entryNodes[i]; const dateInput = node.querySelector('.expiry-date'); const qtyInput = node.querySelector('input[type="number"]'); if (!dateInput.value || !qtyInput.value) return showToast('Please fill all date and quantity fields.'); recordData[`expiryDate${i + 1}`] = dateInput.value; recordData[`quantity${i + 1}`] = parseInt(qtyInput.value, 10); } recordData.recordTime = new Date().toLocaleString('en-GB'); if (editingRecordIndex !== null) { enteredRecords[editingRecordIndex] = recordData; showToast('Entry updated successfully!'); } else { enteredRecords.unshift(recordData); showToast(`Entry saved with ${entryNodes.length} expiry date(s)!`); } localStorage.setItem('enteredRecords', JSON.stringify(enteredRecords)); renderEnteredRecords(); hideWorkspace(); };
         const renderEnteredRecords = () => { const table = el.recordsTable; if (enteredRecords.length === 0) { table.innerHTML = '<tbody><tr><td colspan="5" style="text-align:center; padding: 48px; color: var(--text-secondary);">No entries recorded yet.</td></tr></tbody>'; return; } let maxExpiryPairs = 0; enteredRecords.forEach(rec => { const keys = Object.keys(rec).filter(k => k.startsWith('expiryDate')); if (keys.length > maxExpiryPairs) maxExpiryPairs = keys.length; }); let headers = ['Item', 'Barcode']; for (let i = 1; i <= maxExpiryPairs; i++) { headers.push(`Expiry ${i}`); headers.push(`Qty ${i}`); } headers.push('Actions'); const head = `<thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>`; const body = `<tbody>${enteredRecords.map((rec, index) => { let rowHtml = `<tr data-index="${index}"><td>${rec[nameHeader] || '–'}</td><td>${rec[barcodeHeader] || '–'}</td>`; for (let i = 1; i <= maxExpiryPairs; i++) { rowHtml += `<td>${rec[`expiryDate${i}`] || ''}</td><td>${rec[`quantity${i}`] || ''}</td>`; } rowHtml += `<td class="action-cell"><button class="action-btn edit-btn" onclick="handleEdit(${index})"><span class="material-icons-outlined">edit</span></button><button class="action-btn delete-btn" onclick="handleDelete(${index})"><span class="material-icons-outlined">delete</span></button></td></tr>`; return rowHtml; }).join('')}</tbody>`; table.innerHTML = head + body; };
         const handleDelete = (index) => { if (confirm(`Are you sure you want to delete the entry for "${enteredRecords[index][nameHeader]}"?`)) { enteredRecords.splice(index, 1); localStorage.setItem('enteredRecords', JSON.stringify(enteredRecords)); renderEnteredRecords(); showToast('Entry deleted.'); } };
         const handleEdit = (index) => { editingRecordIndex = index; const recordToEdit = enteredRecords[index]; showWorkspace(recordToEdit); el.expiryInputs.innerHTML = ''; let i = 1; while (recordToEdit[`expiryDate${i}`]) { addExpiryEntry(recordToEdit[`expiryDate${i}`], recordToEdit[`quantity${i}`]); i++; } };
 
-        // === NEW: BARCODE SCANNER INTEGRATION ===
+        // === BARCODE SCANNER INTEGRATION ===
         let barcodeDetector = null, stream = null;
         let facingMode = 'environment';
 
@@ -322,11 +395,11 @@
 
         const handleBarcodeDetection = (barcodes) => {
             if (barcodes.length > 0 && el.scannerModal.classList.contains('visible')) {
-                closeScanner(); // Stop scanning immediately
+                closeScanner();
                 const detectedBarcode = barcodes[0].rawValue;
                 el.searchInput.value = detectedBarcode;
                 showToast(`Barcode detected: ${detectedBarcode}`);
-                handleSearch(); // Automatically trigger search
+                handleSearch();
             }
         };
 
@@ -389,7 +462,7 @@
         el.saveButton.addEventListener('click', saveEntry);
         el.exportButton.addEventListener('click', () => { if (enteredRecords.length === 0) return showToast('No records to export!'); if (confirm("Export entries to Excel and clear them from this session?")) { const ws = XLSX.utils.json_to_sheet(enteredRecords); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Inventory Records'); XLSX.writeFile(wb, `inventory_records_${new Date().toISOString().slice(0,10)}.xlsx`); enteredRecords = []; localStorage.setItem('enteredRecords', '[]'); renderEnteredRecords(); showToast("Data exported and cleared."); } });
         
-        // NEW Scanner Listeners
+        // Scanner Listeners
         el.scanButton.addEventListener('click', openScanner);
         el.closeScannerBtn.addEventListener('click', closeScanner);
         el.switchCameraButton.addEventListener('click', switchCamera);
