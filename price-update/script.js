@@ -5,7 +5,7 @@ const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdOrEfpbppE59w
 let database = [];
 let entries = [];
 const LOCAL_STORAGE_ENTRIES_KEY = 'pricingAppEntries';
-const LOCAL_STORAGE_BRANCH_KEY = 'pricingAppBranch'; // New: Key for branch name
+const LOCAL_STORAGE_BRANCH_KEY = 'pricingAppBranch';
 let autocompleteDebounceTimer;
 
 // Variables to remember values from the calculator
@@ -13,9 +13,9 @@ let lastUsedUnitCount = 1;
 let lastUsedDiscount = 0;
 let lastUsedVat = 0;
 
-let selectedBranch = ''; // New: To store the selected branch name
+let selectedBranch = '';
 
-const BRANCH_NAMES = [ // New: Predefined branch names
+const BRANCH_NAMES = [
     "جاردنز السخنة", "تلال السخنة", "ستلا", "دبلو", "تلال الساحل",
     "سوان ليك", "كسكادا", "لافيستا باي", "لافيستا راس الحكمة",
     "لازوردي باي", "نادي هليوبوليس", "بالم هيلز", "القطامية",
@@ -70,28 +70,25 @@ function handleCodeInput() {
     autocompleteDebounceTimer = setTimeout(() => {
         const codeInput = document.getElementById('code');
         const suggestionsBox = document.getElementById('autocomplete-suggestions');
-        const term = codeInput.value.trim(); // Keep original casing for exact match
-        getItemDetails(); // This function will find based on exact match
+        const term = codeInput.value.trim();
+        
+        // Always try to get item details based on the current input
+        getItemDetails(); 
+
+        // If an exact match is found, DO NOT show the suggestion box.
+        const exactMatch = database.find(item => String(item.code) === term);
+        if (exactMatch) {
+            suggestionsBox.style.display = 'none';
+            return;
+        }
 
         if (term.length < 1) { suggestionsBox.style.display = 'none'; return; }
 
-        // Prioritize exact code match
-        const exactMatch = database.find(item => String(item.code) === term);
-        let suggestions = [];
-
-        if (exactMatch) {
-            suggestions.push(exactMatch);
-        } else {
-            // Then partial matches for code or name
-            suggestions = database
-                .filter(item => (String(item.code).toLowerCase().includes(term.toLowerCase()) || String(item.name).toLowerCase().includes(term.toLowerCase())) && String(item.code) !== term) // Exclude exact match if it was already added
-                .slice(0, 9); // Get up to 9 more suggestions
-            if (exactMatch) suggestions.unshift(exactMatch); // Add exact match to the top
-        }
-        
-        // Limit total suggestions
-        suggestions = suggestions.slice(0, 10);
-
+        // If no exact match, proceed with partial search for suggestions
+        const suggestions = database
+            .filter(item => String(item.code).toLowerCase().includes(term.toLowerCase()) || String(item.name).toLowerCase().includes(term.toLowerCase()))
+            .slice(0, 10);
+            
         if (suggestions.length > 0) {
             suggestionsBox.innerHTML = suggestions.map(s =>
                 `<div style="padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #eee;" onmouseover="this.style.backgroundColor='#f0f0f0'" onmouseout="this.style.backgroundColor='white'" onclick="selectAutocompleteItem('${s.code}')">
@@ -102,14 +99,12 @@ function handleCodeInput() {
         } else { suggestionsBox.style.display = 'none'; }
     }, 250);
 }
-
 function selectAutocompleteItem(code) {
     document.getElementById('code').value = code;
     document.getElementById('autocomplete-suggestions').style.display = 'none';
     getItemDetails();
     document.getElementById('unitPrice').focus();
 }
-
 function getItemDetails() {
     const code = document.getElementById('code').value.trim();
     document.getElementById('name').value = '';
@@ -129,14 +124,6 @@ function displayMessage(message, isError = false) {
 }
 function displayError(elementId, message) { const el = document.getElementById(elementId); if (el) el.textContent = message; }
 function clearError(elementId) { const el = document.getElementById(elementId); if (el) el.textContent = ''; }
-function toggleAlternateSupplier() { 
-    const alternateSupplierChecked = document.getElementById('alternateSupplierCheck').checked;
-    document.getElementById('alternateSupplierDiv').style.display = alternateSupplierChecked ? 'flex' : 'none'; 
-    document.getElementById('selectSupplierButton').style.display = alternateSupplierChecked ? 'inline-block' : 'none'; // New: Show/hide select supplier button
-    if (!alternateSupplierChecked) {
-        document.getElementById('alternateSupplierName').value = ''; // Clear if unchecked
-    }
-}
 function toggleCurrentPriceField() { document.getElementById('currentPriceDiv').style.display = document.getElementById('type').value === 'مرتجع' ? 'flex' : 'none'; }
 
 /*************************************************/
@@ -186,7 +173,6 @@ function calculateMainTotal() {
         displayError('unitPriceError', 'Price must be non-negative');
         return;
     }
-    // This function now only serves to validate the unit price on input.
 }
 
 function addToList() {
@@ -213,14 +199,15 @@ function addToList() {
 
     if (!isValid) { displayMessage('Please correct errors before saving.', true); return; }
 
-    const alternateSupplierCheck = document.getElementById('alternateSupplierCheck').checked;
     const alternateSupplierName = document.getElementById('alternateSupplierName').value.trim();
+    const defaultSupplierName = document.getElementById('supplierName').value.trim();
+    const finalSupplier = alternateSupplierName || defaultSupplierName;
     const finalUnitPrice = parseFloat(unitPriceStr);
 
     const newEntry = {
         code: code,
         name: document.getElementById('name').value.trim(),
-        supplier: alternateSupplierCheck && alternateSupplierName ? alternateSupplierName : document.getElementById('supplierName').value.trim(),
+        supplier: finalSupplier,
         units: lastUsedUnitCount,
         discount: lastUsedDiscount,
         vat: lastUsedVat,
@@ -240,10 +227,7 @@ function clearInputFields() {
     document.getElementById('code').value = '';
     document.getElementById('name').value = '';
     document.getElementById('supplierName').value = '';
-    document.getElementById('alternateSupplierCheck').checked = false;
     document.getElementById('alternateSupplierName').value = '';
-    document.getElementById('alternateSupplierDiv').style.display = 'none';
-    document.getElementById('selectSupplierButton').style.display = 'none'; // New: Hide select supplier button
     document.getElementById('unitPrice').value = '';
     document.getElementById('currentPrice').value = '';
     document.getElementById('type').value = 'شراء';
@@ -258,7 +242,6 @@ function clearInputFields() {
     document.getElementById('code').focus();
 }
 
-
 /*************************************************/
 /*      ENTRIES TABLE & EXPORT FUNCTIONS         */
 /*************************************************/
@@ -270,6 +253,7 @@ function updateEntriesTable() {
     const oldRowCount = tableBody.rows.length;
     tableBody.innerHTML = entries.map((entry, index) => `
         <tr data-index="${index}">
+            <td>${index + 1}</td>
             <td>${entry.code}</td><td>${entry.name}</td>
             <td>${entry.supplier}</td><td>${entry.units}</td>
             <td>${entry.discount}</td><td>${entry.vat}</td>
@@ -295,10 +279,7 @@ function updateEntriesTable() {
     $('#entriesTable [data-toggle="tooltip"]').tooltip();
 }
 function updateTableSummary() {
-    const totalEntries = entries.length;
-    // Removed grand total case calculation as per request
-    document.getElementById('total-entries').textContent = totalEntries;
-    // document.getElementById('grand-total-case').textContent = grandTotalCase.toFixed(3); // Removed this line
+    document.getElementById('total-entries').textContent = entries.length;
 }
 function deleteLocalEntry(index) {
     $(`[data-index=${index}] [data-toggle="tooltip"]`).tooltip('hide');
@@ -319,11 +300,11 @@ function clearAll() {
 }
 function exportToExcel() {
     if (entries.length === 0) { displayMessage('No entries to export.', true); return; }
-    const dataForExcel = entries.map(e => ({ "Code": e.code, "Name": e.name, "Supplier": e.supplier, "Units": e.units, "Discount (%)": e.discount, "VAT (%)": e.vat, "Piece Price": e.piece, "Case Price": e.case, "Type": e.type, "Current Price": e.current }));
+    const dataForExcel = entries.map((e, index) => ({ "#": index + 1, "Code": e.code, "Name": e.name, "Supplier": e.supplier, "Units": e.units, "Discount (%)": e.discount, "VAT (%)": e.vat, "Piece Price": e.piece, "Case Price": e.case, "Type": e.type, "Current Price": e.current }));
     const ws = XLSX.utils.json_to_sheet(dataForExcel);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Entries");
-    XLSX.writeFile(wb, (selectedBranch ? selectedBranch + '_' : '') + "pricing_entries.xlsx"); // Added branch name to filename
+    XLSX.writeFile(wb, (selectedBranch ? selectedBranch + '_' : '') + "pricing_entries.xlsx");
     displayMessage('Exported to Excel!');
 }
 function exportToJPG() {
@@ -331,57 +312,52 @@ function exportToJPG() {
 
     const table = document.getElementById('entriesTable');
     
-    // Create a temporary div to prepend the title
     const exportContainer = document.createElement('div');
-    exportContainer.style.background = '#ffffff'; // Ensure white background for the export
-    exportContainer.style.padding = '20px'; // Some padding
-    exportContainer.style.boxSizing = 'border-box'; // Include padding in width/height
+    exportContainer.style.background = '#ffffff';
+    exportContainer.style.padding = '20px';
+    exportContainer.style.boxSizing = 'border-box';
 
     if (selectedBranch) {
         const title = document.createElement('h2');
         title.textContent = `Entries for ${selectedBranch}`;
         title.style.textAlign = 'center';
         title.style.marginBottom = '20px';
-        title.style.color = '#333'; // Darker text for readability
+        title.style.color = '#333';
         exportContainer.appendChild(title);
     }
 
-    // Clone the table to avoid modifying the live DOM
     const tableClone = table.cloneNode(true);
-    // Remove the last column (Actions) from the clone for export
-    tableClone.querySelectorAll('th:last-child, td:last-child').forEach(el => el.remove());
-    // Ensure table styles are applied (e.g., borders) for the clone
+    
+    // Remove "Actions" column from header and body rows only
+    tableClone.querySelectorAll('thead tr, tbody tr').forEach(row => {
+        if (row.lastElementChild) {
+            row.removeChild(row.lastElementChild);
+        }
+    });
+
     tableClone.style.borderCollapse = 'collapse';
     tableClone.style.width = '100%';
     tableClone.querySelectorAll('th, td').forEach(cell => {
         cell.style.border = '1px solid #ddd';
         cell.style.padding = '8px';
     });
-    tableClone.querySelector('thead th').style.background = '#e9ecef'; // Apply header background
-    tableClone.querySelector('tfoot').style.background = '#f2f2f2'; // Apply footer background
+    tableClone.querySelector('thead').style.backgroundColor = '#e9ecef';
+    tableClone.querySelector('tfoot').style.backgroundColor = '#f2f2f2';
 
     exportContainer.appendChild(tableClone);
-    document.body.appendChild(exportContainer); // Append to body to render for html2canvas
+    document.body.appendChild(exportContainer);
 
-    html2canvas(exportContainer, { 
-        scale: 2, 
-        useCORS: true,
-        logging: false, // Suppress logging
-        onclone: (clonedDoc) => {
-            // Ensure any tooltips are hidden in the cloned document
-            $(clonedDoc).find('[data-toggle="tooltip"]').tooltip('dispose');
-        }
-    }).then(canvas => {
+    html2canvas(exportContainer, { scale: 2, useCORS: true, logging: false }).then(canvas => {
         const link = document.createElement('a'); link.href = canvas.toDataURL('image/jpeg', 0.9);
         link.download = (selectedBranch ? selectedBranch + '_' : '') + 'entries_table.jpg'; 
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
-        document.body.removeChild(exportContainer); // Clean up the temporary container
+        document.body.removeChild(exportContainer);
         displayMessage('Exported to JPG!');
     }).catch(error => { 
         console.error('JPG Export Error:', error); 
         displayMessage('Error exporting to JPG.', true); 
         if (document.body.contains(exportContainer)) {
-            document.body.removeChild(exportContainer); // Ensure cleanup even on error
+            document.body.removeChild(exportContainer);
         }
     });
 }
@@ -400,12 +376,13 @@ function openPopup(popupId) {
     document.addEventListener('keydown', handleEscKey);
 }
 function closeAllPopups() {
-    const openPopups = document.querySelectorAll('.popup-base.show, .modal.show'); // Also close Bootstrap modals
+    const openPopups = document.querySelectorAll('.popup-base.show, .modal.show');
     const overlay = document.getElementById('overlay');
     openPopups.forEach(p => {
-        p.classList.remove('show');
-        if ($(p).hasClass('modal')) { // For Bootstrap modals, use their hide method
+        if ($(p).hasClass('modal')) {
             $(p).modal('hide');
+        } else {
+            p.classList.remove('show');
         }
     });
     if (overlay) {
@@ -435,20 +412,17 @@ function viewDatabase() {
 /*************************************************/
 /*       SUPPLIER SELECTION POPUP LOGIC          */
 /*************************************************/
-let suppliersList = []; // To store unique suppliers
+let suppliersList = [];
 
 function openSupplierSelectionModal() {
     if (database.length === 0) {
         displayMessage("Database not loaded. Please refresh the database first.", true);
         return;
     }
-    // Get unique supplier names from the database
     suppliersList = [...new Set(database.map(item => (item['supplier name'] || '').trim()).filter(s => s))].sort();
-
     const supplierSearchInput = document.getElementById('supplierSearchInput');
-    supplierSearchInput.value = ''; // Clear previous search
+    supplierSearchInput.value = '';
     renderSupplierList('');
-    
     $('#supplierSelectionModal').modal('show');
 }
 
@@ -456,11 +430,9 @@ function renderSupplierList(searchTerm) {
     const supplierListBody = document.querySelector('#supplierSelectionModal #supplierList tbody');
     supplierListBody.innerHTML = '';
     const lowerCaseSearchTerm = searchTerm.toLowerCase();
-
     const filteredSuppliers = suppliersList.filter(supplier =>
         supplier.toLowerCase().includes(lowerCaseSearchTerm)
     );
-
     if (filteredSuppliers.length === 0) {
         supplierListBody.innerHTML = '<tr><td colspan="1" style="text-align:center;">No suppliers found.</td></tr>';
     } else {
@@ -499,8 +471,7 @@ function openBranchSelectionModal() {
         cell.onmouseout = function() { this.style.backgroundColor = 'white'; };
         cell.onclick = function() { selectBranch(branch); };
     });
-    // Use Bootstrap's modal method directly for the branch modal
-    $('#branchSelectionModal').modal({ backdrop: 'static', keyboard: false }); // Prevent closing without selection
+    $('#branchSelectionModal').modal({ backdrop: 'static', keyboard: false });
     $('#branchSelectionModal').modal('show');
 }
 
@@ -516,20 +487,18 @@ function selectBranch(branchName) {
 /*      APP INITIALIZATION (jQuery Standard)     */
 /*************************************************/
 $(document).ready(function() {
-    // Load branch first
     const storedBranch = localStorage.getItem(LOCAL_STORAGE_BRANCH_KEY);
     if (storedBranch) {
         selectedBranch = storedBranch;
         document.getElementById('currentBranchDisplay').textContent = selectedBranch;
     } else {
-        openBranchSelectionModal(); // Prompt for branch if not set
+        openBranchSelectionModal();
     }
 
     loadEntriesFromLocalStorageAndUpdateTable();
     loadDatabase(false);
     calculateMainTotal();
     toggleCurrentPriceField();
-    toggleAlternateSupplier(); // Initialize the visibility of selectSupplierButton
     $('[data-toggle="tooltip"]').tooltip();
 
     document.addEventListener('click', function (event) {
@@ -537,16 +506,13 @@ $(document).ready(function() {
         if (!event.target.closest('#code') && !event.target.closest('#autocomplete-suggestions')) {
             suggestionsBox.style.display = 'none';
         }
-        // No longer explicitly closing popups via this listener for Bootstrap modals,
-        // as Bootstrap's data-dismiss handles it. Keep for custom popups if any.
         if (event.target.closest('.popup-close-btn')) {
             event.preventDefault(); 
             event.stopPropagation();
-            closeAllPopups(); // This will handle the custom databasePopup
+            closeAllPopups();
         }
     });
 
-    // Event listener for supplier search input
     $('#supplierSearchInput').on('input', function() {
         renderSupplierList(this.value);
     });
