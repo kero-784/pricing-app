@@ -14,6 +14,7 @@ let lastUsedDiscount = 0;
 let lastUsedVat = 0;
 
 let selectedBranch = '';
+let activeAlternateSupplier = ''; // NEW: To remember the selected alternate supplier
 
 const BRANCH_NAMES = [
     "جاردنز السخنة", "تلال السخنة", "ستلا", "دبلو", "تلال الساحل",
@@ -72,10 +73,8 @@ function handleCodeInput() {
         const suggestionsBox = document.getElementById('autocomplete-suggestions');
         const term = codeInput.value.trim();
         
-        // Always try to get item details based on the current input
         getItemDetails(); 
 
-        // If an exact match is found, DO NOT show the suggestion box.
         const exactMatch = database.find(item => String(item.code) === term);
         if (exactMatch) {
             suggestionsBox.style.display = 'none';
@@ -84,7 +83,6 @@ function handleCodeInput() {
 
         if (term.length < 1) { suggestionsBox.style.display = 'none'; return; }
 
-        // If no exact match, proceed with partial search for suggestions
         const suggestions = database
             .filter(item => String(item.code).toLowerCase().includes(term.toLowerCase()) || String(item.name).toLowerCase().includes(term.toLowerCase()))
             .slice(0, 10);
@@ -125,6 +123,19 @@ function displayMessage(message, isError = false) {
 function displayError(elementId, message) { const el = document.getElementById(elementId); if (el) el.textContent = message; }
 function clearError(elementId) { const el = document.getElementById(elementId); if (el) el.textContent = ''; }
 function toggleCurrentPriceField() { document.getElementById('currentPriceDiv').style.display = document.getElementById('type').value === 'مرتجع' ? 'flex' : 'none'; }
+
+// NEW: Function to manage the visibility of the "Clear" button for alternate supplier
+function updateAlternateSupplierUI() {
+    const clearBtn = document.getElementById('clearAlternateSupplierBtn');
+    const altSupplierInput = document.getElementById('alternateSupplierName');
+    if (activeAlternateSupplier) {
+        clearBtn.style.display = 'inline-block';
+        altSupplierInput.placeholder = 'Using active alternate supplier';
+    } else {
+        clearBtn.style.display = 'none';
+        altSupplierInput.placeholder = 'Click button to select';
+    }
+}
 
 /*************************************************/
 /*      CALCULATOR MODAL LOGIC                   */
@@ -227,7 +238,7 @@ function clearInputFields() {
     document.getElementById('code').value = '';
     document.getElementById('name').value = '';
     document.getElementById('supplierName').value = '';
-    document.getElementById('alternateSupplierName').value = '';
+    document.getElementById('alternateSupplierName').value = activeAlternateSupplier; // MODIFIED: Pre-fill with active supplier
     document.getElementById('unitPrice').value = '';
     document.getElementById('currentPrice').value = '';
     document.getElementById('type').value = 'شراء';
@@ -240,6 +251,7 @@ function clearInputFields() {
     clearError('unitPriceError');
     clearError('currentPriceError');
     document.getElementById('code').focus();
+    updateAlternateSupplierUI(); // Ensure UI is correct
 }
 
 /*************************************************/
@@ -328,7 +340,6 @@ function exportToJPG() {
 
     const tableClone = table.cloneNode(true);
     
-    // Remove "Actions" column from header and body rows only
     tableClone.querySelectorAll('thead tr, tbody tr').forEach(row => {
         if (row.lastElementChild) {
             row.removeChild(row.lastElementChild);
@@ -451,8 +462,18 @@ function renderSupplierList(searchTerm) {
 
 function selectSupplier(supplierName) {
     document.getElementById('alternateSupplierName').value = supplierName;
+    activeAlternateSupplier = supplierName; // MODIFIED: Set the active supplier
     $('#supplierSelectionModal').modal('hide');
-    displayMessage(`Selected supplier: ${supplierName}`);
+    displayMessage(`Active alternate supplier set to: ${supplierName}`);
+    updateAlternateSupplierUI(); // MODIFIED: Update the UI
+}
+
+// NEW: Function to clear the active alternate supplier
+function clearActiveAlternateSupplier() {
+    activeAlternateSupplier = '';
+    document.getElementById('alternateSupplierName').value = '';
+    displayMessage('Active alternate supplier cleared. Default will now be used.');
+    updateAlternateSupplierUI();
 }
 
 /*************************************************/
@@ -499,6 +520,7 @@ $(document).ready(function() {
     loadDatabase(false);
     calculateMainTotal();
     toggleCurrentPriceField();
+    updateAlternateSupplierUI(); // Call on load to set initial state of clear button
     $('[data-toggle="tooltip"]').tooltip();
 
     document.addEventListener('click', function (event) {
