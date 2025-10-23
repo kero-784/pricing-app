@@ -29,6 +29,9 @@
         </div>
         <div id="message-container"></div>
 
+        <!-- New: Branch Display -->
+        <h4 class="text-center mb-4">Current Branch: <span id="currentBranchDisplay" class="text-primary">Not Selected</span> <button class="btn btn-sm btn-link p-0" onclick="openBranchSelectionModal()" title="Change Branch"><i class="fas fa-edit"></i></button></h4>
+
         <!-- Main Form Card -->
         <div class="card mb-3">
             <div class="card-header">Item Details & Pricing</div>
@@ -71,7 +74,10 @@
                 </div>
                 <div class="form-group" id="alternateSupplierDiv" style="display: none;">
                     <label for="alternateSupplierName">Alternate Supplier Name:</label>
-                    <input type="text" class="form-control" id="alternateSupplierName">
+                    <input type="text" class="form-control" id="alternateSupplierName" readonly> <!-- Make readonly to force selection via popup -->
+                    <button class="btn btn-outline-secondary btn-sm ml-2" id="selectSupplierButton" style="display: none;" type="button" onclick="openSupplierSelectionModal()" title="Select Supplier">
+                        <i class="fas fa-search"></i>
+                    </button>
                 </div>
                 <hr>
 
@@ -98,7 +104,6 @@
             <div class="card-body table-container">
                 <div class="table-responsive">
                     <table id="entriesTable" class="table table-bordered table-striped">
-                        <!-- MODIFIED: Simplified table header -->
                         <thead>
                             <tr>
                                 <th>Code</th>
@@ -117,10 +122,8 @@
                         <tbody></tbody>
                         <tfoot style="font-weight: bold; background-color: #f2f2f2;">
                            <tr>
-                                <td colspan="2">Total Entries: <span id="total-entries">0</span></td>
-                                <td colspan="5" style="text-align: right;">Grand Total (Case Price):</td>
-                                <td id="grand-total-case" style="text-align: center;">0.000</td>
-                                <td colspan="3"></td>
+                                <td colspan="11">Total Entries: <span id="total-entries">0</span></td>
+                                <!-- MODIFIED: Removed Grand Total (Case Price) -->
                            </tr>
                         </tfoot>
                     </table>
@@ -200,6 +203,58 @@
                 </div>
             </div>
         </div>
+
+        <!-- NEW: Supplier Selection Modal -->
+        <div class="modal fade" id="supplierSelectionModal" tabindex="-1" role="dialog" aria-labelledby="supplierSelectionModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="supplierSelectionModalLabel">Select Alternate Supplier</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="supplierSearchInput" placeholder="Search supplier...">
+                        </div>
+                        <div style="max-height: 300px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px;">
+                            <table class="table table-hover mb-0" id="supplierList">
+                                <tbody>
+                                    <!-- Suppliers will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW: Branch Selection Modal -->
+        <div class="modal fade" id="branchSelectionModal" tabindex="-1" role="dialog" aria-labelledby="branchSelectionModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="branchSelectionModalLabel">Select Your Branch</h5>
+                        <!-- Removed close button to enforce selection -->
+                    </div>
+                    <div class="modal-body">
+                        <div style="max-height: 300px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px;">
+                            <table class="table table-hover mb-0" id="branchList">
+                                <tbody>
+                                    <!-- Branch names will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- No footer buttons, selection is made by clicking a branch -->
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- SCRIPT SECTION -->
