@@ -64,16 +64,20 @@
                     <input type="text" class="form-control" id="supplierName" readonly>
                 </div>
                 
-                <!-- MODIFIED: Added a Clear button -->
+                <!-- MODIFIED: Restructured with Bootstrap input-group for single-line layout -->
                 <div class="form-group">
                     <label for="alternateSupplierName">Alternate Supplier:</label>
-                    <input type="text" class="form-control" id="alternateSupplierName" readonly placeholder="Click button to select">
-                    <button class="btn btn-outline-secondary btn-sm ml-2" type="button" onclick="openSupplierSelectionModal()" title="Select Alternate Supplier">
-                        <i class="fas fa-users"></i> Select
-                    </button>
-                    <button id="clearAlternateSupplierBtn" class="btn btn-outline-danger btn-sm ml-1" type="button" onclick="clearActiveAlternateSupplier()" title="Clear active supplier" style="display: none;">
-                        <i class="fas fa-times"></i> Clear
-                    </button>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="alternateSupplierName" readonly placeholder="Click button to select">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary btn-sm" type="button" onclick="openSupplierSelectionModal()" title="Select Alternate Supplier">
+                                <i class="fas fa-users"></i> Select
+                            </button>
+                            <button id="clearAlternateSupplierBtn" class="btn btn-outline-danger btn-sm" type="button" onclick="clearActiveAlternateSupplier()" title="Clear active supplier" style="display: none;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <hr>
 
