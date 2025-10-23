@@ -5,12 +5,22 @@ const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdOrEfpbppE59w
 let database = [];
 let entries = [];
 const LOCAL_STORAGE_ENTRIES_KEY = 'pricingAppEntries';
+const LOCAL_STORAGE_BRANCH_KEY = 'pricingAppBranch'; // New: Key for branch name
 let autocompleteDebounceTimer;
 
 // Variables to remember values from the calculator
 let lastUsedUnitCount = 1;
 let lastUsedDiscount = 0;
 let lastUsedVat = 0;
+
+let selectedBranch = ''; // New: To store the selected branch name
+
+const BRANCH_NAMES = [ // New: Predefined branch names
+    "جاردنز السخنة", "تلال السخنة", "ستلا", "دبلو", "تلال الساحل",
+    "سوان ليك", "كسكادا", "لافيستا باي", "لافيستا راس الحكمة",
+    "لازوردي باي", "نادي هليوبوليس", "بالم هيلز", "القطامية",
+    "العاصمة", "فوكا", "مخزن بلبيس", "مخزن الساحل"
+];
 
 /*************************************************/
 /*     DATABASE & INITIALIZATION FUNCTIONS       */
@@ -60,12 +70,28 @@ function handleCodeInput() {
     autocompleteDebounceTimer = setTimeout(() => {
         const codeInput = document.getElementById('code');
         const suggestionsBox = document.getElementById('autocomplete-suggestions');
-        const term = codeInput.value.trim().toLowerCase();
-        getItemDetails();
+        const term = codeInput.value.trim(); // Keep original casing for exact match
+        getItemDetails(); // This function will find based on exact match
+
         if (term.length < 1) { suggestionsBox.style.display = 'none'; return; }
-        const suggestions = database
-            .filter(item => String(item.code).toLowerCase().includes(term) || String(item.name).toLowerCase().includes(term))
-            .slice(0, 10);
+
+        // Prioritize exact code match
+        const exactMatch = database.find(item => String(item.code) === term);
+        let suggestions = [];
+
+        if (exactMatch) {
+            suggestions.push(exactMatch);
+        } else {
+            // Then partial matches for code or name
+            suggestions = database
+                .filter(item => (String(item.code).toLowerCase().includes(term.toLowerCase()) || String(item.name).toLowerCase().includes(term.toLowerCase())) && String(item.code) !== term) // Exclude exact match if it was already added
+                .slice(0, 9); // Get up to 9 more suggestions
+            if (exactMatch) suggestions.unshift(exactMatch); // Add exact match to the top
+        }
+        
+        // Limit total suggestions
+        suggestions = suggestions.slice(0, 10);
+
         if (suggestions.length > 0) {
             suggestionsBox.innerHTML = suggestions.map(s =>
                 `<div style="padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #eee;" onmouseover="this.style.backgroundColor='#f0f0f0'" onmouseout="this.style.backgroundColor='white'" onclick="selectAutocompleteItem('${s.code}')">
@@ -76,12 +102,14 @@ function handleCodeInput() {
         } else { suggestionsBox.style.display = 'none'; }
     }, 250);
 }
+
 function selectAutocompleteItem(code) {
     document.getElementById('code').value = code;
     document.getElementById('autocomplete-suggestions').style.display = 'none';
     getItemDetails();
     document.getElementById('unitPrice').focus();
 }
+
 function getItemDetails() {
     const code = document.getElementById('code').value.trim();
     document.getElementById('name').value = '';
@@ -101,7 +129,14 @@ function displayMessage(message, isError = false) {
 }
 function displayError(elementId, message) { const el = document.getElementById(elementId); if (el) el.textContent = message; }
 function clearError(elementId) { const el = document.getElementById(elementId); if (el) el.textContent = ''; }
-function toggleAlternateSupplier() { document.getElementById('alternateSupplierDiv').style.display = document.getElementById('alternateSupplierCheck').checked ? 'flex' : 'none'; }
+function toggleAlternateSupplier() { 
+    const alternateSupplierChecked = document.getElementById('alternateSupplierCheck').checked;
+    document.getElementById('alternateSupplierDiv').style.display = alternateSupplierChecked ? 'flex' : 'none'; 
+    document.getElementById('selectSupplierButton').style.display = alternateSupplierChecked ? 'inline-block' : 'none'; // New: Show/hide select supplier button
+    if (!alternateSupplierChecked) {
+        document.getElementById('alternateSupplierName').value = ''; // Clear if unchecked
+    }
+}
 function toggleCurrentPriceField() { document.getElementById('currentPriceDiv').style.display = document.getElementById('type').value === 'مرتجع' ? 'flex' : 'none'; }
 
 /*************************************************/
@@ -208,6 +243,7 @@ function clearInputFields() {
     document.getElementById('alternateSupplierCheck').checked = false;
     document.getElementById('alternateSupplierName').value = '';
     document.getElementById('alternateSupplierDiv').style.display = 'none';
+    document.getElementById('selectSupplierButton').style.display = 'none'; // New: Hide select supplier button
     document.getElementById('unitPrice').value = '';
     document.getElementById('currentPrice').value = '';
     document.getElementById('type').value = 'شراء';
@@ -260,9 +296,9 @@ function updateEntriesTable() {
 }
 function updateTableSummary() {
     const totalEntries = entries.length;
-    const grandTotalCase = entries.reduce((sum, entry) => sum + (parseFloat(entry.case) || 0), 0);
+    // Removed grand total case calculation as per request
     document.getElementById('total-entries').textContent = totalEntries;
-    document.getElementById('grand-total-case').textContent = grandTotalCase.toFixed(3);
+    // document.getElementById('grand-total-case').textContent = grandTotalCase.toFixed(3); // Removed this line
 }
 function deleteLocalEntry(index) {
     $(`[data-index=${index}] [data-toggle="tooltip"]`).tooltip('hide');
@@ -287,17 +323,67 @@ function exportToExcel() {
     const ws = XLSX.utils.json_to_sheet(dataForExcel);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Entries");
-    XLSX.writeFile(wb, "pricing_entries.xlsx");
+    XLSX.writeFile(wb, (selectedBranch ? selectedBranch + '_' : '') + "pricing_entries.xlsx"); // Added branch name to filename
     displayMessage('Exported to Excel!');
 }
 function exportToJPG() {
-    const table = document.getElementById('entriesTable');
     if (entries.length === 0) { displayMessage('No entries to export.', true); return; }
-    html2canvas(table, { scale: 2, useCORS: true }).then(canvas => {
+
+    const table = document.getElementById('entriesTable');
+    
+    // Create a temporary div to prepend the title
+    const exportContainer = document.createElement('div');
+    exportContainer.style.background = '#ffffff'; // Ensure white background for the export
+    exportContainer.style.padding = '20px'; // Some padding
+    exportContainer.style.boxSizing = 'border-box'; // Include padding in width/height
+
+    if (selectedBranch) {
+        const title = document.createElement('h2');
+        title.textContent = `Entries for ${selectedBranch}`;
+        title.style.textAlign = 'center';
+        title.style.marginBottom = '20px';
+        title.style.color = '#333'; // Darker text for readability
+        exportContainer.appendChild(title);
+    }
+
+    // Clone the table to avoid modifying the live DOM
+    const tableClone = table.cloneNode(true);
+    // Remove the last column (Actions) from the clone for export
+    tableClone.querySelectorAll('th:last-child, td:last-child').forEach(el => el.remove());
+    // Ensure table styles are applied (e.g., borders) for the clone
+    tableClone.style.borderCollapse = 'collapse';
+    tableClone.style.width = '100%';
+    tableClone.querySelectorAll('th, td').forEach(cell => {
+        cell.style.border = '1px solid #ddd';
+        cell.style.padding = '8px';
+    });
+    tableClone.querySelector('thead th').style.background = '#e9ecef'; // Apply header background
+    tableClone.querySelector('tfoot').style.background = '#f2f2f2'; // Apply footer background
+
+    exportContainer.appendChild(tableClone);
+    document.body.appendChild(exportContainer); // Append to body to render for html2canvas
+
+    html2canvas(exportContainer, { 
+        scale: 2, 
+        useCORS: true,
+        logging: false, // Suppress logging
+        onclone: (clonedDoc) => {
+            // Ensure any tooltips are hidden in the cloned document
+            $(clonedDoc).find('[data-toggle="tooltip"]').tooltip('dispose');
+        }
+    }).then(canvas => {
         const link = document.createElement('a'); link.href = canvas.toDataURL('image/jpeg', 0.9);
-        link.download = 'entries_table.jpg'; document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        link.download = (selectedBranch ? selectedBranch + '_' : '') + 'entries_table.jpg'; 
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        document.body.removeChild(exportContainer); // Clean up the temporary container
         displayMessage('Exported to JPG!');
-    }).catch(error => { console.error('JPG Export Error:', error); displayMessage('Error exporting to JPG.', true); });
+    }).catch(error => { 
+        console.error('JPG Export Error:', error); 
+        displayMessage('Error exporting to JPG.', true); 
+        if (document.body.contains(exportContainer)) {
+            document.body.removeChild(exportContainer); // Ensure cleanup even on error
+        }
+    });
 }
 
 /*************************************************/
@@ -314,9 +400,14 @@ function openPopup(popupId) {
     document.addEventListener('keydown', handleEscKey);
 }
 function closeAllPopups() {
-    const openPopups = document.querySelectorAll('.popup-base.show');
+    const openPopups = document.querySelectorAll('.popup-base.show, .modal.show'); // Also close Bootstrap modals
     const overlay = document.getElementById('overlay');
-    openPopups.forEach(p => p.classList.remove('show'));
+    openPopups.forEach(p => {
+        p.classList.remove('show');
+        if ($(p).hasClass('modal')) { // For Bootstrap modals, use their hide method
+            $(p).modal('hide');
+        }
+    });
     if (overlay) {
         overlay.classList.remove('show');
         overlay.removeEventListener('click', closeAllPopups);
@@ -342,13 +433,103 @@ function viewDatabase() {
 }
 
 /*************************************************/
+/*       SUPPLIER SELECTION POPUP LOGIC          */
+/*************************************************/
+let suppliersList = []; // To store unique suppliers
+
+function openSupplierSelectionModal() {
+    if (database.length === 0) {
+        displayMessage("Database not loaded. Please refresh the database first.", true);
+        return;
+    }
+    // Get unique supplier names from the database
+    suppliersList = [...new Set(database.map(item => (item['supplier name'] || '').trim()).filter(s => s))].sort();
+
+    const supplierSearchInput = document.getElementById('supplierSearchInput');
+    supplierSearchInput.value = ''; // Clear previous search
+    renderSupplierList('');
+    
+    $('#supplierSelectionModal').modal('show');
+}
+
+function renderSupplierList(searchTerm) {
+    const supplierListBody = document.querySelector('#supplierSelectionModal #supplierList tbody');
+    supplierListBody.innerHTML = '';
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
+
+    const filteredSuppliers = suppliersList.filter(supplier =>
+        supplier.toLowerCase().includes(lowerCaseSearchTerm)
+    );
+
+    if (filteredSuppliers.length === 0) {
+        supplierListBody.innerHTML = '<tr><td colspan="1" style="text-align:center;">No suppliers found.</td></tr>';
+    } else {
+        filteredSuppliers.forEach(supplier => {
+            const row = supplierListBody.insertRow();
+            const cell = row.insertCell();
+            cell.textContent = supplier;
+            cell.style.cursor = 'pointer';
+            cell.style.padding = '8px 12px';
+            cell.onmouseover = function() { this.style.backgroundColor = '#f0f0f0'; };
+            cell.onmouseout = function() { this.style.backgroundColor = 'white'; };
+            cell.onclick = function() { selectSupplier(supplier); };
+        });
+    }
+}
+
+function selectSupplier(supplierName) {
+    document.getElementById('alternateSupplierName').value = supplierName;
+    $('#supplierSelectionModal').modal('hide');
+    displayMessage(`Selected supplier: ${supplierName}`);
+}
+
+/*************************************************/
+/*         BRANCH SELECTION MODAL LOGIC          */
+/*************************************************/
+function openBranchSelectionModal() {
+    const branchListBody = document.querySelector('#branchSelectionModal #branchList tbody');
+    branchListBody.innerHTML = '';
+    BRANCH_NAMES.forEach(branch => {
+        const row = branchListBody.insertRow();
+        const cell = row.insertCell();
+        cell.textContent = branch;
+        cell.style.cursor = 'pointer';
+        cell.style.padding = '8px 12px';
+        cell.onmouseover = function() { this.style.backgroundColor = '#f0f0f0'; };
+        cell.onmouseout = function() { this.style.backgroundColor = 'white'; };
+        cell.onclick = function() { selectBranch(branch); };
+    });
+    // Use Bootstrap's modal method directly for the branch modal
+    $('#branchSelectionModal').modal({ backdrop: 'static', keyboard: false }); // Prevent closing without selection
+    $('#branchSelectionModal').modal('show');
+}
+
+function selectBranch(branchName) {
+    selectedBranch = branchName;
+    localStorage.setItem(LOCAL_STORAGE_BRANCH_KEY, branchName);
+    document.getElementById('currentBranchDisplay').textContent = selectedBranch;
+    $('#branchSelectionModal').modal('hide');
+    displayMessage(`Branch selected: ${selectedBranch}`);
+}
+
+/*************************************************/
 /*      APP INITIALIZATION (jQuery Standard)     */
 /*************************************************/
 $(document).ready(function() {
+    // Load branch first
+    const storedBranch = localStorage.getItem(LOCAL_STORAGE_BRANCH_KEY);
+    if (storedBranch) {
+        selectedBranch = storedBranch;
+        document.getElementById('currentBranchDisplay').textContent = selectedBranch;
+    } else {
+        openBranchSelectionModal(); // Prompt for branch if not set
+    }
+
     loadEntriesFromLocalStorageAndUpdateTable();
     loadDatabase(false);
     calculateMainTotal();
     toggleCurrentPriceField();
+    toggleAlternateSupplier(); // Initialize the visibility of selectSupplierButton
     $('[data-toggle="tooltip"]').tooltip();
 
     document.addEventListener('click', function (event) {
@@ -356,10 +537,17 @@ $(document).ready(function() {
         if (!event.target.closest('#code') && !event.target.closest('#autocomplete-suggestions')) {
             suggestionsBox.style.display = 'none';
         }
+        // No longer explicitly closing popups via this listener for Bootstrap modals,
+        // as Bootstrap's data-dismiss handles it. Keep for custom popups if any.
         if (event.target.closest('.popup-close-btn')) {
             event.preventDefault(); 
             event.stopPropagation();
-            closeAllPopups();
+            closeAllPopups(); // This will handle the custom databasePopup
         }
+    });
+
+    // Event listener for supplier search input
+    $('#supplierSearchInput').on('input', function() {
+        renderSupplierList(this.value);
     });
 });
