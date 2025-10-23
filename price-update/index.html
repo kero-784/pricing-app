@@ -29,14 +29,12 @@
         </div>
         <div id="message-container"></div>
 
-        <!-- New: Branch Display -->
         <h4 class="text-center mb-4">Current Branch: <span id="currentBranchDisplay" class="text-primary">Not Selected</span> <button class="btn btn-sm btn-link p-0" onclick="openBranchSelectionModal()" title="Change Branch"><i class="fas fa-edit"></i></button></h4>
 
         <!-- Main Form Card -->
         <div class="card mb-3">
             <div class="card-header">Item Details & Pricing</div>
             <div class="card-body">
-                <!-- Item Details Section -->
                 <div class="form-row">
                     <div class="form-group col-md-6" style="position: relative;">
                         <label for="code">Code:</label>
@@ -65,23 +63,16 @@
                     <label for="supplierName">Supplier Name:</label>
                     <input type="text" class="form-control" id="supplierName" readonly>
                 </div>
+                <!-- MODIFIED: Replaced checkbox with direct button -->
                 <div class="form-group">
-                    <label for="alternateSupplierCheck">شراء من مورد اخر:</label>
-                    <div class="form-check" style="padding-top: 8px; padding-bottom: 8px;">
-                        <input type="checkbox" class="form-check-input" id="alternateSupplierCheck" onchange="toggleAlternateSupplier()" style="margin-left: 0;">
-                        <label class="form-check-label" for="alternateSupplierCheck" style="margin-left: 20px; margin-bottom: 0;"> </label>
-                    </div>
-                </div>
-                <div class="form-group" id="alternateSupplierDiv" style="display: none;">
-                    <label for="alternateSupplierName">Alternate Supplier Name:</label>
-                    <input type="text" class="form-control" id="alternateSupplierName" readonly> <!-- Make readonly to force selection via popup -->
-                    <button class="btn btn-outline-secondary btn-sm ml-2" id="selectSupplierButton" style="display: none;" type="button" onclick="openSupplierSelectionModal()" title="Select Supplier">
-                        <i class="fas fa-search"></i>
+                    <label for="alternateSupplierName">Alternate Supplier:</label>
+                    <input type="text" class="form-control" id="alternateSupplierName" readonly placeholder="Click button to select">
+                    <button class="btn btn-outline-secondary btn-sm ml-2" type="button" onclick="openSupplierSelectionModal()" title="Select Alternate Supplier">
+                        <i class="fas fa-users"></i> Select
                     </button>
                 </div>
                 <hr>
 
-                <!-- Simplified Pricing Section -->
                 <div class="form-group">
                     <label for="unitPrice">Final Unit Price:</label>
                     <div class="input-group">
@@ -106,6 +97,8 @@
                     <table id="entriesTable" class="table table-bordered table-striped">
                         <thead>
                             <tr>
+                                <!-- MODIFIED: Added # column -->
+                                <th>#</th>
                                 <th>Code</th>
                                 <th>Name</th>
                                 <th>Supplier</th>
@@ -122,8 +115,8 @@
                         <tbody></tbody>
                         <tfoot style="font-weight: bold; background-color: #f2f2f2;">
                            <tr>
-                                <td colspan="11">Total Entries: <span id="total-entries">0</span></td>
-                                <!-- MODIFIED: Removed Grand Total (Case Price) -->
+                                <!-- MODIFIED: Updated colspan -->
+                                <td colspan="12">Total Entries: <span id="total-entries">0</span></td>
                            </tr>
                         </tfoot>
                     </table>
@@ -131,7 +124,6 @@
             </div>
         </div>
         
-        <!-- Action Buttons -->
         <div class="actions-button-container">
              <button class="btn btn-success" onclick="exportToExcel()"><i class="fas fa-file-excel"></i> Export to Excel</button>
              <button class="btn btn-info" onclick="exportToJPG()"><i class="fas fa-file-image"></i> Export to JPG</button>
@@ -154,116 +146,57 @@
             </div>
         </div>
         
-        <!-- Price Calculator Modal -->
         <div class="modal fade" id="calculatorModal" tabindex="-1" role="dialog" aria-labelledby="calculatorModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="calculatorModalLabel">Price Calculator</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
+                    <div class="modal-header"><h5 class="modal-title" id="calculatorModalLabel">Price Calculator</h5><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>
                     <div class="modal-body">
-                        <div class="form-group">
-                            <label for="modalCost">Case Cost:</label>
-                            <input type="number" step="0.001" class="form-control" id="modalCost" oninput="calculateInModal()">
-                        </div>
-                        <div class="form-group">
-                            <label for="modalUnit">Units per Case:</label>
-                            <input type="number" class="form-control" id="modalUnit" oninput="calculateInModal()">
-                        </div>
-                        <div class="form-group">
-                            <label for="modalDiscount">Discount (%):</label>
-                            <input type="number" class="form-control" id="modalDiscount" value="0" oninput="calculateInModal()">
-                        </div>
-                        <div class="form-group">
-                            <label for="modalVat">VAT (%):</label>
-                            <select class="form-control" id="modalVat" oninput="calculateInModal()">
-                                <option value="0">0</option>
-                                <option value="5">5</option>
-                                <option value="14">14</option>
-                            </select>
-                        </div>
-                        <hr>
-                        <h5 class="text-center">Results</h5>
-                        <div class="form-group">
-                            <label>Final Unit Price:</label>
-                            <input type="text" class="form-control bg-light" id="modalUnitPriceResult" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label>Final Case Price:</label>
-                            <input type="text" class="form-control bg-light" id="modalCasePriceResult" readonly>
-                        </div>
+                        <div class="form-group"><label for="modalCost">Case Cost:</label><input type="number" step="0.001" class="form-control" id="modalCost" oninput="calculateInModal()"></div>
+                        <div class="form-group"><label for="modalUnit">Units per Case:</label><input type="number" class="form-control" id="modalUnit" oninput="calculateInModal()"></div>
+                        <div class="form-group"><label for="modalDiscount">Discount (%):</label><input type="number" class="form-control" id="modalDiscount" value="0" oninput="calculateInModal()"></div>
+                        <div class="form-group"><label for="modalVat">VAT (%):</label><select class="form-control" id="modalVat" oninput="calculateInModal()"><option value="0">0</option><option value="5">5</option><option value="14">14</option></select></div>
+                        <hr><h5 class="text-center">Results</h5>
+                        <div class="form-group"><label>Final Unit Price:</label><input type="text" class="form-control bg-light" id="modalUnitPriceResult" readonly></div>
+                        <div class="form-group"><label>Final Case Price:</label><input type="text" class="form-control bg-light" id="modalCasePriceResult" readonly></div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" onclick="applyCalculatorPrice()">Apply Price</button>
-                    </div>
+                    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button><button type="button" class="btn btn-primary" onclick="applyCalculatorPrice()">Apply Price</button></div>
                 </div>
             </div>
         </div>
 
-        <!-- NEW: Supplier Selection Modal -->
         <div class="modal fade" id="supplierSelectionModal" tabindex="-1" role="dialog" aria-labelledby="supplierSelectionModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-scrollable" role="document">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="supplierSelectionModalLabel">Select Alternate Supplier</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
+                    <div class="modal-header"><h5 class="modal-title" id="supplierSelectionModalLabel">Select Alternate Supplier</h5><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>
                     <div class="modal-body">
-                        <div class="form-group">
-                            <input type="text" class="form-control" id="supplierSearchInput" placeholder="Search supplier...">
-                        </div>
+                        <div class="form-group"><input type="text" class="form-control" id="supplierSearchInput" placeholder="Search supplier..."></div>
                         <div style="max-height: 300px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px;">
-                            <table class="table table-hover mb-0" id="supplierList">
-                                <tbody>
-                                    <!-- Suppliers will be loaded here -->
-                                </tbody>
-                            </table>
+                            <table class="table table-hover mb-0" id="supplierList"><tbody></tbody></table>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
+                    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button></div>
                 </div>
             </div>
         </div>
 
-        <!-- NEW: Branch Selection Modal -->
         <div class="modal fade" id="branchSelectionModal" tabindex="-1" role="dialog" aria-labelledby="branchSelectionModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="branchSelectionModalLabel">Select Your Branch</h5>
-                        <!-- Removed close button to enforce selection -->
-                    </div>
+                    <div class="modal-header"><h5 class="modal-title" id="branchSelectionModalLabel">Select Your Branch</h5></div>
                     <div class="modal-body">
                         <div style="max-height: 300px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px;">
-                            <table class="table table-hover mb-0" id="branchList">
-                                <tbody>
-                                    <!-- Branch names will be loaded here -->
-                                </tbody>
-                            </table>
+                            <table class="table table-hover mb-0" id="branchList"><tbody></tbody></table>
                         </div>
                     </div>
-                    <!-- No footer buttons, selection is made by clicking a branch -->
                 </div>
             </div>
         </div>
-
     </div>
 
-    <!-- SCRIPT SECTION -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    
-    <!-- Your Custom JavaScript -->
     <script src="script.js"></script>
 </body>
 </html>
