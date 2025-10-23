@@ -101,3 +101,45 @@ body.popup-open {
 }
 #overlay.show { display: block; }
 .actions-button-container { margin-top: 1rem; display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* Styles for modals (optional, for visual consistency with your custom popup) */
+.modal-content { border-radius: 12px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); }
+.modal-header { border-bottom: 1px solid #dee2e6; background-color: var(--card-header-background); border-top-left-radius: 12px; border-top-right-radius: 12px; }
+.modal-title { color: var(--text-color-dark); }
+.modal-body { padding: 20px; }
+.modal-footer { border-top: 1px solid #dee2e6; padding: 15px 20px; }
+.modal-dialog-centered { display: flex; align-items: center; min-height: calc(100% - 1rem); }
+.modal-dialog-scrollable .modal-body { overflow-y: auto; }
+/* Ensure form groups within modals are also aligned */
+.modal-body .form-group {
+    display: flex; align-items: center; margin-bottom: 1rem;
+}
+.modal-body .form-group label {
+    flex-shrink: 0; margin-right: 10px; min-width: 80px; /* Adjust as needed */
+}
+.modal-body .form-group input,
+.modal-body .form-group select {
+    flex-grow: 1;
+}
+
+/* Specific styling for the alternate supplier selection input group */
+#alternateSupplierDiv .input-group {
+    flex-grow: 1;
+}
+
+/* Adjustments for the new branch display */
+#currentBranchDisplay {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+/* Style for the select supplier button when visible */
+#selectSupplierButton {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    color: var(--text-color-light);
+}
+#selectSupplierButton:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
