@@ -14,7 +14,7 @@ let lastUsedDiscount = 0;
 let lastUsedVat = 0;
 
 let selectedBranch = '';
-let activeAlternateSupplier = ''; // NEW: To remember the selected alternate supplier
+let activeAlternateSupplier = '';
 
 const BRANCH_NAMES = [
     "جاردنز السخنة", "تلال السخنة", "ستلا", "دبلو", "تلال الساحل",
@@ -124,7 +124,6 @@ function displayError(elementId, message) { const el = document.getElementById(e
 function clearError(elementId) { const el = document.getElementById(elementId); if (el) el.textContent = ''; }
 function toggleCurrentPriceField() { document.getElementById('currentPriceDiv').style.display = document.getElementById('type').value === 'مرتجع' ? 'flex' : 'none'; }
 
-// NEW: Function to manage the visibility of the "Clear" button for alternate supplier
 function updateAlternateSupplierUI() {
     const clearBtn = document.getElementById('clearAlternateSupplierBtn');
     const altSupplierInput = document.getElementById('alternateSupplierName');
@@ -238,7 +237,7 @@ function clearInputFields() {
     document.getElementById('code').value = '';
     document.getElementById('name').value = '';
     document.getElementById('supplierName').value = '';
-    document.getElementById('alternateSupplierName').value = activeAlternateSupplier; // MODIFIED: Pre-fill with active supplier
+    document.getElementById('alternateSupplierName').value = activeAlternateSupplier;
     document.getElementById('unitPrice').value = '';
     document.getElementById('currentPrice').value = '';
     document.getElementById('type').value = 'شراء';
@@ -251,7 +250,7 @@ function clearInputFields() {
     clearError('unitPriceError');
     clearError('currentPriceError');
     document.getElementById('code').focus();
-    updateAlternateSupplierUI(); // Ensure UI is correct
+    updateAlternateSupplierUI();
 }
 
 /*************************************************/
@@ -462,13 +461,12 @@ function renderSupplierList(searchTerm) {
 
 function selectSupplier(supplierName) {
     document.getElementById('alternateSupplierName').value = supplierName;
-    activeAlternateSupplier = supplierName; // MODIFIED: Set the active supplier
+    activeAlternateSupplier = supplierName;
     $('#supplierSelectionModal').modal('hide');
     displayMessage(`Active alternate supplier set to: ${supplierName}`);
-    updateAlternateSupplierUI(); // MODIFIED: Update the UI
+    updateAlternateSupplierUI();
 }
 
-// NEW: Function to clear the active alternate supplier
 function clearActiveAlternateSupplier() {
     activeAlternateSupplier = '';
     document.getElementById('alternateSupplierName').value = '';
@@ -508,19 +506,14 @@ function selectBranch(branchName) {
 /*      APP INITIALIZATION (jQuery Standard)     */
 /*************************************************/
 $(document).ready(function() {
-    const storedBranch = localStorage.getItem(LOCAL_STORAGE_BRANCH_KEY);
-    if (storedBranch) {
-        selectedBranch = storedBranch;
-        document.getElementById('currentBranchDisplay').textContent = selectedBranch;
-    } else {
-        openBranchSelectionModal();
-    }
+    // MODIFIED: Always force branch selection on reload, ignoring local storage.
+    openBranchSelectionModal();
 
     loadEntriesFromLocalStorageAndUpdateTable();
     loadDatabase(false);
     calculateMainTotal();
     toggleCurrentPriceField();
-    updateAlternateSupplierUI(); // Call on load to set initial state of clear button
+    updateAlternateSupplierUI();
     $('[data-toggle="tooltip"]').tooltip();
 
     document.addEventListener('click', function (event) {
