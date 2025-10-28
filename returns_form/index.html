@@ -35,24 +35,15 @@
             <!-- Create View with New Single-Page Workflow -->
             <div id="create-view" class="view active-view">
                 <div class="card">
-                    <!-- Step 1: Search -->
                     <div id="search-section">
                         <h2>1. البحث عن مورد</h2>
                         <div class="search-box"><input type="text" id="supplier-search" placeholder="ابحث بالاسم أو الكود..."></div>
                         <ul id="search-results"></ul>
                     </div>
-                    
-                    <!-- Step 2: Form (initially hidden) -->
                     <form id="creation-form" class="hidden">
                         <h2>2. إدخال تفاصيل الإقرار</h2>
                         <div class="selected-supplier-info"><strong>المورد:</strong> <span id="selected-supplier-name"></span></div>
-                        <div class="form-group">
-                            <label>نوع الإقرار</label>
-                            <div class="radio-group">
-                                <label><input type="radio" name="returnType" value="NO_RETURNS" checked> لا يوجد مرتجع</label>
-                                <label><input type="radio" name="returnType" value="HAS_RETURNS"> مرتجع متوفر</label>
-                            </div>
-                        </div>
+                        <div class="form-group"><label>نوع الإقرار</label><div class="radio-group"><label><input type="radio" name="returnType" value="NO_RETURNS" checked> لا يوجد مرتجع</label><label><input type="radio" name="returnType" value="HAS_RETURNS"> مرتجع متوفر</label></div></div>
                         <div id="return-details-section" class="hidden">
                             <div class="form-group"><label for="return-value">قيمة المرتجع (EGP)</label><input type="number" id="return-value" step="0.01"></div>
                             <div class="form-group"><label for="return-serial">رقم إذن المرتجع</label><input type="text" id="return-serial"></div>
@@ -69,15 +60,8 @@
             <div id="report-view" class="view">
                  <div class="card">
                     <h2>سجل الإقرارات (فرع <span class="report-branch-name"></span>)</h2>
-                    <div class="filters">
-                        <input type="text" id="report-search" placeholder="ابحث في السجل..."><input type="date" id="date-from-filter"><label>من</label><input type="date" id="date-to-filter"><label>إلى</label>
-                    </div>
-                    <div class="table-container">
-                        <table id="logs-table">
-                            <thead><tr><th>التاريخ</th><th>المورد</th><th>المندوب</th><th>نوع الإقرار</th><th>إجراء</th></tr></thead>
-                            <tbody id="logs-table-body"></tbody>
-                        </table>
-                    </div>
+                    <div class="filters"><input type="text" id="report-search" placeholder="ابحث في السجل..."><input type="date" id="date-from-filter"><label>من</label><input type="date" id="date-to-filter"><label>إلى</label></div>
+                    <div class="table-container"><table id="logs-table"><thead><tr><th>التاريخ</th><th>المورد</th><th>المندوب</th><th>نوع الإقرار</th><th>إجراء</th></tr></thead><tbody id="logs-table-body"></tbody></table></div>
                 </div>
             </div>
         </main>
@@ -89,9 +73,16 @@
         <div class="form-body"><p>بتاريخ <span class="p-date"></span>، وفي تمام الساعة <span class="p-time"></span>، نقر نحن بأن مندوب المورد:</p>
             <table class="supplier-details"><tr><td><strong>اسم المورد:</strong></td><td class="p-supplier-name"></td></tr><tr><td><strong>كود المورد:</strong></td><td class="p-supplier-code"></td></tr><tr><td><strong>السجل التجاري:</strong></td><td class="p-supplier-cr"></td></tr><tr><td><strong>الرقم الضريبي:</strong></td><td class="p-supplier-taxid"></td></tr></table>
             <p>قد قام بزيارة فرع (<strong class="p-branch-name"></strong>) وتأكد من عدم وجود أي بضائع مرتجعة تخص شركته، وهذا إقرار منا بذلك.</p></div>
-        <div class="signatures"><div class="signature-block"><h4>مندوب المورد</h4><p><strong>الاسم:</strong> <span class="p-rep-name"></span></p><p><strong>رقم الهوية:</strong> <span class="p-rep-id"></span></p><p><strong>التوقيع:</strong> .........................................</p></div><div class="signature-block"><h4>مدير الفرع</h4><p><strong>الاسم:</strong> .........................................</p><p><strong>التوقيع:</strong> .........................................</p></div></div>
+        <div class="signatures">
+            <div class="signature-block"><h4>مندوب المورد</h4><p><strong>الاسم:</strong> <span class="p-rep-name"></span></p><p><strong>رقم الهوية:</strong> <span class="p-rep-id"></span></p><p><strong>التوقيع:</strong> .........................................</p></div>
+            <div class="signature-block"><h4>مدير الفرع</h4><p><strong>الاسم:</strong> .........................................</p><p><strong>التوقيع:</strong> .........................................</p></div>
+            <!-- ======================= NEW STAMP AREA ======================= -->
+            <div class="signature-block stamp-area"><h4>الختم</h4></div>
+            <!-- ============================================================= -->
+        </div>
         <div class="form-footer"><p>تم إنشاء هذا المستند بواسطة النظام الإلكتروني</p></div>
     </div>
+    
     <!-- Printable Form 2: "HAS RETURNS" -->
     <div id="printable-form-has-returns" class="printable-form">
         <div class="form-header"><h2>شركة دريمز لتجارة المواد الغذائيه</h2><p>سجل تجاري: 18894</p><p>الرقم الضريبي: 630-612-056</p></div><hr><h3 class="form-title">إثبات استلام مرتجع بضاعة</h3>
@@ -99,7 +90,13 @@
             <table class="supplier-details"><tr><td><strong>اسم المورد:</strong></td><td class="p-supplier-name"></td></tr><tr><td><strong>كود المورد:</strong></td><td class="p-supplier-code"></td></tr><tr><td><strong>السجل التجاري:</strong></td><td class="p-supplier-cr"></td></tr><tr><td><strong>الرقم الضريبي:</strong></td><td class="p-supplier-taxid"></td></tr></table>
             <p>قد قام باستلام البضاعة المرتجعة من فرعنا (<strong class="p-branch-name"></strong>)، وفقاً للبيانات التالية:</p>
             <table class="supplier-details"><tr><td><strong>قيمة المرتجع:</strong></td><td><span class="p-return-value"></span> EGP</td></tr><tr><td><strong>رقم إذن المرتجع:</strong></td><td class="p-return-serial"></span></td></tr></table></div>
-        <div class="signatures"><div class="signature-block"><h4>مندوب المورد</h4><p><strong>الاسم:</strong> <span class="p-rep-name"></span></p><p><strong>رقم الهوية:</strong> <span class="p-rep-id"></span></p><p><strong>التوقيع:</strong> .........................................</p></div><div class="signature-block"><h4>مدير الفرع</h4><p><strong>الاسم:</strong> .........................................</p><p><strong>التوقيع:</strong> .........................................</p></div></div>
+        <div class="signatures">
+            <div class="signature-block"><h4>مندوب المورد</h4><p><strong>الاسم:</strong> <span class="p-rep-name"></span></p><p><strong>رقم الهوية:</strong> <span class="p-rep-id"></span></p><p><strong>التوقيع:</strong> .........................................</p></div>
+            <div class="signature-block"><h4>مدير الفرع</h4><p><strong>الاسم:</strong> .........................................</p><p><strong>التوقيع:</strong> .........................................</p></div>
+            <!-- ======================= NEW STAMP AREA ======================= -->
+            <div class="signature-block stamp-area"><h4>الختم</h4></div>
+            <!-- ============================================================= -->
+        </div>
         <div class="form-footer"><p>تم إنشاء هذا المستند بواسطة النظام الإلكتروني</p></div>
     </div>
     
