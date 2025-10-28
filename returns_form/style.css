@@ -44,20 +44,51 @@ nav { display: flex; justify-content: center; gap: 10px; border-bottom: 1px soli
 .spinner { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 .hidden { display: none !important; }
-/* Print Styles */
+
+/* ========================================================= */
+/* PRINT STYLES - UPDATED WITH CENTERED STAMP AREA           */
+/* ========================================================= */
 .printable-form { display: none; }
 @media print {
     @page { size: A4 portrait; margin: 1.5cm; }
     body > .container, body > .modal-overlay, body > #loader { display: none !important; }
     .printable-form { display: none !important; }
     .printable-form.print-active { display: block !important; position: absolute; left: 0; top: 0; width: 100%; font-size: 12pt; }
-    .form-header, .form-title, .signatures { text-align: center; }
+    .form-header, .form-title { text-align: center; }
     .form-header h2 { font-size: 18pt; }
     .form-title { margin: 20px 0; font-size: 16pt; text-decoration: underline; }
     .form-body { margin: 30px 0; line-height: 2; }
     .supplier-details { width: 80%; margin: 20px auto; border: 1px solid #ccc; padding: 10px; border-collapse: collapse; }
     .supplier-details td { padding: 5px; text-align: right; }
-    .signatures { display: flex; justify-content: space-around; margin-top: 80px; }
-    .signature-block { text-align: center; }
+    
+    /* MODIFIED: Flexbox layout for signatures */
+    .signatures {
+        display: flex;
+        justify-content: space-between; /* This creates space between the items */
+        align-items: flex-end;
+        margin-top: 60px;
+    }
+    
+    /* MODIFIED: Set a specific width for signature blocks */
+    .signature-block {
+        text-align: center;
+        width: 30%; /* Assign a width to leave space in the middle */
+    }
+    
+    /* NEW: Use the 'order' property to visually move the stamp area */
+    .signature-block:nth-child(1) { order: 1; } /* Rep signature on the right */
+    .signature-block.stamp-area { order: 2; }   /* Stamp area in the middle */
+    .signature-block:nth-child(2) { order: 3; } /* Manager signature on the left */
+    
+    .stamp-area {
+        width: 120px;
+        height: 120px;
+        border: 2px dashed #888;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #aaa;
+        align-self: center;
+    }
     .form-footer { position: fixed; bottom: 1cm; left: 0; right: 0; width: 100%; text-align: center; font-size: 9pt; color: #777; }
 }
