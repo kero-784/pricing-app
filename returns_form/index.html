@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إدارة المرتجعات - شركة دريمز</title>
+    <title>نظام إدارة المرتجعات - شركة دريمز لتجارة المواد الغذائية </title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
@@ -17,7 +17,7 @@
         <div class="modal-content">
             <h3>الرجاء تحديد الفرع</h3>
             <div class="form-group"><select id="branch-select" required><option value="">جاري تحميل الفروع...</option></select></div>
-            <button id="branch-confirm-btn" class="btn-primary">تأكيد وبدء العمل</button>
+            <button id="branch-confirm-btn" class="btn-primary">تأكيد </button>
         </div>
     </div>
 
@@ -43,13 +43,13 @@
                     <form id="creation-form" class="hidden">
                         <h2>2. إدخال تفاصيل الإقرار</h2>
                         <div class="selected-supplier-info"><strong>المورد:</strong> <span id="selected-supplier-name"></span></div>
-                        <div class="form-group"><label>نوع الإقرار</label><div class="radio-group"><label><input type="radio" name="returnType" value="NO_RETURNS" checked> لا يوجد مرتجع</label><label><input type="radio" name="returnType" value="HAS_RETURNS"> مرتجع متوفر</label></div></div>
+                        <div class="form-group"><label>نوع الإقرار</label><div class="radio-group"><label><input type="radio" name="returnType" value="NO_RETURNS" checked> لا يوجد مرتجع</label><label><input type="radio" name="returnType" value="HAS_RETURNS"> يوجد مرتجع </label></div></div>
                         <div id="return-details-section" class="hidden">
                             <div class="form-group"><label for="return-value">قيمة المرتجع (EGP)</label><input type="number" id="return-value" step="0.01"></div>
                             <div class="form-group"><label for="return-serial">رقم إذن المرتجع</label><input type="text" id="return-serial"></div>
                         </div>
                         <div class="form-group"><label for="rep-name">اسم المندوب</label><input type="text" id="rep-name" required></div>
-                        <div class="form-group"><label for="rep-id">رقم الهوية الوطنية</label><input type="text" id="rep-id" required></div>
+                        <div class="form-group"><label for="rep-id"> الرقم القومي </label><input type="text" id="rep-id" required></div>
                         <button type="submit" class="btn-primary">حفظ وطباعة الإقرار</button>
                         <button type="button" id="cancel-btn" class="btn-secondary">إلغاء والبحث من جديد</button>
                     </form>
@@ -70,17 +70,17 @@
     <!-- Printable Form 1: "NO RETURNS" -->
     <div id="printable-form-no-returns" class="printable-form">
         <div class="form-header"><h2>شركة دريمز لتجارة المواد الغذائيه</h2><p>سجل تجاري: 18894</p><p>الرقم الضريبي: 630-612-056</p></div><hr><h3 class="form-title">إقرار مخالصة بضائع مرتجعة</h3>
-        <div class="form-body"><p>بتاريخ <span class="p-date"></span>، وفي تمام الساعة <span class="p-time"></span>، نقر نحن بأن مندوب المورد:</p>
+        <div class="form-body"><p>بتاريخ <span class="p-date"></span>، وفي تمام الساعة <span class="p-time"></span>، نقر نحن شركة دريمز لتجارة المواد الغذائيه بأن مندوب المورد:</p>
             <table class="supplier-details"><tr><td><strong>اسم المورد:</strong></td><td class="p-supplier-name"></td></tr><tr><td><strong>كود المورد:</strong></td><td class="p-supplier-code"></td></tr><tr><td><strong>السجل التجاري:</strong></td><td class="p-supplier-cr"></td></tr><tr><td><strong>الرقم الضريبي:</strong></td><td class="p-supplier-taxid"></td></tr></table>
-            <p>قد قام بزيارة فرع (<strong class="p-branch-name"></strong>) وتأكد من عدم وجود أي بضائع مرتجعة تخص شركته، وهذا إقرار منا بذلك.</p></div>
+            <p>قد قام بزيارة فرع (<strong class="p-branch-name"></strong>) وتأكد من عدم وجود أي بضائع مرتجعة تخص شركته وفيه حالة وجود اي مرتجع لم يتم الابلاغ به هو مسؤولية مدير الفرع القائم بالتوقيع ، وهذا إقرار منا بذلك.</p></div>
         <div class="signatures">
-            <div class="signature-block"><h4>مندوب المورد</h4><p><strong>الاسم:</strong> <span class="p-rep-name"></span></p><p><strong>رقم الهوية:</strong> <span class="p-rep-id"></span></p><p><strong>التوقيع:</strong> .........................................</p></div>
+            <div class="signature-block"><h4>مندوب المورد</h4><p><strong>الاسم:</strong> <span class="p-rep-name"></span></p><p><strong>الرقم القومي:</strong> <span class="p-rep-id"></span></p><p><strong>التوقيع:</strong> .........................................</p></div>
             <div class="signature-block"><h4>مدير الفرع</h4><p><strong>الاسم:</strong> .........................................</p><p><strong>التوقيع:</strong> .........................................</p></div>
             <!-- ======================= NEW STAMP AREA ======================= -->
             <div class="signature-block stamp-area"><h4>الختم</h4></div>
             <!-- ============================================================= -->
         </div>
-        <div class="form-footer"><p>تم إنشاء هذا المستند بواسطة النظام الإلكتروني</p></div>
+        <div class="form-footer"><p>تم إنشاء هذا المستند بواسطة  KERO SYSTEMS</p></div>
     </div>
     
     <!-- Printable Form 2: "HAS RETURNS" -->
