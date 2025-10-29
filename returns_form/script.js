@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIG & STATE ---
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbyjcR5W2XM0NiyZdzMwMdus5VOODebySMo_6T5WnIgCSeLwvHWsvV1BAOLjifE-QeTD/exec';
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzsUzL3D00sB9B2B-5-MUcNNVYU9-zxPUsCI4SP_U86LTK4YfOo8_gOnxUBE4Fq4olS/exec';
     let suppliers = [], logs = [], branches = [];
     let selectedSupplier = null, currentBranch = null;
 
