@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طباعة شيلف مجمع</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    
+    <!-- NEW: FOUC (Flash of Unstyled Content) Prevention Style -->
+    <style>
+        /* Hide the body by default to prevent content from flashing before the auth check */
+        body { visibility: hidden; opacity: 0; transition: opacity 0.3s ease-in-out; }
+    </style>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+        
+        :root {
+            --bg-color: #f4f7fa; --preview-bg: #e2e8f0; --text-color: #334155;
+            --primary-color: #3b82f6; --primary-hover: #2563eb; --card-bg: #ffffff;
+            --border-color: #e2e8f0; --muted-text: #64748b;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.07), 0 4px 6px -4px rgba(0,0,0,0.07);
+            --radius-md: 8px; --radius-lg: 12px; --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --label-price-color: #ef4444; --label-border-width: 1px; --label-border-style: dashed; --label-border-color: #cbd5e1;
+            --label-padding: 5px; --label-border-radius: 8px; --price-box-bg: rgba(255, 255, 255, 0.85);
+            --price-box-border-color: var(--label-price-color);
+            --label-item-font-weight: 700;
+            --label-item-font-size: 16px;
+            --label-price-font-size: 24px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Cairo', sans-serif; background-color: var(--bg-color); color: var(--text-color); display: flex; height: 100vh; overflow: hidden; }
+        
+        .app-container { display: none; width: 100%; height: 100%; flex-direction: row-reverse; }
+        
+        .setup-modal-overlay { position: fixed; top: 0; right: 0; bottom: 0; left: 0; background: var(--bg-color); display: flex; align-items: center; justify-content: center; z-index: 10000; transition: opacity 0.3s ease; }
+        .setup-modal-content { background: var(--card-bg); padding: 40px; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); text-align: center; width: 90%; max-width: 450px; }
+        .setup-modal-content h2 { border-bottom: none; padding-bottom: 0; }
+        .setup-modal-content p { color: var(--muted-text); margin-bottom: 25px; }
+        .setup-modal-buttons { display: flex; flex-direction: column; gap: 15px; }
+        .setup-modal-buttons button { width: 100%; }
+
+        /* Other styles are unchanged */
+        .control-panel { width: 450px; min-width: 420px; background-color: var(--bg-color); padding: 30px; height: 100vh; overflow-y: auto; border-left: 1px solid var(--border-color); }
+        .preview-panel { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; height: 100vh; background-color: var(--preview-bg); }
+        h1 { font-size: 2rem; font-weight: 700; margin-bottom: 25px; }
+        h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); }
+        button, .btn-link { background-color: var(--primary-color); color: white; border: none; padding: 12px 25px; border-radius: var(--radius-md); font-family: 'Cairo', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: var(--transition); box-shadow: var(--shadow); display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
+        button:hover, .btn-link:hover { background-color: var(--primary-hover); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        button:disabled, .btn-link:disabled { background-color: #94a3b8; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn-link { background: none; box-shadow: none; color: var(--primary-color); padding: 0; font-size: 0.9rem; }
+        input, select { width: 100%; padding: 10px 12px; border-radius: var(--radius-md); border: 1px solid var(--border-color); font-family: 'Cairo', sans-serif; background-color: #f8fafc; transition: var(--transition); }
+        input:focus, select:focus { border-color: var(--primary-color); background-color: white; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); outline: none; }
+        .section-card { background: var(--card-bg); padding: 25px; border-radius: var(--radius-lg); box-shadow: var(--shadow); margin-bottom: 30px; }
+        .app-status { padding: 15px 20px; margin-bottom: 20px; border-radius: var(--radius-md); color: #fff; text-align: center; font-weight: 600; box-shadow: var(--shadow); display: none; align-items: center; justify-content: center; gap: 10px; }
+        .app-status.error { background: #ef4444; } .app-status.success { background: #22c55e; } .app-status .icon { display: inline-flex; }
+        .modal-overlay { position: fixed; top: 0; right: 0; bottom: 0; left: 0; background: rgba(15, 23, 42, 0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.25s ease, visibility 0.25s ease; backdrop-filter: blur(4px); }
+        .modal-overlay.is-visible { opacity: 1; visibility: visible; }
+        .modal-content { background: var(--bg-color); border-radius: var(--radius-lg); width: 90%; max-width: 700px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: var(--shadow-lg); transform: scale(0.95) translateY(10px); transition: transform 0.25s ease; }
+        .modal-overlay.is-visible .modal-content { transform: scale(1) translateY(0); }
+        .modal-header { padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); background: white; border-radius: var(--radius-lg) var(--radius-lg) 0 0; flex-shrink: 0; }
+        .modal-header h2 { margin: 0; font-size: 1.2rem; }
+        .modal-close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--muted-text); padding:0; box-shadow:none; }
+        .modal-body { flex-grow: 1; overflow-y: auto; padding: 0; position: relative; }
+        .modal-footer { padding: 15px 25px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background-color: #f8fafc; flex-shrink: 0; }
+        #modal-selection-count { font-weight: 600; color: var(--muted-text); }
+        .search-header { display: flex; gap: 10px; align-items: center; position: sticky; top: 0; background: white; padding: 20px 25px; z-index: 10; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03), 0 2px 4px -2px rgba(0,0,0,0.03); }
+        #search-container { border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 5px; display: flex; align-items: center; background-color: #f8fafc; flex-grow: 1; }
+        #search-input { border: none; flex-grow: 1; padding: 5px; outline: none; background: transparent; }
+        #item-list { padding: 15px 25px; }
+        .item-card { display: flex; align-items: center; justify-content: space-between; padding: 15px; border-bottom: 1px solid var(--border-color); transition: background-color 0.2s ease; cursor: pointer; position: relative; background-color: white; }
+        .item-card:hover { background-color: #f8fafc; }
+        .item-card.selected { background-color: #eff6ff; }
+        .item-card.selected::before { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 4px; background-color: var(--primary-color); }
+        .item-card .item-name { font-weight: 600; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+        .item-card .item-meta { font-size: 0.85rem; color: var(--muted-text); white-space: nowrap; }
+        #staging-list .staging-item { background: #f8fafc; padding: 15px; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 15px; }
+        .staging-item-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .staging-item-details .item-name { font-weight: 700; color: #1e3a8a; }
+        .staging-item-details .item-meta { font-size: 0.8rem; color: var(--muted-text); }
+        .staging-item-remove-btn { background: none; border: none; color: var(--muted-text); font-size: 20px; cursor: pointer; padding: 0; line-height: 1; box-shadow: none; }
+        .staging-item-controls { display: grid; grid-template-columns: 1fr 1fr 80px; gap: 10px; align-items: center; }
+        .staging-item-controls input { padding: 8px; font-size: 0.9rem; }
+        .staging-item-controls button { padding: 8px 12px; font-size: 0.9rem; width: 100%; }
+        #selection-summary { color: var(--muted-text); margin-bottom: 15px; }
+        #a4-sheet { background: white; width: 21cm; height: 29.7cm; box-shadow: var(--shadow-lg); padding: 1cm; transform-origin: center center; transform: scale(0.65); display: grid; align-content: start; }
+        #print-button { margin-top: 25px; }
+        .price-label { display: flex; flex-direction: row; align-items: center; overflow: hidden; background-color: white; color: var(--text-color); font-family: 'Cairo', sans-serif; border: var(--label-border-width) var(--label-border-style) var(--label-border-color); border-radius: var(--label-border-radius); padding: var(--label-padding); }
+        .label-logo-area { flex: 0 0 25%; height: 100%; }
+        .label-info-area { flex: 1 1 auto; text-align: center; padding: 0 10px; font-size: var(--label-item-font-size); font-weight: var(--label-item-font-weight); }
+        .label-price-area { flex: 0 0 30%; text-align: center; padding: 0 5px; }
+        .label-price-container { border: 2px solid var(--price-box-border-color); border-radius: 8px; text-align: center; background: var(--price-box-bg); padding: 5px 10px; display: inline-block; }
+        .label-price { font-size: var(--label-price-font-size); font-weight: 700; color: var(--label-price-color); white-space: nowrap; }
+        .slider-value { font-weight: 600; color: var(--primary-color); }
+        fieldset { border: none; border-radius: var(--radius-lg); padding: 20px; margin-bottom: 20px; background-color: #f8fafc; border: 1px solid var(--border-color); }
+        legend { font-weight: 700; padding: 0 5px; font-size: 1.1rem; }
+        .control-group { margin-bottom: 20px; } .control-group:last-child { margin-bottom: 0; }
+        .control-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--muted-text); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        #layout-calculation-status, #queue-summary { background-color: #eef2ff; padding: 10px; border-radius: var(--radius-md); text-align: center; font-weight: 600; color: #4338ca; margin-top: 15px; display:none; }
+        #print-queue-list { max-height: 25vh; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-lg); background: white; }
+        .queue-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--border-color); }
+        .queue-item-details { flex-grow: 1; min-width: 0; }
+        .queue-item-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .queue-item-meta { font-size: 14px; color: var(--muted-text); }
+        .queue-item-remove { background: #fee2e2; color: #b91c1c; border: none; width: 28px; height: 28px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; padding: 0; transition: var(--transition); flex-shrink: 0; margin-right: 10px; box-shadow:none; }
+        .accordion-header { font-size: 1.5rem; font-weight: 700; color: var(--primary-color); margin: 40px 0 25px 0; border-bottom: 2px solid; padding-bottom: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .accordion-icon { transition: transform 0.3s ease; font-size: 1rem; }
+        .accordion-header.active .accordion-icon { transform: rotate(180deg); }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        @media print { /* print styles unchanged */ }
+    </style>
+</head>
+<body>
+    <!-- NEW: AUTHENTICATION SCRIPT -->
+    <script>
+        let currentUserData = null;
+        (function() {
+            const userString = sessionStorage.getItem('keroUser');
+            if (!userString) {
+                window.location.href = '../login/';
+                return;
+            }
+            try {
+                currentUserData = JSON.parse(userString);
+                document.addEventListener('DOMContentLoaded', () => {
+                   document.body.style.visibility = 'visible';
+                   document.body.style.opacity = '1';
+                });
+            } catch (e) {
+                console.error("Failed to parse user data:", e);
+                sessionStorage.removeItem('keroUser');
+                window.location.href = '../login/';
+            }
+        })();
+    </script>
+
+    <div id="setup-modal-overlay" class="setup-modal-overlay">
+        <div class="setup-modal-content">
+            <h2 id="setup-title">اختر فئة السعر</h2>
+            <p id="setup-message">الرجاء تحديد فئة السعر لهذه الجلسة للمتابعة.</p>
+            <div id="setup-buttons-container" class="setup-modal-buttons">
+                <button data-category="sokhna" data-name="السخنة">أسعار السخنة</button>
+                <button data-category="sahel" data-name="الساحل">أسعار الساحل</button>
+                <button data-category="cairo" data-name="القاهرة">أسعار القاهرة</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <!-- Rest of the app container is unchanged -->
+        <div class="preview-panel">
+            <div id="a4-sheet"></div>
+            <button id="print-button" style="display:none;"><span class="btn-icon"></span> طباعة</button>
+        </div>
+        
+        <aside class="control-panel">
+            <h1>شيلف مجمع</h1>
+            <a href="../index.html" class="btn-link" style="display: block; text-align: center; margin-bottom: 25px; font-weight: 500;">← العودة إلى لوحة التحكم</a>
+            <div id="app-status" class="app-status"></div>
+            
+            <section id="item-selection-section" class="section-card">
+                <h2>1. تحديد الأصناف</h2>
+                <p id="selection-summary">لم يتم تحديد أي صنف.</p>
+                <button id="open-item-modal-btn" style="width: 100%;"><span class="btn-icon"></span> تحديد أصناف للإضافة</button>
+            </section>
+            
+            <section id="staging-section" class="section-card" style="display:none;">
+                 <h2>2. تجهيز وإضافة الأصناف</h2>
+                 <div id="active-category-display" class="control-group" style="background-color: #eef2ff; padding: 10px; border-radius: var(--radius-md); text-align: center; font-weight: 600; color: #4338ca;"></div>
+                 <div id="staging-list"></div>
+            </section>
+
+            <section id="print-queue-section" class="section-card" style="display:none;">
+                <h2>3. قائمة الطباعة</h2><div id="print-queue-list"></div><div id="queue-summary" style="display: none;"></div>
+            </section>
+
+            <div class="design-accordion">
+                <div id="accordion-header" class="accordion-header">
+                    <span>تخصيص التصميم</span><span class="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <fieldset> <legend>تخطيط الصفحة</legend> <div id="layout-calculation-status"></div> </fieldset>
+                    <fieldset>
+                        <legend>النصوص والخطوط</legend>
+                        <div class="control-group grid-2">
+                             <div><label>خط الصنف (px): <span id="item-font-size-value">16</span></label><input type="range" id="item-font-size" min="8" max="28" value="16"></div>
+                             <div><label>خط السعر (px): <span id="price-font-size-value">24</span></label><input type="range" id="price-font-size" min="12" max="48" value="24"></div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <div id="item-selection-modal" class="modal-overlay"> <!-- Modal HTML is injected by JS --> </div>
+
+<script>
+// The entire script is replaced in the next step
+</script>
+<script src="script.js"></script> <!-- We will create a new script.js file -->
+</body>
+</html>
