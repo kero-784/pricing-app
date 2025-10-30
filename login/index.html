@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - KERO Hub</title>
+    <link rel="icon" type="image/png" href="../favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-color: #f4f7f9; --card-bg-color: rgba(255, 255, 255, 0.9); --text-primary: #2c3e50; --text-secondary: #7f8c8d; --button-color: #66a6ff; --error-color: #e74c3c; --info-color: #3498db;}
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg-color); background-image: radial-gradient(circle at 1% 1%, #dbe6f6 0%, transparent 30%), radial-gradient(circle at 99% 99%, #e5d9f2 0%, transparent 40%); color: var(--text-primary); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 1rem; }
+        .login-container { width: 100%; max-width: 400px; background: var(--card-bg-color); backdrop-filter: blur(10px); border-radius: 16px; padding: 2.5rem; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1); text-align: center; }
+        .login-header h2 { font-size: 2rem; font-weight: 600; margin-bottom: 0.5rem; }
+        .login-header p { color: var(--text-secondary); margin-bottom: 2rem; }
+        .input-group { margin-bottom: 1.5rem; text-align: left; }
+        .input-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; }
+        .input-group input { width: 100%; padding: 0.8rem 1rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        #login-btn { width: 100%; padding: 0.9rem; border: none; border-radius: 8px; background: var(--button-color); color: white; font-size: 1.1rem; cursor: pointer; }
+        #message { margin-top: 1rem; font-size: 0.9rem; min-height: 1.2rem; }
+        .error { color: var(--error-color); }
+        .info { color: var(--info-color); }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h2>KERO Hub Login</h2>
+            <p>Please sign in to continue</p>
+        </div>
+        <form id="login-form">
+            <div class="input-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required autocomplete="username">
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required autocomplete="current-password">
+            </div>
+            <button type="submit" id="login-btn">Login</button>
+            <p id="message"></p>
+        </form>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('login-form');
+        const messageEl = document.getElementById('message');
+        const APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyWU8DeLSEkOitYHdRQlE9HcfTfJfL0MPhic3r5rM6ZptgucqPWgH5VkeYtbYjAxnfYnA/exec";
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('reason') === 'idle') {
+                messageEl.textContent = 'You have been logged out due to inactivity.';
+                messageEl.className = 'info';
+            }
+        });
+
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            messageEl.textContent = 'Logging in...';
+            messageEl.className = 'info';
+
+            const username = event.target.username.value;
+            const password = event.target.password.value;
+            
+            // CORRECTED: The URL should not contain the action for a POST request.
+            const loginUrl = APP_SCRIPT_URL;
+
+            try {
+                const response = await fetch(loginUrl, {
+                    method: 'POST',
+                    // CORRECTED: The body now includes the required 'action' property.
+                    body: JSON.stringify({ 
+                        action: 'login', 
+                        username: username, 
+                        password: password 
+                    }),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    mode: 'cors',
+                });
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    sessionStorage.setItem('keroUser', JSON.stringify(data));
+                    window.location.href = '../index.html';
+                } else {
+                    messageEl.textContent = data.message;
+                    messageEl.className = 'error';
+                }
+            } catch (error) {
+                messageEl.textContent = 'An error occurred. Please try again.';
+                messageEl.className = 'error';
+            }
+        });
+    </script>
+</body>
+</html>
