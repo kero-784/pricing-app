@@ -3,162 +3,493 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KERO Branch Tools</title>
-    <link rel="icon" type="image/png" href="favicon.ico">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>KERO Hub</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <style>
+        /* --- CSS RESET & ROOT VARIABLES --- */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        
         :root {
-            --bg-color: #030409;
-            --text-primary: #f0f0f0;
-            --text-secondary: #a0a3b1;
-            --card-bg: rgba(22, 25, 37, 0.3);
-            --card-border: rgba(255, 255, 255, 0.1);
+            --font-family: 'Inter', sans-serif;
+            --transition-speed: 0.3s;
+            --border-radius-md: 12px;
+            --border-radius-lg: 16px;
+
+            /* Light Theme */
+            --bg-color: #f7f9fc;
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --border-color: #e2e8f0;
+            --shadow-color: rgba(45, 55, 72, 0.08);
+            --accent-color: #4f46e5;
+            --accent-glow: rgba(79, 70, 229, 0.2);
         }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        body.dark-mode {
+            /* Dark Theme */
+            --bg-color: #111827;
+            --card-bg: rgba(31, 41, 55, 0.5);
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --border-color: #374151;
+            --shadow-color: rgba(0, 0, 0, 0.2);
+            --accent-glow: rgba(79, 70, 229, 0.3);
+        }
+
         body {
-            font-family: 'Inter', 'Cairo', sans-serif;
+            font-family: var(--font-family);
             background-color: var(--bg-color);
-            background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Cg fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.03"%3E%3Cpath opacity=".5" d="M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
             color: var(--text-primary);
-            min-height: 100vh;
+            line-height: 1.6;
+            transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+            visibility: hidden;
+        }
+        
+        .page-wrapper {
             display: flex;
             flex-direction: column;
-            align-items: center; justify-content: center;
-            padding: 2rem;
+            min-height: 100vh;
         }
-        .container { width: 100%; max-width: 900px; text-align: center; }
-        header { margin-bottom: 3rem; animation: fadeIn 1s ease-out backwards; }
-        header h1 { font-size: 3rem; font-weight: 700; }
-        header p { font-size: 1.1rem; color: var(--text-secondary); margin-top: 0.5rem; }
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; }
-        .card {
-            position: relative;
+
+        /* --- HEADER STYLES --- */
+        .page-header {
+            padding: 1.5rem 4rem;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
             text-decoration: none;
             color: var(--text-primary);
-            transform: translateY(0px);
-            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
-        .card:hover { transform: translateY(-10px); }
-        .card-content {
-            padding: 2rem;
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            text-align: left;
-            position: relative; z-index: 2;
-        }
-        .card-aura {
-            position: absolute; top: 50%; left: 50%;
-            width: 150%; height: 150%;
-            transform: translate(-50%, -50%) scale(0.8);
-            background: radial-gradient(circle, var(--aura-color), transparent 70%);
-            opacity: 0;
-            filter: blur(60px);
-            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s ease-out;
-            z-index: 0;
-        }
-        .card:hover .card-aura { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-        .card-border {
-            position: absolute; inset: -1px;
-            border: 2px solid transparent;
-            border-radius: 13px;
-            background: conic-gradient(from var(--angle), transparent, var(--aura-color), transparent) border-box;
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            mask-composite: exclude; -webkit-mask-composite: xor;
-            opacity: 0;
-            transition: opacity 0.4s ease-out;
-            animation: rotate 4s linear infinite paused;
-        }
-        .card:hover .card-border { opacity: 1; animation-play-state: running; }
-        .icon {
-            font-size: 1.8rem;
-            width: 50px; height: 50px;
-            display: grid; place-items: center;
-            border-radius: 8px; margin-bottom: 1.5rem;
-            background-color: var(--aura-color);
-            color: #fff;
-            box-shadow: 0 0 20px -5px var(--aura-color);
-        }
-        .card-title { font-family: 'Inter', 'Cairo', sans-serif; font-size: 1.5rem; font-weight: 500; }
-        .card-description { font-size: 1rem; color: var(--text-secondary); margin-top: 0.25rem; line-height: 1.6; }
-        
-        #price-update { --aura-color: #007aff; }
-        #expiry-report { --aura-color: #34c759; }
-        #shelf-label { --aura-color: #ff9500; }
-        #exception-inquiry { --aura-color: #af52de; }
+        .header-logo .logo-icon { font-size: 1.8rem; color: var(--accent-color); }
+        .header-logo .logo-text { font-size: 1.5rem; font-weight: 700; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        #edit-layout-btn, #logout-btn {
+            padding: 0.6rem 1.2rem;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            border-radius: var(--border-radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        #edit-layout-btn:hover, #logout-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            background-color: var(--accent-glow);
+        }
+        #edit-layout-btn.active {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+        #logout-btn {
+            border-color: transparent;
+            background-color: transparent;
+            color: var(--text-secondary);
+        }
+        #logout-btn:hover {
+            color: var(--accent-color);
+            background-color: var(--accent-glow);
+        }
+
+
+        /* --- MAIN CONTENT --- */
+        main { flex-grow: 1; padding: 3rem 4rem; }
+        .main-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 2.5rem; }
+        .main-header-content h2 { font-size: 2.25rem; font-weight: 700; }
+        .main-header-content p { font-size: 1.1rem; color: var(--text-secondary); }
+
+        #user-display {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+        #user-display strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .main-header-content .search-prompt { font-size: 0.9rem; color: var(--text-secondary); margin-top: 1rem; }
+        .main-header-content kbd {
+            background-color: var(--border-color);
+            border-radius: 4px; padding: 2px 6px;
+            font-size: 0.8rem; border-bottom: 2px solid #ccc;
+        }
+
+        .app-category { margin-bottom: 3rem; }
+        .app-category h3 {
+            font-size: 1.2rem; font-weight: 600; color: var(--text-secondary);
+            margin-bottom: 1.5rem; padding: 0.5rem; border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; gap: 0.75rem;
+        }
+
+        .app-grid {
+            list-style-type: none; display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            min-height: 100px; 
+        }
+        
+        .app-card-wrapper { opacity: 0; transform: translateY(20px); animation: fadeIn-up 0.5s ease-out forwards; }
+        .app-card {
+            display: block; text-decoration: none;
+            background-color: var(--card-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color); border-radius: var(--border-radius-lg);
+            padding: 1.5rem; height: 100%;
+            box-shadow: 0 4px 6px var(--shadow-color);
+            transition: all 0.3s ease; position: relative; overflow: hidden;
+        }
+        .app-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent-color);
+            box-shadow: 0 10px 20px var(--shadow-color), 0 0 0 4px var(--accent-glow);
+        }
+        
+        .card-content { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; }
+        .card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem; }
+        .card-header .icon { font-size: 2rem; color: var(--accent-color); flex-shrink: 0; }
+
+        .fav-btn {
+            background: none; border: none; font-size: 1.1rem;
+            color: var(--text-secondary); cursor: pointer; padding: 0.25rem;
+            transition: color 0.2s, transform 0.2s;
+        }
+        .fav-btn:hover { transform: scale(1.2); color: #facc15; }
+        .fav-btn.favorited { color: #facc15; }
+        
+        .card-content h4 { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem; }
+        .card-content p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; flex-grow: 1; }
+
+        /* --- COMMAND PALETTE --- */
+        #command-palette { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; display: none; align-items: flex-start; justify-content: center; background-color: rgba(17, 24, 39, 0.5); backdrop-filter: blur(4px); padding-top: 15vh; }
+        #command-palette.visible { display: flex; }
+        .palette-container { width: 100%; max-width: 600px; background-color: var(--bg-color); border-radius: var(--border-radius-lg); border: 1px solid var(--border-color); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden; }
+        .palette-search { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border-bottom: 1px solid var(--border-color); }
+        .palette-search i { font-size: 1.2rem; color: var(--text-secondary); }
+        .palette-search input { width: 100%; border: none; background: none; outline: none; font-family: var(--font-family); font-size: 1.1rem; color: var(--text-primary); }
+        #palette-results { max-height: 400px; overflow-y: auto; padding: 0.5rem; }
+        
+        /* --- EDIT MODE & DRAG-AND-DROP STYLES --- */
+        .category-drag-handle { display: none; cursor: grab; }
+        main.edit-layout-active .category-drag-handle { display: inline-block; }
+        main.edit-layout-active .app-card:hover { transform: translateY(0); box-shadow: 0 4px 6px var(--shadow-color); }
+        main.edit-layout-active .app-card-wrapper { cursor: grab; }
+        main.edit-layout-active .app-card, main.edit-layout-active .app-card a { pointer-events: none; } 
+        main.edit-layout-active .app-grid { border: 2px dashed var(--border-color); border-radius: var(--border-radius-lg); background-color: rgba(128,128,128,0.05); }
+
+        /* --- UTILITIES & ANIMATIONS --- */
+        @keyframes fadeIn-up { to { opacity: 1; transform: translateY(0); } }
         @media (max-width: 768px) {
-            body { padding: 1rem; } header h1 { font-size: 2.5rem; } .grid { grid-template-columns: 1fr; gap: 1.5rem; }
+            .page-header, main { padding: 1.5rem; }
+            .header-logo .logo-text { display: none; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header><h1>KERO Branch Tools</h1><p>يرجي اختيار الاداة المطلوبة</p></header>
-        <main>
-            <div class="grid">
-                <a href="price-update/" class="card" id="price-update">
-                    <div class="card-border"></div>
-                    <div class="card-aura"></div>
-                    <div class="card-content">
-                        <div class="icon"><i class="fas fa-tags"></i></div>
-                        <h2 class="card-title">تعديل الاسعار</h2>
-                        <p class="card-description">انشاء اذن تعديل سعر</p>
+    <div id="command-palette">
+        <div class="palette-container">
+            <div class="palette-search">
+                <i class="fas fa-search"></i>
+                <input type="text" id="palette-input" placeholder="Search for an app...">
+            </div>
+            <div id="palette-results"></div>
+        </div>
+    </div>
+
+    <div class="page-wrapper">
+        <header class="page-header">
+            <a href="#" class="header-logo">
+                <i class="fas fa-layer-group logo-icon"></i>
+                <h1 class="logo-text">KERO Hub</h1>
+            </a>
+            <div class="header-actions">
+                <button id="edit-layout-btn"><i class="fas fa-pencil-alt"></i> <span>Edit Layout</span></button>
+                <button id="logout-btn" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i> 
+                    <span>Logout</span>
+                </button>
+            </div>
+        </header>
+
+        <main id="main-content">
+            <header class="main-header">
+                <div class="main-header-content">
+                    <h2 id="welcome-greeting">Welcome Back!</h2>
+                    <p id="user-display">
+                        Logged in as: 
+                        <strong id="user-display-name"></strong> 
+                        (<span id="user-display-position"></span>)
+                    </p>
+                    <p id="current-date"></p>
+                    <div class="search-prompt">
+                        <span>Press </span><kbd>Ctrl</kbd> + <kbd>K</kbd><span> to launch command palette</span>
                     </div>
-                </a>
-                <a href="returns_form/" class="card" id="returns_form">
-                    <div class="card-border"></div>
-                    <div class="card-aura"></div>
-                    <div class="card-content">
-                        <h2 class="card-title">بيان المرتجع</h2>
-                        <p class="card-description">تسجيل بيان رفع المرتجع لمورد</p>
-                    </div>
-                </a>
-                <a href="expiry-report/" class="card" id="expiry-report">
-                    <div class="card-border"></div>
-                    <div class="card-aura"></div>
-                    <div class="card-content">
-                        <div class="icon"><i class="fas fa-calendar-times"></i></div>
-                        <h2 class="card-title">جرد الصلاحية</h2>
-                        <p class="card-description">انشاء تقرير تاريخ انتهاء الصلاحية للمنتجات يدعم مسح الباركود بالكاميرا</p>
-                    </div>
-                </a>
-                <a href="shelf-label/" class="card" id="shelf-label">
-                    <div class="card-border"></div>
-                    <div class="card-aura"></div>
-                    <div class="card-content">
-                        <div class="icon"><i class="fas fa-barcode"></i></div>
-                        <h2 class="card-title">طباعة شيلف</h2>
-                        <p class="card-description">انشاء وطباعة شيلف الأسعار</p>
-                    </div>
-                </a>
-                <a href="exception-inquiry/" class="card" id="exception-inquiry">
-                    <div class="card-border"></div>
-                    <div class="card-aura"></div>
-                    <div class="card-content">
-                        <div class="icon"><i class="fas fa-file-invoice-dollar"></i></div>
-                        <h2 class="card-title">استعلام عن استثناء</h2>
-                        <p class="card-description">البحث عن استثناءات الأسعار.</p>
-                    </div>
-                </a>
+                </div>
+            </header>
+
+            <div id="category-container">
+                <section class="app-category" id="favorites-section" data-category-id="favorites" style="display: none;">
+                    <h3><i class="fas fa-star"></i> Favorites <span class="category-drag-handle"><i class="fas fa-grip-vertical"></i></span></h3>
+                    <ul class="app-grid" id="favorites-grid"></ul>
+                </section>
+                
+                <section class="app-category" data-category-id="applications">
+                    <h3><i class="fas fa-th-large"></i> Applications <span class="category-drag-handle"><i class="fas fa-grip-vertical"></i></span></h3>
+                    <ul class="app-grid">
+                        <li class="app-card-wrapper" id="app-exceptions-management" data-category-id="applications" data-name="Exception Inquiry" data-desc="Handle and review exceptions." data-icon="fa-exclamation-triangle"></li>
+                        <li class="app-card-wrapper" id="app-expiry-report" data-category-id="applications" data-name="Expiry Report" data-desc="Track and manage product expiry dates." data-icon="fa-calendar-check"></li>
+                        <li class="app-card-wrapper" id="app-price-update" data-category-id="applications" data-name="Price Update" data-desc="Update item prices in the system." data-icon="fa-dollar-sign"></li>
+                        <li class="app-card-wrapper" id="app-returns-management" data-category-id="applications" data-name="Returns Form" data-desc="Manage and print supplier return forms." data-icon="fa-undo-alt"></li>
+                        <li class="app-card-wrapper" id="app-shelf-label" data-category-id="applications" data-name="Shelf Label" data-desc="Generate and print shelf labels." data-icon="fa-tag"></li>
+                    </ul>
+                </section>
+                
+                <section class="app-category" data-category-id="admin">
+                    <h3><i class="fas fa-user-shield"></i> Administrator <span class="category-drag-handle"><i class="fas fa-grip-vertical"></i></span></h3>
+                    <ul class="app-grid">
+                        <li class="app-card-wrapper" id="app-user-management" data-category-id="admin" data-name="User Management" data-desc="Manage user accounts and permissions." data-icon="fa-users-cog"></li>
+                    </ul>
+                </section>
             </div>
         </main>
     </div>
+
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const cards = document.querySelectorAll('.card-border');
-            cards.forEach(card => {
-                let angle = 0;
-                setInterval(() => {
-                    angle = (angle + 1) % 360;
-                    card.style.setProperty('--angle', `${angle}deg`);
-                }, 1000 / 60);
+        (function() {
+            // --- CORE AUTH & PERMISSIONS ---
+            let userData = null;
+            const userString = sessionStorage.getItem('keroUser');
+
+            if (!userString) {
+                window.location.href = './login/';
+                return;
+            }
+            try {
+                userData = JSON.parse(userString);
+                if (!userData || !userData.username) {
+                    sessionStorage.removeItem('keroUser');
+                    window.location.href = './login/';
+                    return;
+                }
+            } catch (e) {
+                sessionStorage.removeItem('keroUser');
+                window.location.href = './login/';
+                return;
+            }
+
+            const permissions = userData.permissions || {};
+            function hasPermission(permissionName) {
+                return !!permissions['admin'] || !!permissions[permissionName];
+            }
+            
+            const appPermissionsMap = {
+                'app-exceptions-management': 'exceptions-management', 
+                'app-expiry-report': 'expiry_app',
+                'app-price-update': 'price-update',
+                'app-returns-management': 'returns_app',
+                'app-shelf-label': 'shelf-label',
+                'app-user-management': 'user-management', 
+            };
+            const appUrlMap = {
+                'app-exceptions-management': './exception-inquiry/',
+                'app-expiry-report': './expiry-report/',
+                'app-price-update': './price-update/',
+                'app-returns-management': './returns_form/',
+                'app-shelf-label': './shelf-label/',
+                'app-user-management': './user-management/',
+            };
+
+            // --- UI SCRIPTING ---
+            document.addEventListener('DOMContentLoaded', () => {
+                let favorites = JSON.parse(localStorage.getItem('keroHubFavorites')) || [];
+                const appCardsData = [];
+                let isEditMode = false;
+                let sortableInstances = [];
+                const mainContent = document.getElementById('main-content');
+                const editLayoutBtn = document.getElementById('edit-layout-btn');
+                const categoryContainer = document.getElementById('category-container');
+                
+                // Initialize User Info
+                const userName = userData.username;
+                document.getElementById('welcome-greeting').textContent = `Welcome Back, ${userName}!`;
+                document.getElementById('user-display-name').textContent = userName;
+                document.getElementById('user-display-position').textContent = userData.position || 'User';
+
+                document.getElementById('logout-btn').addEventListener('click', () => {
+                    sessionStorage.removeItem('keroUser');
+                    window.location.href = './login/';
+                });
+                
+                document.getElementById('current-date').textContent = new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+                // Populate and Filter App Cards
+                document.querySelectorAll('.app-card-wrapper').forEach(el => {
+                    const appId = el.id;
+                    const perm = appPermissionsMap[appId];
+                    if (hasPermission(perm)) {
+                        const appName = el.dataset.name;
+                        const appDesc = el.dataset.desc;
+                        const appIcon = el.dataset.icon;
+                        const appUrl = appUrlMap[appId];
+
+                        el.innerHTML = `
+                            <a href="${appUrl}" class="app-card">
+                                <div class="card-content">
+                                    <div class="card-header">
+                                        <i class="fas ${appIcon} icon"></i>
+                                        <button class="fav-btn" title="Add to favorites" data-appid="${appId}">
+                                            <i class="fas fa-star"></i>
+                                        </button>
+                                    </div>
+                                    <h4>${appName}</h4>
+                                    <p>${appDesc}</p>
+                                </div>
+                            </a>`;
+                        
+                        appCardsData.push({ id: appId, name: appName, desc: appDesc, icon: appIcon, url: appUrl, element: el });
+                    } else {
+                        el.remove();
+                    }
+                });
+
+                // Favorites, Command Palette, and Layout Editing Logic
+                const favoritesGrid = document.getElementById('favorites-grid');
+                const favoritesSection = document.getElementById('favorites-section');
+                
+                function updateFavoritesUI() {
+                    document.querySelectorAll('.fav-btn').forEach(btn => btn.classList.remove('favorited'));
+                    favorites.forEach(favId => {
+                        const favBtn = document.querySelector(`.fav-btn[data-appid="${favId}"]`);
+                        if (favBtn) favBtn.classList.add('favorited');
+                    });
+                    favoritesSection.style.display = favoritesGrid.children.length > 0 ? 'block' : 'none';
+                }
+
+                document.body.addEventListener('click', e => {
+                    if (e.target.closest('.fav-btn')) {
+                        e.preventDefault(); e.stopPropagation();
+                        const favBtn = e.target.closest('.fav-btn');
+                        const appId = favBtn.dataset.appid;
+                        const cardEl = document.getElementById(appId);
+                        const isCurrentlyFavorite = favorites.includes(appId);
+                        
+                        if (isCurrentlyFavorite) {
+                            favorites = favorites.filter(id => id !== appId);
+                            const originalCategoryId = cardEl.dataset.categoryId;
+                            const originalCategoryGrid = document.querySelector(`.app-category[data-category-id="${originalCategoryId}"] .app-grid`);
+                            if(originalCategoryGrid) originalCategoryGrid.appendChild(cardEl);
+                        } else {
+                            favorites.push(appId);
+                            favoritesGrid.appendChild(cardEl);
+                        }
+                        localStorage.setItem('keroHubFavorites', JSON.stringify(favorites));
+                        updateFavoritesUI();
+                    }
+                });
+
+                const palette = document.getElementById('command-palette');
+                const paletteInput = document.getElementById('palette-input');
+                const paletteResults = document.getElementById('palette-results');
+                let selectedIndex = 0;
+                function openPalette() { palette.classList.add('visible'); paletteInput.focus(); renderResults(''); }
+                function closePalette() { palette.classList.remove('visible'); paletteInput.value = ''; }
+                function renderResults(query) {
+                    const lowerQuery = query.toLowerCase();
+                    const results = appCardsData.filter(app => app.name.toLowerCase().includes(lowerQuery) || app.desc.toLowerCase().includes(lowerQuery));
+                    paletteResults.innerHTML = '';
+                    selectedIndex = 0;
+                    results.forEach((app, index) => {
+                        const item = document.createElement('a');
+                        item.href = app.url;
+                        item.classList.add('result-item');
+                        if (index === 0) item.classList.add('selected');
+                        item.innerHTML = `<i class="fas ${app.icon} icon"></i><div>${app.name}<small>${app.desc}</small></div>`;
+                        paletteResults.appendChild(item);
+                    });
+                }
+                document.addEventListener('keydown', e => { if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); openPalette(); } if (e.key === 'Escape' && palette.classList.contains('visible')) closePalette(); });
+                palette.addEventListener('click', (e) => { if(e.target === palette) closePalette(); });
+                paletteInput.addEventListener('input', () => renderResults(paletteInput.value));
+
+                function saveLayout() {
+                    const sectionOrder = [...categoryContainer.children].map(section => section.dataset.categoryId);
+                    localStorage.setItem('keroHubSectionOrder', JSON.stringify(sectionOrder));
+                    const appLayout = {};
+                    document.querySelectorAll('.app-category').forEach(section => {
+                        const categoryId = section.dataset.categoryId;
+                        const appGrid = section.querySelector('.app-grid');
+                        const appOrder = [...appGrid.children].map(app => app.id);
+                        appLayout[categoryId] = appOrder;
+                    });
+                    localStorage.setItem('keroHubAppLayout', JSON.stringify(appLayout));
+                    const currentFavorites = [...favoritesGrid.children].map(app => app.id);
+                    localStorage.setItem('keroHubFavorites', JSON.stringify(currentFavorites));
+                    favorites = currentFavorites;
+                }
+
+                function loadLayout() {
+                    const sectionOrder = JSON.parse(localStorage.getItem('keroHubSectionOrder'));
+                    if (sectionOrder) { sectionOrder.forEach(categoryId => { const section = document.querySelector(`.app-category[data-category-id="${categoryId}"]`); if (section) categoryContainer.appendChild(section); }); }
+                    const appLayout = JSON.parse(localStorage.getItem('keroHubAppLayout'));
+                    if (appLayout) { Object.entries(appLayout).forEach(([categoryId, appOrder]) => { const grid = document.querySelector(`.app-category[data-category-id="${categoryId}"] .app-grid`); if (grid) { appOrder.forEach(appId => { const appEl = document.getElementById(appId); if (appEl) grid.appendChild(appEl); }); } }); }
+                    updateFavoritesUI();
+                }
+
+                function enableEditMode() {
+                    isEditMode = true;
+                    mainContent.classList.add('edit-layout-active');
+                    editLayoutBtn.classList.add('active');
+                    editLayoutBtn.querySelector('span').textContent = 'Save Layout';
+                    sortableInstances.push(new Sortable(categoryContainer, { animation: 150, handle: '.category-drag-handle' }));
+                    document.querySelectorAll('.app-grid').forEach(grid => { sortableInstances.push(new Sortable(grid, { group: 'shared-apps', animation: 150 })); });
+                }
+                
+                function disableEditMode() {
+                    isEditMode = false;
+                    saveLayout();
+                    mainContent.classList.remove('edit-layout-active');
+                    editLayoutBtn.classList.remove('active');
+                    editLayoutBtn.querySelector('span').textContent = 'Edit Layout';
+                    sortableInstances.forEach(instance => instance.destroy());
+                    sortableInstances = [];
+                    updateFavoritesUI();
+                }
+
+                editLayoutBtn.addEventListener('click', () => { isEditMode ? disableEditMode() : enableEditMode(); });
+
+                // Final Initialization
+                loadLayout();
+                document.querySelectorAll('.app-category').forEach(cat => { if (cat.id !== 'favorites-section' && cat.querySelector('.app-grid').children.length === 0) { cat.style.display = 'none'; } });
+                document.querySelectorAll('.app-card-wrapper').forEach((card, index) => { card.style.animationDelay = `${index * 50}ms`; });
+                document.body.style.visibility = 'visible';
             });
-        });
+        })();
     </script>
 </body>
 </html>
